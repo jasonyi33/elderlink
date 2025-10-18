@@ -1,0 +1,253 @@
+# ElderLink AI Companion - Cursor Rules
+
+## 👤 DEVELOPER ROLE: DEVELOPER 2
+**YOU ARE DEVELOPER 2** - Backend API & Services (Section 3.0)
+
+### Your Responsibilities (Full-time):
+- ✅ Backend API Endpoints (Section 3.1)
+- ✅ Vapi Webhook Handler (Section 3.2) - **CRITICAL PATH**
+- ✅ KV Service (Section 3.3)
+- ✅ Health Service (Section 3.4) - **CRITICAL**
+- ✅ Matching Service (Section 3.5) - **CRITICAL**
+- ✅ Alert Service (Section 3.6) - **CRITICAL**
+- ✅ Wellness Metrics Service (Section 3.7)
+- ✅ Gemini Service (Section 3.8)
+- ✅ CORS Middleware (Section 3.9)
+- ✅ Conversation Summary Service (Section 3.10)
+- ✅ Word Cloud Service (Section 3.11)
+- ✅ Performance Validation (Section 3.12) - **CRITICAL**
+
+### NOT Your Responsibilities:
+- ❌ Section 2.0: Core AI Conversation (Developer 1)
+- ❌ Section 4.0: Voice & Phone System (Developer 3)
+- ❌ Section 5.0: Dashboard Interface (Developer 4)
+
+### Critical Handoff Points:
+- **Hour 2:** Share Worker URL with ALL developers
+- **Hour 4:** Lock API Contract (coordinate with all devs)
+- **Hour 5:** Receive conversation functions from Developer 1
+- **Hour 7:** Receive analysis functions from Developer 1
+- **Hour 9:** Connect with Developer 4 for dashboard API
+
+### Integration Tests (Join ALL Developers):
+- **Hour 6:** First Integration (phone → webhook → response)
+- **Hour 8:** Memory Test (CRITICAL - all stop if fails)
+- **Hour 10:** Health Tracking Test
+- **Hour 12:** Language Test
+- **Hour 14:** Full Pipeline (ALL 5 criteria)
+- **Hour 16:** Community Matching Test
+
+**FOCUS ONLY ON SECTION 3.0 TASKS - Reference TASK_LIST_FINAL_TDD.md for details**
+
+---
+
+## Project Mission
+Building ElderLink - A holistic elder care platform with Sam, an AI companion accessible by phone that addresses Mental Health (warm conversations with memory), Physical Health (natural health monitoring with MyChart integration), and Social Health (community matching).
+
+NOT building: A chatbot, mobile app, or generic AI assistant.
+
+## Critical Success Metrics (ALL 5 Must Work)
+1. Sam remembers Mrs. Chen and references previous conversations naturally
+2. Natural, warm conversation lasting 2-3 minutes without sounding robotic
+3. Sam proactively checks physical health and creates MyChart notes
+4. Dashboard shows real-time sentiment changes during calls
+5. Community tab displays 3+ compatible matches with auto-generated groups
+
+## Development Philosophy
+
+### TDD is MANDATORY (7-Step Process)
+1. Write Tests - Create tests with specific input/output pairs
+2. Confirm Failure - Run tests and VERIFY they fail
+3. Commit Tests - git commit -m "Add [feature] tests (failing)"
+4. Implement Code - Write code WITHOUT modifying tests
+5. Iterate - Run tests repeatedly, adjust code until all pass
+6. Verify - Use independent verification to avoid overfitting
+7. Commit Code - git commit -m "Implement [feature]"
+
+If any step is skipped, the task is INCOMPLETE.
+
+### KISS - Keep It Simple, Stupid
+- No over-engineering or premature abstraction
+- Direct, obvious, and working code
+- No complex class hierarchies for simple data
+
+### YAGNI - You Ain't Gonna Need It
+- Build ONLY what judges will test
+- Focus on: memory_continuity, health_tracking, community_matching, live_sentiment, language_switching
+- No hypothetical features or extensibility frameworks
+
+## File Structure
+```
+elderlink/
+├── src/
+│   ├── index.ts              # Main Worker (<1000 lines)
+│   ├── handlers/
+│   │   └── vapi-webhook.ts   # Phone integration (CRITICAL PATH)
+│   ├── services/
+│   │   ├── kv-service.ts
+│   │   ├── health-service.ts
+│   │   ├── matching-service.ts
+│   │   ├── alert-service.ts
+│   │   ├── wellness-service.ts
+│   │   ├── gemini-service.ts
+│   │   ├── conversation-summary.ts
+│   │   └── word-cloud.ts
+│   ├── middleware/
+│   │   └── cors.ts
+│   └── types.ts
+├── prompts/
+│   ├── sam-personality.ts
+│   ├── memory-extraction.ts
+│   └── sentiment-health.ts
+├── dashboard/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── components/
+│   │   └── services/
+│   │       ├── api-client.ts
+│   │       └── mock-api.ts
+├── data/
+├── scripts/
+└── tests/
+```
+
+## Critical Path Components
+
+### 1. Vapi Webhook (MUST respond in <3 seconds)
+- Target response time: <2s
+- 7s safety timeout for fallback
+- Use env.context.waitUntil() for async processing (sentiment, health, memory, alerts)
+- Immediate response generation is priority path
+
+### 2. Memory System (Core Differentiator)
+- Every response MUST reference previous conversations
+- Include known facts and recent events in prompts
+- Reference something specific from profile.memories
+
+### 3. Health Integration (Physical Dimension)
+- Proactive health check every 2-3 exchanges
+- Reference specific medications or conditions
+- Create notes in profile.healthData.notes
+
+### 4. Community Matching (Social Dimension)
+```typescript
+score = Math.min(50, sharedInterests * 10) + 
+        (sameLanguage ? 30 : 0) +
+        (ageWithin10Years ? 10 : 0) + 
+        (sameLocation ? 10 : 0);
+// Show matches with score >= 50, top 3 sorted by score descending
+```
+
+### 5. Alert Service (Crisis Detection)
+- Keyword-based detection: medical, crisis, depression
+- Create alerts with severity and requiresAction flags
+- Display on dashboard for caregiver visibility
+
+## Always Consider Edge Cases
+- Empty/null data - What if profile.memories is empty?
+- Timeout scenarios - What if Gemini takes 10 seconds?
+- Language detection - What if mixed English/Mandarin?
+- Crisis keywords - What if "chest pain" mentioned?
+- Dashboard polling - What if 100 simultaneous users?
+
+## Performance Targets
+- Webhook Response: <3s (7s absolute max)
+- Dashboard Update: <2s polling interval
+- Memory Query: <500ms from KV storage
+- Sentiment Analysis: <1s processing time
+- Community Matching: <300ms for 100 profiles
+- Test Coverage: 70% minimum on critical paths
+
+## Before ANY Commit
+- [ ] Does this directly support one of the 5 success metrics?
+- [ ] Are there tests that prove it works?
+- [ ] Will it work reliably during a live demo?
+- [ ] Is there a fallback if it fails?
+- [ ] Is it the simplest possible solution?
+
+## Red Flags (Stop Immediately If...)
+1. Memory test fails - ALL STOP until fixed
+2. Webhook takes >3 seconds - Optimize or add fallback
+3. Dashboard not updating - Check polling and CORS
+4. Health notes not saving - Verify async processing
+5. No matches showing - Check scoring algorithm
+
+## Workflow Guidelines
+
+### Before Starting ANY Task
+1. Review the overall task in TASK_LIST_REVISED_TDD.md
+2. Reference TDD_TEST_CASES.md for test specifications
+3. Ask questions if not 100% sure about requirements
+4. Create task plan with specific subtasks and test cases
+
+### During Development
+- Start every feature with tests
+- Commit frequently with clear messages
+- Use git commit -m "Add [feature] tests (failing)" then git commit -m "Implement [feature]"
+- Verify no overfitting with independent test cases
+
+### After Completing Each Task
+1. Check PRD - Does implementation match ALL requirements?
+2. Verify against TASK_LIST - Are all subtasks complete?
+3. Be critical - What edge cases might fail?
+4. Run integration tests - Does it work with other components?
+5. Document any deviations from PRD
+
+## Code Style
+
+### Add breadcrumbs for debugging
+```typescript
+console.log('[VAPI] Request received:', Date.now());
+console.log('[SAM] Generating response...');
+console.log('[KV] Saving profile...');
+```
+
+### Time critical paths
+```typescript
+const start = Date.now();
+const response = await generateResponse();
+console.log(`[PERF] Response time: ${Date.now() - start}ms`);
+```
+
+### Verify data flow
+```typescript
+console.log('[PROFILE]', JSON.stringify(profile, null, 2));
+```
+
+## Key Reminders
+1. **YOU ARE DEVELOPER 2** - Only work on Section 3.0 (Backend API & Services)
+2. TDD is not optional - Tests FIRST, always
+3. Simplicity wins - Working > Perfect
+4. Demo drives decisions - What will judges see?
+5. Integration over isolation - Test components together
+6. Critical thinking - Question your implementation
+7. Edge cases matter - Especially for health/crisis
+8. Fallbacks save demos - Always have Plan B
+
+## When In Doubt
+Check PRD Section 4 (Requirements), TASK_LIST Section 2.0-5.0 (Implementation), and TDD_TEST_CASES.md (Test Specs)
+
+## Git Workflow
+```bash
+# Feature branches
+git checkout -b feat/feature-name
+git add tests/
+git commit -m "test: Add feature tests (failing)"
+git add src/
+git commit -m "feat: Implement feature module"
+
+# Regular integration
+git checkout dev
+git merge feat/feature-name
+git push origin dev
+```
+
+## Never
+- Skip tests or TDD process
+- Over-engineer solutions
+- Build features not in the 5 success metrics
+- Modify tests to make them pass
+- Commit without verifying tests pass
+- Add features after Hour 18 (feature freeze)
+- Use destructive git commands without explicit user request
+
