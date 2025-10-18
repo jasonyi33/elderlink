@@ -1,0 +1,45 @@
+{
+  "name": "elderlink",
+  "version": "1.0.0",
+  "description": "AI Companion for Elderly Care - Hackathon Project",
+  "main": "worker/src/index.ts",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest tests/integration --runInBand",
+    "test:unit": "jest --testPathIgnorePatterns=integration",
+    "dev:worker": "wrangler dev",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "deploy:dev": "wrangler deploy --env dev",
+    "deploy:prod": "wrangler deploy --env production",
+    "init-demo": "ts-node scripts/init-demo-data.ts",
+    "init-matches": "ts-node scripts/init-match-data.ts",
+    "init-all": "npm run init-demo && npm run init-matches",
+    "build:dashboard": "cd dashboard && npm run build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "test:memory": "jest scripts/integration-tests/memory-test.ts",
+    "test:health": "jest scripts/integration-tests/health-tracking-test.ts",
+    "test:pipeline": "jest scripts/integration-tests/full-flow-test.ts"
+  },
+  "keywords": [
+    "ai",
+    "elderly",
+    "companion",
+    "health",
+    "community"
+  ],
+  "author": "ElderLink Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251011.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.43.0"
+  }
+}

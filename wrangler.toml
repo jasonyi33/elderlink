@@ -1,0 +1,35 @@
+name = "elderlink"
+main = "worker/src/index.ts"
+compatibility_date = "2025-01-18"
+account_id = "YOUR_ACCOUNT_ID"
+
+# Development environment
+[env.dev]
+name = "elderlink-dev"
+workers_dev = true
+
+[[env.dev.kv_namespaces]]
+binding = "KV"
+id = "KV_NAMESPACE_ID_DEV"
+preview_id = "KV_NAMESPACE_ID_PREVIEW"
+
+# Production environment
+[env.production]
+name = "elderlink-prod"
+workers_dev = false
+route = "elderlink.com/*"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "KV_NAMESPACE_ID_PROD"
+
+# Environment variables (secrets)
+[vars]
+ENVIRONMENT = "development"
+
+# Note: Sensitive variables should be set via wrangler secret
+# wrangler secret put GEMINI_API_KEY
+# wrangler secret put VAPI_API_KEY
+# wrangler secret put ELEVENLABS_API_KEY
+# wrangler secret put ELEVENLABS_ENGLISH_VOICE
+# wrangler secret put ELEVENLABS_MANDARIN_VOICE
