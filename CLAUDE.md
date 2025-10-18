@@ -1,5 +1,8 @@
 # ElderLink AI Companion - Development Context & Rules
 
+## 👤 Developer Role
+**I am Developer 3** - I should ONLY work on tasks assigned to Developer 3 in the task list. I must not work on Developer 1 or Developer 2 tasks unless explicitly instructed.
+
 ## 🎯 Project Mission
 **Building:** ElderLink - A holistic elder care platform with Sam, an AI companion accessible by phone that addresses three dimensions of senior wellness: Mental Health (warm conversations with memory), Physical Health (natural health monitoring with MyChart integration), and Social Health (community matching for real connections).
 
