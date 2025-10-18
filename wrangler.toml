@@ -1,7 +1,7 @@
 name = "elderlink"
 main = "worker/src/index.ts"
 compatibility_date = "2025-01-18"
-account_id = "YOUR_ACCOUNT_ID"
+account_id = "1a12fe1e4724fdc46a36663cc6f8e7b7"
 
 # Development environment
 [env.dev]
@@ -10,8 +10,8 @@ workers_dev = true
 
 [[env.dev.kv_namespaces]]
 binding = "KV"
-id = "KV_NAMESPACE_ID_DEV"
-preview_id = "KV_NAMESPACE_ID_PREVIEW"
+id = "0da346fb61be4a37b28d119fcc886f6b"
+preview_id = "4f157367c7794f63af98b974165d6c94"
 
 # Production environment
 [env.production]
@@ -21,7 +21,7 @@ route = "elderlink.com/*"
 
 [[env.production.kv_namespaces]]
 binding = "KV"
-id = "KV_NAMESPACE_ID_PROD"
+id = "0da346fb61be4a37b28d119fcc886f6b"
 
 # Environment variables (secrets)
 [vars]
