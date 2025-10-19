@@ -99,10 +99,29 @@ Should return:
 
 ---
 
+**DEPLOYED URL:**
+```
+https://elderlink-dev.elderlinkhelper.workers.dev
+```
+
 **CURRENT STATUS:**
 - ✅ All code committed and ready
-- ⏸️ Waiting for CLOUDFLARE_API_TOKEN to be added to .env
-- ⏸️ Then run: `wrangler deploy --env dev`
+- ✅ Worker URL exists (previously deployed)
+- ⚠️ **ACTION REQUIRED:** Re-deploy with new Task 3.1 implementation
+
+**DEPLOYMENT NEEDED:**
+The worker at the URL above only has the health check endpoint. You need to deploy the NEW implementation with all 12 endpoints.
+
+**To Deploy:**
+```bash
+# Option 1: Interactive login
+wrangler login
+wrangler deploy --env dev
+
+# Option 2: Use API token
+export CLOUDFLARE_API_TOKEN=your_token_here
+wrangler deploy --env dev
+```
 
 **See also:** `DEPLOYMENT_INSTRUCTIONS.md` for detailed deployment guide
 
