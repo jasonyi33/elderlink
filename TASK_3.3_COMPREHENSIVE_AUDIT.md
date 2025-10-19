@@ -737,15 +737,16 @@ TOTAL: 40/40 tests passing (100%)
 4. 100 concurrent operations validated
 5. Null handling superior to PRD spec
 6. No breaking changes to existing tests
+7. **Input mutation FIXED** ✅ (no longer mutates input)
 
 ### ⚠️ ACCEPTABLE LIMITATIONS:
 1. Eventual consistency (vs true atomic) - **ACKNOWLEDGED**
-2. Input mutation in saveProfile - **MINOR**
+2. ~~Input mutation in saveProfile~~ → **FIXED** ✅
 3. No retry logic - **OUT OF SCOPE**
 
 ### 💡 RECOMMENDATIONS FOR FUTURE:
 1. Add KV metadata for version checking (true atomicity)
-2. Clone profile before mutating in saveProfile
+2. ~~Clone profile before mutating in saveProfile~~ → **DONE** ✅
 3. Add retry logic with exponential backoff
 4. Add input validation (size limits, structure)
 
