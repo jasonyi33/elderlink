@@ -9,6 +9,7 @@ import { apiClient } from '../services/api-client';
 import { validateSentimentData } from '../utils/dataValidation';
 import { useThrottledAnimation, usePerformanceMonitor, useOptimizedPolling } from '../hooks/useThrottledAnimation';
 import { OptimizedSentimentMeter } from './ui/OptimizedSentimentMeter';
+import Icons from './ui/Icons';
 
 // Emotion color mapping
 const EMOTION_STYLES: Record<string, string> = {
@@ -158,22 +159,41 @@ export default function LiveCallViewEnhanced() {
   }
 
   return (
-    <div className={`glass-card p-6 ${isPerformanceDegraded ? 'performance-mode' : ''}`}>
-        {/* Performance warning - Phase 5: Fixed color clash */}
-        {isPerformanceDegraded && (
-          <div className="mb-4 p-3 bg-accent text-text rounded-lg shadow-lg flex items-center gap-2">
-            <span className="text-xl">🚀</span>
-            <span className="text-sm">Performance mode enabled - animations reduced for optimal experience</span>
+    <div className="space-y-6">
+      {/* Hero Section with Pulse Animation */}
+      <div className="relative medical-card overflow-visible">
+        <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 via-teal-500/10 to-purple-500/10 rounded-3xl blur-2xl opacity-50 animate-pulse"></div>
+        <div className="relative p-8 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <div className="relative">
+              {/* Pulse rings */}
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping"></div>
+              <div className="absolute inset-0 rounded-full bg-primary/30 animate-pulse"></div>
+              {/* Center icon */}
+              <div className="relative w-20 h-20 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center shadow-glow-primary">
+                <Icons.phone size={40} className="text-white" />
+              </div>
+            </div>
           </div>
-        )}
+          <h1 className="text-display font-display bg-gradient-to-r from-primary via-teal to-purple bg-clip-text text-transparent mb-2">
+            Live Monitoring
+          </h1>
+          <p className="text-body text-text-muted">
+            Real-time emotional intelligence during active calls
+          </p>
+        </div>
+      </div>
 
-        {/* Header with enhanced live indicator */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            Live Call with {profile.name}
-          </h2>
-
-          {/* Enhanced LIVE indicator - only show when call is active */}
+      {/* Glassmorphism Patient Info Card */}
+      <div className="glass-card p-6">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-teal rounded-full flex items-center justify-center text-2xl text-white font-bold shadow-lg">
+            {profile.name.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold text-primary">{profile.name}</h3>
+            <p className="text-sm text-text-muted">Active Call Session</p>
+          </div>
           {isCallActive && (
             <div className="live-indicator">
               <span className="live-dot"></span>
@@ -181,10 +201,30 @@ export default function LiveCallViewEnhanced() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Main Content Card */}
+      <div className={`medical-card ${isPerformanceDegraded ? 'performance-mode' : ''}`}>
+        {/* Performance warning */}
+        {isPerformanceDegraded && (
+          <div className="card-section bg-warning-light/30 border-l-4 border-warning">
+            <div className="flex items-center gap-2">
+              <Icons.alert size={20} className="text-warning-dark" />
+              <span className="text-sm text-warning-dark font-medium">
+                Performance mode enabled - animations reduced for optimal experience
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="card-header">
+          <h2 className="card-title">Real-Time Emotional Analysis</h2>
+        </div>
 
         {/* Optimized Sentiment Meter */}
-        <div className="mb-8">
-          <label className="text-sm font-medium text-gray-600 mb-3 block">
+        <div className="card-section">
+          <label className="text-caption font-semibold text-text-muted mb-3 block uppercase tracking-wide">
             Real-time Emotional State
           </label>
           <OptimizedSentimentMeter
@@ -195,8 +235,8 @@ export default function LiveCallViewEnhanced() {
         </div>
 
         {/* Animated Emotion Badges */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-gray-600 mb-3 block">
+        <div className="card-section">
+          <label className="text-caption font-semibold text-text-muted mb-3 block uppercase tracking-wide">
             Detected Emotions
           </label>
           <AnimatePresence mode="popLayout">
@@ -214,7 +254,7 @@ export default function LiveCallViewEnhanced() {
                       stiffness: 500,
                       damping: 25,
                     }}
-                    className={`emotion-badge ${EMOTION_STYLES[emotion.toLowerCase()] || ''}`}
+                    className={`emotion-bubble ${EMOTION_STYLES[emotion.toLowerCase()] || ''}`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <span className="text-2xl mr-1">{EMOTION_ICONS[emotion.toLowerCase()] || '💭'}</span>
@@ -248,32 +288,40 @@ export default function LiveCallViewEnhanced() {
         )}
 
         {/* Language & Status Info */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-500">Language:</span>
-              <span className="ml-2 font-medium">
+        <div className="card-section border-t border-clinical-border">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="stat-card">
+              <div className="flex items-center gap-2 mb-1">
+                <Icons.message size={16} className="text-primary" />
+                <span className="text-caption text-text-muted uppercase tracking-wide">Language</span>
+              </div>
+              <p className="text-lg font-semibold text-primary">
                 {language === 'mandarin' ? '🇨🇳 Mandarin' : '🇺🇸 English'}
-              </span>
+              </p>
             </div>
-            <div>
-              <span className="text-gray-500">Last Update:</span>
-              <span className="ml-2 font-medium">
+            <div className="stat-card">
+              <div className="flex items-center gap-2 mb-1">
+                <Icons.clock size={16} className="text-primary" />
+                <span className="text-caption text-text-muted uppercase tracking-wide">Last Update</span>
+              </div>
+              <p className="text-lg font-semibold text-primary font-mono">
                 {lastUpdate.toLocaleTimeString()}
-              </span>
+              </p>
             </div>
           </div>
         </div>
 
         {/* Call Duration Timer */}
-        <div className="mt-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full">
-            <span className="text-sm text-gray-600">Call Duration:</span>
-            <span className="font-mono font-medium text-primary">
+        <div className="card-section text-center">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-primary rounded-full text-white shadow-glow-primary">
+            <Icons.phone size={20} />
+            <span className="text-caption uppercase tracking-wide">Call Duration</span>
+            <span className="font-mono font-bold text-xl">
               {new Date(Date.now() - lastUpdate.getTime()).toISOString().substr(14, 5)}
             </span>
           </div>
         </div>
       </div>
+    </div>
   );
 }
