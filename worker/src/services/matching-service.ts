@@ -11,6 +11,7 @@
  */
 
 import { SeniorProfile } from '../types';
+import { Env, getProfile } from './kv-service';
 
 /**
  * Calculate match score between two seniors
@@ -188,5 +189,67 @@ export function autoGenerateGroups(
 
   // Deduplicate and take top 2 - PRD line 1565
   return potentialGroups.slice(0, 2);
+}
+
+/**
+ * Recalculate matches for a senior and update their profile
+ * Called when interests change during conversation
+ * PRD lines 1493-1528
+ */
+export async function recalculateMatches(
+  profile: SeniorProfile,
+  env: Env
+): Promise<void> {
+  console.log('[MATCHING] Recalculating matches for:', profile.id);
+
+  try {
+    // Get all other seniors - PRD line 1495
+    const allSeniors = await getAllSeniors(env);
+
+    // Calculate matches using getTopMatches - PRD lines 1497-1519
+    const newMatches = getTopMatches(profile.id, allSeniors, profile);
+
+    // Update profile.matches - PRD line 1524
+    // Cast to proper type for SeniorProfile.matches
+    profile.matches = newMatches as any;
+
+    // Auto-generate groups - PRD line 1528
+    const groups = autoGenerateGroups(profile, allSeniors);
+    profile.groups = groups.slice(0, 2); // Keep top 2 groups
+
+    console.log('[MATCHING] Updated with', newMatches.length, 'matches and', groups.length, 'groups');
+
+  } catch (error) {
+    console.error('[MATCHING] Error recalculating matches:', error);
+    // Don't throw - matching is non-critical
+  }
+}
+
+/**
+ * Get all senior profiles from KV
+ * Simplified for demo - in production would use KV.list()
+ * PRD lines 1600-1615
+ */
+export async function getAllSeniors(env: Env): Promise<SeniorProfile[]> {
+  console.log('[MATCHING] Fetching all senior profiles');
+
+  // Hardcoded IDs for demo - PRD line 1602
+  const ids = ['mrs-chen', 'mrs-lee', 'mr-wang', 'mrs-kim'];
+  const profiles: SeniorProfile[] = [];
+
+  for (const id of ids) {
+    try {
+      const profile = await getProfile(id, env);
+      if (profile) {
+        profiles.push(profile);
+      }
+    } catch (error) {
+      console.error('[MATCHING] Error fetching profile:', id, error);
+      // Skip if not found - PRD line 1609-1611
+    }
+  }
+
+  console.log('[MATCHING] Found', profiles.length, 'senior profiles');
+  return profiles;
 }
 

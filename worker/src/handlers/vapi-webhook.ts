@@ -12,6 +12,7 @@
 import { SeniorProfile } from '../types';
 import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-service';
 import { createHealthNote, appendHealthNote, extractVitals } from '../services/health-service';
+import { recalculateMatches } from '../services/matching-service';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
 import { generateSamResponse } from '../../../prompts/sam-personality';
@@ -296,7 +297,18 @@ async function backgroundProcessing(
       profile.conversations = profile.conversations.slice(-10);
     }
 
-    // 7. Save Updated Profile
+    // 7. Recalculate Matches (if interests changed) - PRD lines 1284-1287
+    if (newMemories && newMemories.newFacts) {
+      const hasNewInterests = (newMemories.newFacts.hobbies && newMemories.newFacts.hobbies.length > 0) ||
+                              (newMemories.newFacts.interests && newMemories.newFacts.interests.length > 0);
+      
+      if (hasNewInterests) {
+        console.log('[MATCHING] New interests detected, recalculating matches');
+        await recalculateMatches(profile, env);
+      }
+    }
+
+    // 8. Save Updated Profile
     await saveProfile(profile, env);
 
     console.log('[ASYNC] Background processing completed');
