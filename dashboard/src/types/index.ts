@@ -29,8 +29,10 @@ export interface SeniorProfile {
   healthData: {
     conditions: Array<{
       name: string;
-      since: string;
-      status: string;
+      since?: string;
+      status?: string;
+      a1c?: string;
+      locations?: string[];
     }>;
     medications: Array<{
       name: string;
