@@ -1,0 +1,56 @@
+{
+  "voices": {
+    "english": {
+      "voiceId": "EXAVITQu4vr4xnSDxMaL",
+      "name": "Sarah (ElevenLabs)",
+      "description": "Warm, mature female voice - perfect for elderly companion",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.7,
+        "similarityBoost": 0.8,
+        "style": 0.5,
+        "useSpeakerBoost": true,
+        "optimizeStreamingLatency": 3
+      },
+      "elderlyOptimizations": {
+        "pace": "slightly_slower",
+        "clarity": "enhanced",
+        "tone": "warm_conversational",
+        "rationale": "Higher stability (0.7) ensures consistent pronunciation. Similarity boost (0.8) maintains natural voice characteristics. Speaker boost enhances clarity for potential hearing difficulties."
+      }
+    },
+    "mandarin": {
+      "voiceId": "FGY2WhTYpPnrIDTdsKH5",
+      "name": "Mandarin Female (ElevenLabs)",
+      "description": "Native Mandarin speaker with warm, caring tone",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.7,
+        "similarityBoost": 0.8,
+        "style": 0.5,
+        "useSpeakerBoost": true,
+        "optimizeStreamingLatency": 3,
+        "languageDetection": true
+      },
+      "elderlyOptimizations": {
+        "pace": "slightly_slower",
+        "clarity": "enhanced",
+        "tone": "warm_conversational",
+        "rationale": "Multilingual v2 model required for Mandarin. Same stability/similarity settings ensure consistent quality across language switches. Language detection enables automatic switching."
+      }
+    }
+  },
+  "testingNotes": {
+    "speakerphoneDistance": "6-8 feet",
+    "expectedClarityScore": ">90%",
+    "latencyTarget": "<500ms for voice synthesis",
+    "echoMitigation": "useSpeakerBoost helps reduce echo in typical home environments"
+  },
+  "vapiIntegration": {
+    "primaryVoice": "english",
+    "fallbackVoice": "english",
+    "switchTrigger": "language_detection",
+    "switchLatency": "<200ms",
+    "notes": "Voice switching happens automatically when Mandarin is detected in user speech. Both voices use same optimization settings for consistent experience."
+  }
+}
