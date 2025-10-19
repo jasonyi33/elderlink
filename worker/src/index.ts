@@ -71,7 +71,8 @@ export default {
       }
 
       // Vapi webhook endpoint (CRITICAL PATH)
-      if (url.pathname === '/vapi-webhook' && request.method === 'POST') {
+      // Support both /vapi-webhook (legacy) and /chat/completions (OpenAI-compatible)
+      if ((url.pathname === '/vapi-webhook' || url.pathname === '/chat/completions') && request.method === 'POST') {
         return addCorsHeaders(await handleVapiWebhook(request, env));
       }
 

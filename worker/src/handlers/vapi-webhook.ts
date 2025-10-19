@@ -152,19 +152,22 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
  */
 async function processVapiCall(request: Request, env: Env): Promise<any> {
   const start = Date.now();
-  const data = await request.json() as { message?: any; call?: any };
-  const { message, call } = data;
+  const data = await request.json() as any;
 
-  // DEBUG: Log complete incoming payload to understand Vapi's format
-  console.log('[VAPI] INCOMING PAYLOAD:', JSON.stringify({
+  // DEBUG: Log ENTIRE raw payload to understand Vapi's custom-LLM format
+  console.log('[VAPI] RAW PAYLOAD:', JSON.stringify(data, null, 2));
+
+  const { message, call, messages } = data;
+
+  // DEBUG: Log parsed sections
+  console.log('[VAPI] PARSED SECTIONS:', JSON.stringify({
+    hasMessage: !!message,
+    hasMessages: !!messages,
+    hasCall: !!call,
     messageType: message?.type,
     messageRole: message?.role,
-    messageStatus: message?.status,
-    messageContent: message?.content,
-    messageTranscript: message?.transcript,
-    callId: call?.id,
-    callPhoneNumber: call?.phoneNumber,
-    fullMessage: message
+    messagesLength: messages?.length,
+    lastMessage: messages?.[messages.length - 1]
   }, null, 2));
 
   // Map phone number to senior ID
@@ -186,9 +189,21 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     profile = createDefaultProfile('mrs-chen');
   }
 
-  // Extract senior's message (check both formats for compatibility)
-  const seniorMessage = message?.content || message?.transcript?.content || '';
-  console.log('[VAPI] Extracted message:', seniorMessage);
+  // Extract senior's message (support multiple formats)
+  // 1. OpenAI format: messages array (custom-LLM via /chat/completions)
+  // 2. Vapi webhook format: message.content (conversation-update webhooks)
+  let seniorMessage = '';
+  if (messages && Array.isArray(messages) && messages.length > 0) {
+    // OpenAI format - get last user message
+    const lastUserMessage = messages.filter((m: any) => m.role === 'user').pop();
+    seniorMessage = lastUserMessage?.content || '';
+    console.log('[VAPI] Extracted from OpenAI messages array:', seniorMessage);
+  } else if (message) {
+    // Vapi webhook format
+    seniorMessage = message?.content || message?.transcript?.content || '';
+    console.log('[VAPI] Extracted from webhook message:', seniorMessage);
+  }
+  console.log('[VAPI] Final extracted message:', seniorMessage);
 
   if (!seniorMessage || seniorMessage.trim() === '') {
     return {

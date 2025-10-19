@@ -1,0 +1,173 @@
+{
+  "id": "mrs-chen",
+  "name": "Mrs. Chen",
+  "age": 72,
+  "phone": "+12248581016",
+  "languages": ["english", "mandarin"],
+  "location": "Seattle, WA",
+  "memories": {
+    "family": [
+      {
+        "name": "Sarah",
+        "relationship": "daughter",
+        "details": ["Lives in Portland", "Visits monthly", "Has two kids"]
+      },
+      {
+        "name": "Tommy",
+        "relationship": "grandson",
+        "details": ["8 years old", "Loves dinosaurs", "Learning piano"]
+      },
+      {
+        "name": "Emily",
+        "relationship": "granddaughter",
+        "details": ["10 years old", "Soccer player", "Straight-A student"]
+      }
+    ],
+    "hobbies": ["gardening", "piano", "cooking Chinese food", "watching Beijing opera"],
+    "health": ["arthritis in knees", "high blood pressure", "trouble sleeping"],
+    "recentEvents": [
+      "Sarah visited last weekend with the kids",
+      "Tomatoes in garden are growing well",
+      "Played piano at community center last Tuesday",
+      "Made dumplings for church potluck"
+    ],
+    "preferences": {
+      "topicsEnjoys": ["family", "gardening", "cooking", "music", "grandchildren"],
+      "topicsAvoid": ["politics", "death", "finances"],
+      "conversationStyle": "warm and patient"
+    }
+  },
+  "socialProfile": {
+    "interests": ["gardening", "piano", "Chinese cooking", "Beijing opera"],
+    "culturalBackground": "Shanghai, Mandarin speaker",
+    "openToMatching": true
+  },
+  "healthData": {
+    "conditions": [
+      {"name": "Hypertension", "since": "2018", "status": "controlled"},
+      {"name": "Type 2 Diabetes", "since": "2020", "status": "managed"},
+      {"name": "Osteoarthritis", "since": "2019", "status": "mild"}
+    ],
+    "medications": [
+      {"name": "Lisinopril", "dosage": "10mg", "frequency": "daily morning", "purpose": "blood pressure"},
+      {"name": "Metformin", "dosage": "500mg", "frequency": "twice daily with meals", "purpose": "diabetes"},
+      {"name": "Vitamin D", "dosage": "1000 IU", "frequency": "daily", "purpose": "bone health"}
+    ],
+    "vitals": {
+      "lastUpdated": "2025-01-18T00:00:00Z",
+      "bloodPressure": "128/82",
+      "weight": "145 lbs",
+      "bloodSugar": "110 mg/dL fasting"
+    },
+    "appointments": [
+      {"date": "2025-01-25", "time": "10:00 AM", "type": "Primary care checkup", "doctor": "Dr. Smith"},
+      {"date": "2025-02-15", "time": "2:00 PM", "type": "Cardiology follow-up", "doctor": "Dr. Johnson"}
+    ],
+    "notes": [
+      {
+        "timestamp": "2025-01-17T14:30:00Z",
+        "source": "Sam AI Conversation",
+        "note": "Patient mentioned mild knee pain when gardening. Took morning medications as scheduled.",
+        "mentions": [
+          {"type": "symptom", "text": "knee pain", "context": "gardening", "severity": "mild"},
+          {"type": "medication", "text": "morning medications taken", "context": "adherent"}
+        ]
+      }
+    ]
+  },
+  "matches": [
+    {
+      "seniorId": "mrs-lee",
+      "score": 92,
+      "compatibility": "high",
+      "sharedInterests": ["gardening", "cooking", "Mandarin"],
+      "calculatedAt": "2025-01-18T00:00:00Z"
+    },
+    {
+      "seniorId": "mr-wong",
+      "score": 85,
+      "compatibility": "good",
+      "sharedInterests": ["piano", "music", "opera"],
+      "calculatedAt": "2025-01-18T00:00:00Z"
+    },
+    {
+      "seniorId": "mrs-zhang",
+      "score": 88,
+      "compatibility": "good",
+      "sharedInterests": ["cooking", "gardening", "grandchildren"],
+      "calculatedAt": "2025-01-18T00:00:00Z"
+    }
+  ],
+  "groups": [
+    {
+      "id": "gardening-club",
+      "name": "Seattle Mandarin Gardening Circle",
+      "memberCount": 8,
+      "activity": "Weekend gardening and tea",
+      "language": "Mandarin",
+      "schedule": "Saturdays 10am"
+    },
+    {
+      "id": "piano-ensemble",
+      "name": "Senior Piano Ensemble",
+      "memberCount": 5,
+      "activity": "Classical and Chinese music",
+      "language": "English/Mandarin",
+      "schedule": "Wednesdays 2pm"
+    },
+    {
+      "id": "cooking-club",
+      "name": "Chinese Cooking Enthusiasts",
+      "memberCount": 12,
+      "activity": "Weekly cooking and recipe sharing",
+      "language": "Mandarin/English",
+      "schedule": "Thursdays 3pm"
+    }
+  ],
+  "conversations": [
+    {
+      "timestamp": "2025-01-17T10:00:00Z",
+      "duration": 180,
+      "keyTopics": ["tomatoes", "Sarah visit", "knee pain"],
+      "sentiment": 0.7,
+      "summary": "Mrs. Chen was happy about her daughter's recent visit and excited about her garden. Mentioned mild knee discomfort.",
+      "language": "english",
+      "healthMentions": ["knee pain when gardening"],
+      "transcript": [
+        {"role": "sam", "content": "Hello Mrs. Chen! How are you today?"},
+        {"role": "senior", "content": "Oh Sam, I'm doing well. Sarah visited last weekend with the kids."},
+        {"role": "sam", "content": "That's wonderful! How are Tommy and Emily doing?"},
+        {"role": "senior", "content": "They're growing so fast! Tommy is learning piano now."},
+        {"role": "sam", "content": "Just like his grandmother! Have you been playing much lately?"}
+      ]
+    },
+    {
+      "timestamp": "2025-01-16T14:00:00Z",
+      "duration": 240,
+      "keyTopics": ["cooking", "dumplings", "church"],
+      "sentiment": 0.8,
+      "summary": "Mrs. Chen talked about making dumplings for the church potluck. Very positive mood.",
+      "language": "english"
+    }
+  ],
+  "wellnessMetrics": {
+    "mentalHealth": {
+      "lonelinessScore": 3,
+      "averageSentiment": 0.75,
+      "trend": "improving"
+    },
+    "physicalHealth": {
+      "symptomMentions": 2,
+      "medicationAdherence": 95,
+      "appointmentReminders": 1
+    },
+    "socialHealth": {
+      "matchesMade": 3,
+      "groupsJoined": 3,
+      "communityEngagement": 85
+    },
+    "holisticScore": 82,
+    "lastCallDate": "2025-01-17T10:00:00Z",
+    "callFrequency": 4
+  }
+}

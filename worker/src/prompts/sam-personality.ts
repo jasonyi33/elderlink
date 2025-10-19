@@ -1,8 +1,8 @@
 // Sam Personality Module - Core AI Conversation System
 // Implements warm, memory-aware responses with health check-ins
 
-import { callGeminiForResponse } from '../worker/src/services/gemini-service';
-import { Env } from '../worker/src/services/kv-service';
+import { callGeminiForResponse } from '../services/gemini-service';
+import { Env } from '../services/kv-service';
 
 export interface SeniorProfile {
   id: string;
@@ -237,10 +237,18 @@ export async function generateSamResponse(
     let response: string;
 
     if (env && env.GEMINI_API_KEY) {
-      console.log('[SAM] Calling real Gemini API...');
+      console.log('[SAM] Calling real Gemini API...', {
+        hasEnv: true,
+        apiKeyLength: env.GEMINI_API_KEY.length,
+        promptLength: enhancedPrompt.length
+      });
       response = await callGeminiForResponse(enhancedPrompt, env);
+      console.log('[SAM] Gemini response received:', response.substring(0, 100));
     } else {
-      console.warn('[SAM] No env/API key provided, using fallback response');
+      console.warn('[SAM] No env/API key provided, using fallback response', {
+        hasEnv: !!env,
+        hasApiKey: !!(env && env.GEMINI_API_KEY)
+      });
       // Intelligent fallback based on context
       if (isEndingCall) {
         response = `It was wonderful talking with you today, ${profile.name}. Take care, and I'll talk to you soon!`;
@@ -267,8 +275,14 @@ export async function generateSamResponse(
 
     return response;
 
-  } catch (error) {
-    console.error('Error generating Sam response:', error);
+  } catch (error: any) {
+    console.error('[SAM] Error generating response:', {
+      error: error.message || error,
+      stack: error.stack,
+      hasEnv: !!env,
+      hasApiKey: !!(env && env.GEMINI_API_KEY),
+      profileName: profile.name
+    });
 
     // Context-aware fallback responses
     const fallbacks = [
