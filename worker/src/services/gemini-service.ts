@@ -40,7 +40,7 @@ export async function callGemini(
   }
 ): Promise<string> {
   const timeout = options?.timeout || 7000; // 7-second default
-  const maxTokens = options?.maxTokens || 200; // PRD line 1410
+  const maxTokens = options?.maxTokens || 150; // Match Vapi config (assistant-config.json:8)
   const temperature = options?.temperature || 0.7; // PRD line 1409
   const maxRetries = options?.maxRetries || 3;
 
@@ -141,7 +141,7 @@ export async function callGeminiForResponse(
 ): Promise<string> {
   return callGemini(prompt, env, {
     timeout: 7000,
-    maxTokens: 200,
+    maxTokens: 150, // Match Vapi config for consistent output
     temperature: 0.7,
     maxRetries: 2 // Fewer retries for responses (need speed)
   });

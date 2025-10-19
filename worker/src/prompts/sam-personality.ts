@@ -90,73 +90,57 @@ export interface SamResponseOptions {
 /**
  * Build Sam's response prompt with profile context
  * PRD lines 839-896
+ * Simplified to reduce conflicting instructions
  */
 function buildSamResponsePrompt(
   profile: SeniorProfile,
   seniorMessage: string,
   currentLanguage: string,
-  recentExchanges: string
+  recentExchanges: string,
+  shouldCheckHealth: boolean = false
 ): string {
-  const appointmentDate = profile.healthData.appointments[0]?.date || 'soon';
-  const appointmentDoctor = profile.healthData.appointments[0]?.doctor?.split(' ').pop() || 'your doctor';
-  
+  const med = profile.healthData.medications?.[0];
+  const condition = profile.healthData.conditions?.[0];
+
+  // HEALTH CHECK PROMPT (separate, focused)
+  if (shouldCheckHealth && (med || condition)) {
+    return `
+You are Sam, a warm AI companion checking on ${profile.name}'s health.
+
+${profile.name} just said: "${seniorMessage}"
+
+Instructions:
+1. Acknowledge what they said briefly
+2. Ask about ONE health topic: ${med ? `Did they take their ${med.name}?` : condition ? `How is their ${condition.name}?` : 'How are they feeling?'}
+3. Under 30 words total
+4. Sound caring, not clinical
+5. ${currentLanguage === 'mandarin' ? 'Respond in Mandarin Chinese' : 'Respond in English'}
+
+Your response:`;
+  }
+
+  // REGULAR CONVERSATION PROMPT (simplified, focused)
   return `
-You are Sam, a warm, patient AI companion talking to an elderly person by phone.
+You are Sam, a warm AI companion talking to ${profile.name} (age ${profile.age}).
 
-PERSONALITY:
-- Warm and genuine, like a caring neighbor who remembers details
-- Good listener who shows empathy
-- Slightly ambiguous about being AI (don't explicitly state it)
-- Match their energy level and pace
-- Proactive about health check-ins
+What you know about ${profile.name}:
+- Family: ${profile.memories.family.map((f: any) => `${f.name} (${f.relationship})`).join(', ') || 'none yet'}
+- Enjoys: ${profile.memories.hobbies.join(', ') || 'learning about them'}
+- Recent: ${profile.memories.recentEvents?.[0] || 'just getting to know them'}
 
-SENIOR'S PROFILE:
-Name: ${profile.name}
-Age: ${profile.age}
-Language: ${currentLanguage}
-
-Known Information:
-- Family: ${JSON.stringify(profile.memories.family)}
-- Hobbies: ${profile.memories.hobbies.join(', ')}
-- Health conditions: ${profile.healthData.conditions.map(c => c.name).join(', ')}
-- Current medications: ${profile.healthData.medications.map(m => m.name + ' ' + m.dosage).join(', ')}
-- Next appointment: ${profile.healthData.appointments[0]?.date} at ${profile.healthData.appointments[0]?.time}
-- Recent events: ${profile.memories.recentEvents?.join(', ') || 'none'}
-
-CONVERSATION HISTORY (last 3 exchanges):
+Previous conversations:
 ${recentExchanges}
 
-SENIOR'S CURRENT MESSAGE:
-"${seniorMessage}"
+${profile.name} just said: "${seniorMessage}"
 
-INSTRUCTIONS:
-1. Reference something from previous conversations naturally (family, hobbies, recent events)
-2. Show you remember them - use their name occasionally, mention specific details
-3. Every 2-3 exchanges, naturally check on their physical wellbeing:
-   - Reference their known conditions: "How's your arthritis been?"
-   - Check medication adherence: "Did you take your ${profile.healthData.medications[0]?.name} this morning?"
-   - Remind about upcoming appointments (next one only): "Your checkup with Dr. ${appointmentDoctor} is ${appointmentDate}"
-4. If they mention health concerns, acknowledge gently:
-   - "I'm sorry to hear that. I'll make a note for Dr. [name]."
-   - Never give medical advice, just listen and document
-5. Use elderly-friendly conversation:
-   - Simple, clear language
-   - Encourage storytelling about their past
-   - Be patient with repetition
-   - Show genuine interest
-   - Reflect back what they said (active listening)
-6. Keep responses 2-3 sentences max for natural phone flow
-7. ${currentLanguage === 'mandarin' ? 'Respond ENTIRELY in Mandarin Chinese' : 'Respond in English'}
+Instructions:
+1. Reference ONE specific detail you know about them naturally
+2. Respond warmly to what they said
+3. Ask ONE follow-up question
+4. Under 30 words total
+5. ${currentLanguage === 'mandarin' ? 'Respond in Mandarin Chinese' : 'Respond in English'}
 
-FALLBACK TOPICS if conversation stalls:
-- Their childhood memories
-- Cooking and family recipes
-- Their hobbies (garden, piano, etc.)
-- Family stories
-- Weather and seasons
-
-Generate Sam's warm, natural response (2-3 sentences only):
-`;
+Your warm response:`;
 }
 
 // Helper function to format conversation history for prompt
@@ -165,13 +149,27 @@ function formatConversationHistory(conversations: any[]): string {
     return "This is our first conversation.";
   }
 
-  // Get last 3 conversations for context
+  // Get last 3 conversations with ACTUAL content
   const recent = conversations.slice(-3);
   return recent.map(c => {
-    const topics = c.keyTopics?.join(', ') || 'general chat';
     const timeAgo = getTimeAgo(c.timestamp);
-    return `${timeAgo}: Talked about ${topics}`;
-  }).join('\n');
+    const transcript = c.transcript || [];
+
+    // Include actual conversation snippets when available
+    const seniorMsg = transcript.find((t: any) => t.role === 'senior')?.content || '';
+    const samMsg = transcript.find((t: any) => t.role === 'assistant')?.content || '';
+
+    if (seniorMsg && samMsg) {
+      // Truncate long messages for context window
+      const seniorPreview = seniorMsg.substring(0, 100);
+      const samPreview = samMsg.substring(0, 100);
+      return `${timeAgo}:\n  Senior: "${seniorPreview}"\n  Sam: "${samPreview}"`;
+    } else {
+      // Fallback to topic summary if transcript not available
+      const topics = c.keyTopics?.join(', ') || 'general chat';
+      return `${timeAgo}: Talked about ${topics}`;
+    }
+  }).join('\n\n');
 }
 
 // Helper to calculate relative time
@@ -187,6 +185,31 @@ function getTimeAgo(timestamp: string): string {
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
   return `${Math.floor(diffDays / 7)} weeks ago`;
+}
+
+/**
+ * Sanitize Gemini response for speech output
+ * Removes markdown, meta-instructions, JSON, and other artifacts
+ */
+function sanitizeForSpeech(text: string): string {
+  return text
+    // Remove markdown formatting
+    .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold**
+    .replace(/\*([^*]+)\*/g, '$1')      // *italic*
+    .replace(/`([^`]+)`/g, '$1')        // `code`
+    .replace(/~~([^~]+)~~/g, '$1')      // ~~strikethrough~~
+    // Remove meta-instructions (common patterns from LLMs)
+    .replace(/^\[.*?\]:\s*/gm, '')      // [In Mandarin]:
+    .replace(/^(Here's|Here is|Response|Note|This is):\s*/gmi, '')
+    .replace(/\(.*?sentences?\)/gi, '') // (2 sentences)
+    .replace(/^(Sam says?|Sam responds?|Sam replies?):\s*/gmi, '') // Sam says:
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, '')
+    // Remove JSON objects
+    .replace(/\{[\s\S]*?\}/g, '')
+    // Remove excessive whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -227,11 +250,13 @@ export async function generateSamResponse(
     // Format conversation history for context
     const recentExchanges = formatConversationHistory(profile.conversations);
 
-    // Build the prompt with all variables
-    const prompt = buildSamResponsePrompt(profile, message, finalLanguage, recentExchanges);
+    // Determine if this should be a health check-in (every 3rd exchange)
+    const shouldCheckHealth = exchangeNumber ? (exchangeNumber % 3 === 0) : false;
 
-    // Add exchange number and ending call context to prompt
-    const enhancedPrompt = prompt + `\n\nExchange Number: ${exchangeNumber || 1}\nIs Ending Call: ${isEndingCall}\nOriginal Message: ${message}`;
+    // Build the prompt with all variables (simplified, focused prompt)
+    const prompt = buildSamResponsePrompt(profile, message, finalLanguage, recentExchanges, shouldCheckHealth);
+
+    console.log('[SAM] Prompt type:', shouldCheckHealth ? 'HEALTH CHECK' : 'REGULAR', 'Exchange:', exchangeNumber);
 
     // Call real Gemini API if env is provided, otherwise use fallback
     let response: string;
@@ -240,10 +265,14 @@ export async function generateSamResponse(
       console.log('[SAM] Calling real Gemini API...', {
         hasEnv: true,
         apiKeyLength: env.GEMINI_API_KEY.length,
-        promptLength: enhancedPrompt.length
+        promptLength: prompt.length
       });
-      response = await callGeminiForResponse(enhancedPrompt, env);
-      console.log('[SAM] Gemini response received:', response.substring(0, 100));
+      response = await callGeminiForResponse(prompt, env);
+      console.log('[SAM] Gemini raw response:', response.substring(0, 100));
+
+      // CRITICAL: Sanitize response before returning to remove meta-text
+      response = sanitizeForSpeech(response);
+      console.log('[SAM] Sanitized response:', response.substring(0, 100));
     } else {
       console.warn('[SAM] No env/API key provided, using fallback response', {
         hasEnv: !!env,
