@@ -357,10 +357,10 @@ You are the **Backend API & Services** developer responsible for:
 
 ---
 
-### 3.5 Matching Service (TDD) **[CRITICAL]**
+### 3.5 Matching Service (TDD) **[CRITICAL]** ✅ **COMPLETED**
 
 **3.5a: WRITE TESTS**
-- [ ] Create `src/services/matching-service.test.ts`
+- [x] Create `src/services/matching-service.test.ts`
 - [ ] Write test: "perfect match scores correctly" (3 shared interests + language + age + location)
 - [ ] Write test: "shared interests: 10 points each, max 50"
 - [ ] Write test: "same language: 30 points" (compare Mandarin vs different language)
