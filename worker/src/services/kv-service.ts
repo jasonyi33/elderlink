@@ -50,19 +50,26 @@ export async function getProfile(seniorId: string, env: Env): Promise<SeniorProf
 /**
  * Save senior profile to KV storage
  * Enforces conversation limit (max 10)
+ * Does not mutate input - creates a copy if truncation needed
  */
 export async function saveProfile(profile: SeniorProfile, env: Env): Promise<void> {
   console.log('[KV] saveProfile called for:', profile.id);
   
   try {
+    // Create a copy to avoid mutating input
+    let profileToSave = profile;
+    
     // Enforce conversation limit: keep only last 10
     if (profile.conversations && profile.conversations.length > 10) {
-      profile.conversations = profile.conversations.slice(-10);
+      profileToSave = {
+        ...profile,
+        conversations: profile.conversations.slice(-10)
+      };
       console.log('[KV] Truncated conversations to last 10');
     }
     
     const key = `senior-${profile.id}`;
-    const value = JSON.stringify(profile);
+    const value = JSON.stringify(profileToSave);
     
     await env.KV.put(key, value);
     console.log('[KV] Profile saved:', profile.id);
