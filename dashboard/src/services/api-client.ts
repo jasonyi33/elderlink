@@ -171,11 +171,22 @@ export const apiUtils = {
         method: 'POST',
         body: JSON.stringify(notes)
       })
-      
+
       const data = await response.json()
       return data
     } catch (error) {
       return handleApiError(error, 'update health notes')
+    }
+  },
+
+  // 🎬 Check if profile was just restored after demo
+  async checkRestoreStatus(seniorId: string): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetchWithRetry(`${API_BASE_URL}/api/seniors/${seniorId}/restore-status`)
+      const data = await response.json()
+      return { data, status: 200 }
+    } catch (error) {
+      return handleApiError(error, 'check restore status')
     }
   },
 

@@ -70,6 +70,58 @@ export default {
         });
       }
 
+      // 🎬 Demo mode status endpoint
+      if (url.pathname === '/api/demo-mode' && request.method === 'GET') {
+        const demoModeValue = await env.KV.get('demo-mode-active');
+        const isDemoMode = demoModeValue === 'true';
+
+        return new Response(JSON.stringify({
+          isDemoMode,
+          message: isDemoMode
+            ? '🎬 Demo mode ACTIVE - First call will use pre-scripted responses'
+            : '✅ Live mode - All calls use real Gemini/ElevenLabs',
+          instructions: {
+            enable: 'npx wrangler kv:key put --binding=KV "demo-mode-active" "true" --env dev',
+            disable: 'npx wrangler kv:key delete --binding=KV "demo-mode-active" --env dev',
+            check: 'GET /api/demo-mode'
+          }
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        });
+      }
+
+      // 🎬 Restore status endpoint - Check if profile was just restored
+      if (url.pathname.match(/^\/api\/seniors\/([^\/]+)\/restore-status$/) && request.method === 'GET') {
+        const match = url.pathname.match(/^\/api\/seniors\/([^\/]+)\/restore-status$/);
+        const seniorId = match?.[1];
+
+        if (!seniorId) {
+          return new Response(JSON.stringify({ error: 'Invalid senior ID' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        const restoreSignalData = await env.KV.get(`restore-complete-${seniorId}`);
+        const restoreSignal = restoreSignalData ? JSON.parse(restoreSignalData) : null;
+
+        return new Response(JSON.stringify({
+          restored: restoreSignal !== null,
+          timestamp: restoreSignal?.timestamp || null,
+          message: restoreSignal
+            ? '✅ Profile was just restored - Dashboard should force-refresh'
+            : 'No recent restore detected'
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        });
+      }
+
       // Vapi webhook endpoint (CRITICAL PATH)
       // Support both /vapi-webhook (legacy) and /chat/completions (OpenAI-compatible)
       if ((url.pathname === '/vapi-webhook' || url.pathname === '/chat/completions') && request.method === 'POST') {

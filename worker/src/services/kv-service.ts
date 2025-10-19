@@ -112,25 +112,116 @@ export async function saveLiveSentiment(
 export async function getLiveSentiment(
   seniorId: string,
   env: Env
-): Promise<{ sentiment: number; emotions: string[]; timestamp: string } | null> {
+): Promise<{ sentiment: number; emotions: string[]; timestamp: string; language?: string } | null> {
   console.log('[KV] getLiveSentiment called for:', seniorId);
-  
+
   try {
     const key = `live-sentiment-${seniorId}`;
     const data = await env.KV.get(key);
-    
+
     if (!data) {
       console.log('[KV] Live sentiment not found or expired:', seniorId);
       return null;
     }
-    
+
     const sentiment = JSON.parse(data);
     console.log('[KV] Live sentiment retrieved:', seniorId);
     return sentiment;
-    
+
   } catch (error) {
     console.error('[KV] Error getting live sentiment:', error);
     return null;
+  }
+}
+
+/**
+ * 🎬 DEMO MODE: Backup profile before demo
+ * Saves current profile to a backup key for restoration after demo
+ */
+export async function backupProfile(seniorId: string, env: Env): Promise<boolean> {
+  console.log('[DEMO] backupProfile called for:', seniorId);
+
+  try {
+    const key = `senior-${seniorId}`;
+    const backupKey = `senior-${seniorId}-backup`;
+
+    // Get current profile
+    const data = await env.KV.get(key);
+
+    if (!data) {
+      console.log('[DEMO] No profile to backup:', seniorId);
+      return false;
+    }
+
+    // Save to backup key with 1-hour TTL (in case we forget to restore)
+    await env.KV.put(backupKey, data, { expirationTtl: 3600 });
+    console.log('[DEMO] ✅ Profile backed up:', seniorId);
+    return true;
+
+  } catch (error) {
+    console.error('[DEMO] Error backing up profile:', error);
+    return false;
+  }
+}
+
+/**
+ * 🎬 DEMO MODE: Restore profile after demo
+ * Replaces demo data with original backed-up profile
+ */
+export async function restoreProfile(seniorId: string, env: Env): Promise<boolean> {
+  console.log('[DEMO] restoreProfile called for:', seniorId);
+
+  try {
+    const key = `senior-${seniorId}`;
+    const backupKey = `senior-${seniorId}-backup`;
+
+    // Get backup
+    const backupData = await env.KV.get(backupKey);
+
+    if (!backupData) {
+      console.log('[DEMO] ⚠️ No backup found:', seniorId);
+      return false;
+    }
+
+    // Restore backup to main key
+    await env.KV.put(key, backupData);
+    console.log('[DEMO] ✅ Profile restored from backup:', seniorId);
+
+    // Set a "restore complete" signal with 5-minute TTL
+    // This tells the dashboard to force-refresh and bypass cache
+    const restoreSignal = {
+      timestamp: new Date().toISOString(),
+      seniorId: seniorId,
+      restored: true
+    };
+    await env.KV.put(`restore-complete-${seniorId}`, JSON.stringify(restoreSignal), {
+      expirationTtl: 300 // 5 minutes
+    });
+    console.log('[DEMO] ✅ Restore signal set - Dashboard will force-refresh:', seniorId);
+
+    // Delete backup key (cleanup)
+    await env.KV.delete(backupKey);
+    console.log('[DEMO] ✅ Backup key cleaned up:', seniorId);
+
+    return true;
+
+  } catch (error) {
+    console.error('[DEMO] Error restoring profile:', error);
+    return false;
+  }
+}
+
+/**
+ * 🎬 DEMO MODE: Check if backup exists
+ */
+export async function hasBackup(seniorId: string, env: Env): Promise<boolean> {
+  try {
+    const backupKey = `senior-${seniorId}-backup`;
+    const data = await env.KV.get(backupKey);
+    return data !== null;
+  } catch (error) {
+    console.error('[DEMO] Error checking backup:', error);
+    return false;
   }
 }
 

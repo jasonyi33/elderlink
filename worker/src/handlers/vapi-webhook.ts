@@ -10,7 +10,7 @@
  */
 
 import { SeniorProfile } from '../types';
-import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-service';
+import { Env, getProfile, saveProfile, saveLiveSentiment, restoreProfile, hasBackup } from '../services/kv-service';
 import { createHealthNote, appendHealthNote, extractVitals } from '../services/health-service';
 import { recalculateMatches } from '../services/matching-service';
 import { detectAndCreateAlert, storeAlert } from '../services/alert-service';
@@ -21,6 +21,9 @@ import { generateSummary, extractKeyTopics } from '../services/conversation-summ
 import { generateSamResponse } from '../prompts/sam-personality';
 import { extractMemories } from '../prompts/memory-extraction';
 import { analyzeSentimentAndHealth } from '../prompts/sentiment-health-analysis';
+
+// Demo mode script for live demonstrations
+import { DEMO_SCRIPT, getDemoExchange, isWithinDemoScript, extractHealthMentionsFromDemoExchange } from '../data/demo-script';
 
 /**
  * Load Mrs. Chen seed data from static JSON
@@ -342,6 +345,33 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   // Handle end-of-call-report events - clear call state and return early
   if (messageType === 'end-of-call-report') {
     console.log('[VAPI] End of call detected, clearing call state');
+
+    // 🎬 AUTO-DISABLE DEMO MODE: After first call completes, switch to live mode
+    const demoModeKey = 'demo-mode-active';
+    const demoModeValue = await env.KV.get(demoModeKey);
+
+    if (demoModeValue === 'true') {
+      await env.KV.delete(demoModeKey);
+      console.log('[DEMO] ✅ First demo call complete - DEMO MODE DISABLED');
+      console.log('[DEMO] ✅ All subsequent calls will use LIVE mode with real Gemini/ElevenLabs');
+
+      // 🎬 RESTORE ORIGINAL PROFILE: Restore backed-up profile data
+      console.log('[DEMO] Checking for profile backup to restore...');
+      const backupExists = await hasBackup(seniorId, env);
+
+      if (backupExists) {
+        const restored = await restoreProfile(seniorId, env);
+        if (restored) {
+          console.log('[DEMO] ✅ Original profile RESTORED - Dashboard will show full history');
+          console.log('[DEMO] ✅ Community matches, analytics, and 147 conversations available');
+        } else {
+          console.log('[DEMO] ⚠️ Profile restore failed - check logs');
+        }
+      } else {
+        console.log('[DEMO] ℹ️ No backup found - demo profile will remain (this is normal if no pre-demo data existed)');
+      }
+    }
+
     await env.KV.delete(`call-state-${seniorId}`);
     return {
       id: `chatcmpl-end-${Date.now()}`,
@@ -442,24 +472,123 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     return 'english';
   }
 
-  // Detect language from the actual message content
-  const language = detectLanguage(seniorMessage);
-  console.log('[VAPI] Language detection:', {message: seniorMessage.substring(0, 50), detected: language});
+  // 🎬 DEMO MODE: Check if this is a demo call (first call only)
+  const demoModeKey = 'demo-mode-active';
+  const demoModeValue = await env.KV.get(demoModeKey);
+  const isDemoMode = demoModeValue === 'true';
 
   // Calculate exchange number for health check-in logic
-  const exchangeNumber = profile.conversations.length + 1;
+  // 🎬 CRITICAL FIX: In demo mode, FORCE exchange number to count only demo exchanges
+  // This prevents skipping if profile wasn't properly cleared before demo
+  let exchangeNumber: number;
 
-  // PRIORITY PATH: Generate Sam's response immediately (Developer 1's real function)
-  const samResponse = await generateSamResponse(
-    seniorMessage,
-    profile,
-    exchangeNumber,
-    env, // Pass env to enable real Gemini API calls
-    {
-      language: language,
-      isEndingCall: false // Could detect from message keywords
+  if (isDemoMode) {
+    // Count only exchanges during THIS demo call (in case profile has leftover conversations)
+    const callStateKey = `call-state-${seniorId}`;
+    const callState = await env.KV.get(callStateKey);
+    const currentCallExchangeCount = callState ? JSON.parse(callState).exchangeCount || 0 : 0;
+    exchangeNumber = currentCallExchangeCount + 1;
+
+    // Update call state with new exchange count
+    await env.KV.put(callStateKey, JSON.stringify({ exchangeCount: exchangeNumber }), { expirationTtl: 300 });
+
+    console.log('[DEMO] 🎯 FORCED exchange number for demo mode:', {
+      profileConversations: profile.conversations.length,
+      callExchangeCount: currentCallExchangeCount,
+      forcedExchangeNumber: exchangeNumber,
+      reason: 'Demo mode always starts from exchange #1 regardless of profile state'
+    });
+  } else {
+    // Normal mode: use profile conversation count
+    exchangeNumber = profile.conversations.length + 1;
+  }
+
+  console.log('[DEMO] Mode check:', { isDemoMode, exchangeNumber, scriptLength: DEMO_SCRIPT.length });
+
+  // PRIORITY PATH: Generate Sam's response
+  let samResponse: string;
+  let language: 'english' | 'mandarin';
+  let demoAnalysis: any = null;
+
+  if (isDemoMode) {
+    // 🎬 DEMO MODE: Always use demo responses when demo mode is enabled
+    // This prevents accidental Gemini API calls during demos
+
+    if (isWithinDemoScript(exchangeNumber)) {
+      // Use pre-scripted response for ultra-fast demo
+      const demoExchange = getDemoExchange(exchangeNumber);
+
+      if (demoExchange) {
+        samResponse = demoExchange.samResponse;
+        language = demoExchange.language;
+
+        console.log('[DEMO] Using scripted response:', {
+          exchange: exchangeNumber,
+          language,
+          responsePreview: samResponse.substring(0, 60) + '...',
+          sentiment: demoExchange.expectedSentiment,
+          emotions: demoExchange.expectedEmotions
+        });
+
+        // Create demo analysis with pre-defined values
+        const healthMentions = extractHealthMentionsFromDemoExchange(
+          exchangeNumber,
+          seniorMessage,
+          samResponse
+        );
+
+        demoAnalysis = {
+          sentiment: demoExchange.expectedSentiment,
+          emotions: demoExchange.expectedEmotions,
+          healthMentions: healthMentions
+        };
+
+        // Save live sentiment immediately for instant dashboard update
+        await saveLiveSentiment('mrs-chen', {
+          sentiment: demoAnalysis.sentiment,
+          emotions: demoAnalysis.emotions,
+          language: language,
+          timestamp: new Date().toISOString()
+        }, env);
+
+        console.log('[DEMO] Live sentiment saved for instant dashboard update');
+      } else {
+        // Demo exchange not found - use fallback (still in demo mode)
+        console.log('[DEMO] ⚠️ Exchange not found in script, using demo fallback response');
+        language = 'english';
+        samResponse = "I appreciate you sharing that with me, Mrs. Chen. Tell me more about how you're feeling today.";
+
+        demoAnalysis = {
+          sentiment: 0.5,
+          emotions: ['neutral', 'engaged'],
+          healthMentions: []
+        };
+      }
+    } else {
+      // Exchange number exceeds script length - use fallback response
+      console.log('[DEMO] ⚠️ Exchange exceeds script length, using demo fallback response');
+      language = 'english';
+      samResponse = "I appreciate you sharing that with me, Mrs. Chen. How else can I help you today?";
+
+      demoAnalysis = {
+        sentiment: 0.5,
+        emotions: ['neutral', 'engaged'],
+        healthMentions: []
+      };
     }
-  );
+  } else {
+    // ✅ LIVE MODE: Real Gemini API call
+    language = detectLanguage(seniorMessage);
+    console.log('[LIVE] Language detection:', { message: seniorMessage.substring(0, 50), detected: language });
+
+    samResponse = await generateSamResponse(
+      seniorMessage,
+      profile,
+      exchangeNumber,
+      env,
+      { language, isEndingCall: false }
+    );
+  }
 
   // Select voice based on language
   const voiceId = language === 'mandarin'
@@ -480,7 +609,7 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
 
   // ASYNC PATH: Queue background processing (runs after response sent)
   env.context.waitUntil(
-    backgroundProcessing(seniorMessage, samResponse, profile, language, env)
+    backgroundProcessing(seniorMessage, samResponse, profile, language, env, demoAnalysis)
   );
 
   // Return response in Vapi's expected custom-LLM format
@@ -524,18 +653,32 @@ async function backgroundProcessing(
   samResponse: string,
   profile: SeniorProfile,
   language: string,
-  env: Env
+  env: Env,
+  demoAnalysis?: any // Optional pre-computed analysis from demo mode
 ): Promise<void> {
   console.log('[ASYNC] Background processing started');
-  
+
   try {
-    // 1. Sentiment + Health Analysis (Developer 1's real function)
-    const analysis = await analyzeSentimentAndHealth(
-      message,
-      profile.conversations.slice(-3).map(c => c.transcript?.find(t => t.role === 'senior')?.content || ''),
-      profile,
-      env // Pass env to enable real Gemini API calls
-    );
+    // 1. Sentiment + Health Analysis
+    let analysis: any;
+
+    if (demoAnalysis) {
+      // Use pre-computed demo analysis for instant results
+      analysis = demoAnalysis;
+      console.log('[DEMO] Using pre-computed analysis:', {
+        sentiment: analysis.sentiment,
+        emotions: analysis.emotions,
+        healthMentionsCount: analysis.healthMentions?.length || 0
+      });
+    } else {
+      // Live mode: Real Gemini API call
+      analysis = await analyzeSentimentAndHealth(
+        message,
+        profile.conversations.slice(-3).map(c => c.transcript?.find(t => t.role === 'senior')?.content || ''),
+        profile,
+        env
+      );
+    }
 
     // 2. Memory Extraction (Developer 1's real function)
     const newMemories = await extractMemories(message, profile);
@@ -574,13 +717,17 @@ async function backgroundProcessing(
       }
     }
 
-    // 3. Store Live Sentiment (for dashboard) - includes language field
-    await saveLiveSentiment('mrs-chen', {
-      sentiment: analysis.sentiment,
-      emotions: analysis.emotions,
-      language: language as 'english' | 'mandarin',
-      timestamp: new Date().toISOString()
-    }, env);
+    // 3. Store Live Sentiment (for dashboard) - skip if demo mode (already saved)
+    if (!demoAnalysis) {
+      await saveLiveSentiment('mrs-chen', {
+        sentiment: analysis.sentiment,
+        emotions: analysis.emotions,
+        language: language as 'english' | 'mandarin',
+        timestamp: new Date().toISOString()
+      }, env);
+    } else {
+      console.log('[DEMO] Skipping sentiment save (already saved in demo mode)');
+    }
 
     // 4. Create Health Notes (if health mentions found)
     if (analysis.healthMentions && analysis.healthMentions.length > 0) {
