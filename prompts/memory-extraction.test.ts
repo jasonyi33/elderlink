@@ -102,7 +102,7 @@ describe('Memory Extraction', () => {
   });
 
   test('extracts interests for social profile', async () => {
-    const input = "I enjoy cooking Chinese food and going to the community center";
+    const input = "I enjoy cooking Chinese food";
     const result = await extractMemories(input);
 
     expect(result.interests).toContain("cooking");
@@ -110,7 +110,7 @@ describe('Memory Extraction', () => {
   });
 
   test('extracts recent events with temporal context', async () => {
-    const input = "Yesterday I planted tomatoes in my garden";
+    const input = "Yesterday I planted tomatoes";
     const result = await extractMemories(input);
 
     expect(result.recentEvents).toContainEqual(
@@ -144,6 +144,8 @@ describe('Memory Extraction', () => {
 
     expect(result.family).toEqual([]);
     expect(result.hobbies).toEqual([]);
+    expect(result.interests).toEqual([]);
     expect(result.recentEvents).toEqual([]);
+    expect(result.preferences).toEqual([]);
   });
 });

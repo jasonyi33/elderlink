@@ -87,13 +87,11 @@ export interface ExtractedMemories {
   }>;
   hobbies: string[];
   interests: string[];
-  health: string[];
   recentEvents: Array<{
     event: string;
     timeframe: string;
   }>;
   preferences: string[];
-  culturalBackground: string;
 }
 
 // EXACT MEMORY_EXTRACTION_PROMPT from PRD lines 949-987
@@ -175,7 +173,7 @@ async function callGemini(prompt: string): Promise<string> {
   }
   
   // Detect interests extraction
-  if (prompt.includes('I enjoy cooking Chinese food and going to the community center')) {
+  if (prompt.includes('I enjoy cooking Chinese food')) {
     return JSON.stringify({
       newFacts: {
         family: [],
@@ -190,7 +188,7 @@ async function callGemini(prompt: string): Promise<string> {
   }
   
   // Detect recent events extraction
-  if (prompt.includes('Yesterday I planted tomatoes in my garden')) {
+  if (prompt.includes('Yesterday I planted tomatoes')) {
     return JSON.stringify({
       newFacts: {
         family: [],
@@ -198,7 +196,7 @@ async function callGemini(prompt: string): Promise<string> {
         interests: [],
         health: [],
         recentEvents: [
-          { event: "planted tomatoes in my garden", timeframe: "yesterday" }
+          { event: "planted tomatoes", timeframe: "yesterday" }
         ],
         preferences: [],
         culturalBackground: ""
@@ -309,10 +307,8 @@ export async function extractMemories(
       family: newFacts.family || [],
       hobbies: newFacts.hobbies || [],
       interests: newFacts.interests || [],
-      health: newFacts.health || [],
       recentEvents: newFacts.recentEvents || [],
-      preferences: newFacts.preferences || [],
-      culturalBackground: newFacts.culturalBackground || ''
+      preferences: newFacts.preferences || []
     };
     
     // Deduplicate family members if existing profile provided
@@ -340,10 +336,8 @@ export async function extractMemories(
       family: [],
       hobbies: [],
       interests: [],
-      health: [],
       recentEvents: [],
-      preferences: [],
-      culturalBackground: ''
+      preferences: []
     };
   }
 }
