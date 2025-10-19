@@ -18,8 +18,6 @@
  */
 
 import { Env } from './kv-service';
-import * as fs from 'fs';
-import * as path from 'path';
 
 /**
  * Alert interface - Combined structure from PRD and task requirements
@@ -47,33 +45,72 @@ export interface EscalationKeywords {
 }
 
 /**
- * Load escalation keywords from JSON file
- * PRD: data/escalation-keywords.json
+ * Escalation keywords - inlined for Cloudflare Workers compatibility
+ * Source: data/escalation-keywords.json
+ * PRD: Task 2.7 escalation keywords
+ */
+const ESCALATION_KEYWORDS: EscalationKeywords = {
+  medical: [
+    "chest pain",
+    "chest discomfort",
+    "can't breathe",
+    "can't breath",
+    "cannot breathe",
+    "stroke",
+    "stroke symptoms",
+    "severe bleeding",
+    "unconscious",
+    "heart attack",
+    "heart racing",
+    "extreme pain",
+    "difficulty breathing",
+    "severe headache",
+    "loss of consciousness",
+    "collapsed",
+    "choking"
+  ],
+  crisis: [
+    "end it all",
+    "not worth living",
+    "wish I was dead",
+    "better off dead",
+    "suicide",
+    "kill myself",
+    "end my life",
+    "don't want to live",
+    "want to die",
+    "no reason to live",
+    "can't go on anymore",
+    "rather be dead"
+  ],
+  depression: [
+    "hopeless",
+    "no meaning",
+    "worthless",
+    "nothing matters",
+    "can't go on",
+    "no point",
+    "pointless",
+    "empty inside",
+    "nobody cares",
+    "all alone",
+    "give up",
+    "no future"
+  ]
+};
+
+/**
+ * Load escalation keywords
+ * Returns inlined keywords for Workers compatibility
  */
 export function loadEscalationKeywords(): EscalationKeywords {
-  try {
-    // In Workers environment, we'll need to read from a static location
-    // For tests, we can use Node's fs module
-    const keywordsPath = path.join(process.cwd(), 'data', 'escalation-keywords.json');
-    const keywordsData = fs.readFileSync(keywordsPath, 'utf-8');
-    const keywords = JSON.parse(keywordsData) as EscalationKeywords;
-    
-    console.log('[ALERT] Loaded escalation keywords:', {
-      medical: keywords.medical.length,
-      crisis: keywords.crisis.length,
-      depression: keywords.depression.length
-    });
-    
-    return keywords;
-  } catch (error) {
-    console.error('[ALERT] Error loading escalation keywords:', error);
-    // Return empty keywords if file not found
-    return {
-      medical: [],
-      crisis: [],
-      depression: []
-    };
-  }
+  console.log('[ALERT] Loaded escalation keywords:', {
+    medical: ESCALATION_KEYWORDS.medical.length,
+    crisis: ESCALATION_KEYWORDS.crisis.length,
+    depression: ESCALATION_KEYWORDS.depression.length
+  });
+  
+  return ESCALATION_KEYWORDS;
 }
 
 /**
