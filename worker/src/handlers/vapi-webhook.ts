@@ -322,19 +322,15 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
 
   const { message, call, messages } = data;
 
-  // DEBUG: Log parsed sections
-  console.log('[VAPI] PARSED SECTIONS:', JSON.stringify({
-    hasMessage: !!message,
-    hasMessages: !!messages,
-    hasCall: !!call,
-    messageType: message?.type,
-    messageRole: message?.role,
-    messagesLength: messages?.length,
-    lastMessage: messages?.[messages.length - 1]
-  }, null, 2));
+  // Detect event type from Vapi server messages
+  // conversation-update: Active conversation in progress
+  // end-of-call-report: Call has ended
+  // status-update, hang, speech-update: Other events we can ignore for call state
+  const messageType = message?.type || 'unknown';
+  console.log('[VAPI] Message type:', messageType);
 
   // Map phone number to senior ID
-  const phoneNumber = call?.phoneNumber;
+  const phoneNumber = call?.phoneNumber || message?.phoneNumber?.number;
   const phoneToSeniorId: Record<string, string> = {
     '+12248581016': 'mrs-chen',
     '+12065551234': 'mrs-chen', // Backup number
@@ -342,6 +338,45 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
 
   const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
   console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
+
+  // Handle end-of-call-report events - clear call state and return early
+  if (messageType === 'end-of-call-report') {
+    console.log('[VAPI] End of call detected, clearing call state');
+    await env.KV.delete(`call-state-${seniorId}`);
+    return {
+      id: `chatcmpl-end-${Date.now()}`,
+      choices: [{ index: 0, message: { role: 'assistant', content: '' } }]
+    };
+  }
+
+  // Handle speech-update and status-update events - set call state but don't process message
+  if (messageType === 'speech-update' || messageType === 'status-update') {
+    console.log('[VAPI] Non-conversation event, setting call state active:', messageType);
+
+    // Set call state to active (so dashboard shows live call)
+    const callState = {
+      isActive: true,
+      startedAt: new Date().toISOString(),
+      language: 'english', // Default, will be updated on actual messages
+      seniorId: seniorId
+    };
+    await env.KV.put(`call-state-${seniorId}`, JSON.stringify(callState));
+
+    return {
+      id: `chatcmpl-ignored-${Date.now()}`,
+      choices: [{ index: 0, message: { role: 'assistant', content: '' } }]
+    };
+  }
+
+  // Ignore hang events
+  if (messageType === 'hang') {
+    console.log('[VAPI] Hang event, clearing call state');
+    await env.KV.delete(`call-state-${seniorId}`);
+    return {
+      id: `chatcmpl-hang-${Date.now()}`,
+      choices: [{ index: 0, message: { role: 'assistant', content: '' } }]
+    };
+  }
 
   // Get senior profile
   let profile = await getProfile(seniorId, env);
@@ -397,8 +432,19 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     };
   }
 
-  // Language from Vapi - check multiple possible locations
-  const language = message?.language || call?.language || 'english';
+  // Helper function to detect language from message content
+  function detectLanguage(messageText: string): 'english' | 'mandarin' {
+    // Check for Chinese characters (Unicode range for CJK Unified Ideographs)
+    const chineseRegex = /[\u4e00-\u9fa5]/;
+    if (chineseRegex.test(messageText)) {
+      return 'mandarin';
+    }
+    return 'english';
+  }
+
+  // Detect language from the actual message content
+  const language = detectLanguage(seniorMessage);
+  console.log('[VAPI] Language detection:', {message: seniorMessage.substring(0, 50), detected: language});
 
   // Calculate exchange number for health check-in logic
   const exchangeNumber = profile.conversations.length + 1;
@@ -421,6 +467,16 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     : env.ELEVENLABS_ENGLISH_VOICE;
 
   console.log(`[VAPI] Response generated in ${Date.now() - start}ms`);
+
+  // Set call state to active (for dashboard to show live sentiment)
+  const callState = {
+    isActive: true,
+    startedAt: new Date().toISOString(),
+    language: language,
+    seniorId: seniorId
+  };
+  await env.KV.put(`call-state-${seniorId}`, JSON.stringify(callState));
+  console.log('[VAPI] Call state set to active');
 
   // ASYNC PATH: Queue background processing (runs after response sent)
   env.context.waitUntil(
@@ -477,7 +533,8 @@ async function backgroundProcessing(
     const analysis = await analyzeSentimentAndHealth(
       message,
       profile.conversations.slice(-3).map(c => c.transcript?.find(t => t.role === 'senior')?.content || ''),
-      profile
+      profile,
+      env // Pass env to enable real Gemini API calls
     );
 
     // 2. Memory Extraction (Developer 1's real function)
@@ -517,10 +574,11 @@ async function backgroundProcessing(
       }
     }
 
-    // 3. Store Live Sentiment (for dashboard)
+    // 3. Store Live Sentiment (for dashboard) - includes language field
     await saveLiveSentiment('mrs-chen', {
       sentiment: analysis.sentiment,
       emotions: analysis.emotions,
+      language: language as 'english' | 'mandarin',
       timestamp: new Date().toISOString()
     }, env);
 

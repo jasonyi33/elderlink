@@ -7,26 +7,93 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Design System Colors from PRD
-        primary: '#457B9D',      // Medical blue
-        'primary-dark': '#3A6B8A',
-        'primary-light': '#5A8BB0',
-        secondary: '#E63946',    // Red accent
-        'secondary-dark': '#D63031',
-        'secondary-light': '#F56565',
-        success: '#06D6A0',      // Green
-        'success-dark': '#05B894',
-        'success-light': '#07D6A0',
-        background: '#FFFFFF',   // Clean white
-        'background-alt': '#F8F9FA',
-        text: '#1D3557',         // Navy
-        'text-light': '#457B9D',
-        'text-muted': '#6B7280',
-        neutral: '#F8F9FA',
-        'neutral-dark': '#E5E7EB',
-        warning: '#F4A261',
-        error: '#E63946',
-        info: '#457B9D'
+        // PRIMARY PALETTE (PRD Lines 1696-1699)
+        primary: {
+          DEFAULT: '#457B9D',    // Medical blue
+          50: '#F0F7FB',         // Ultra light for subtle backgrounds
+          100: '#E3F2FD',        // Light backgrounds (WCAG AA compliant)
+          200: '#B3D9F2',        // Lighter variant
+          300: '#83C0E9',        // Light variant
+          400: '#6AAEDF',        // Medium-light variant
+          500: '#457B9D',        // DEFAULT
+          600: '#3A698C',        // Darker for hover states
+          700: '#2F567A',        // Dark variant
+          800: '#244368',        // Darker variant
+          900: '#2C5570',        // Ultra dark for high contrast text
+        },
+
+        // SECONDARY/ACCENT (PRD Lines 1697, 1699)
+        secondary: {
+          DEFAULT: '#1D3557',    // Trust teal/navy
+          light: '#2D4563',
+          dark: '#0D1D2F',
+        },
+
+        accent: {
+          DEFAULT: '#A8DADC',    // Highlight cyan (PRD specified)
+          light: '#D4EEEF',
+          dark: '#7BC5C9',
+        },
+
+        // SEMANTIC COLORS (PRD Lines 1700-1703)
+        success: {
+          DEFAULT: '#2A9D8F',    // CORRECTED from #06D6A0 to match PRD
+          50: '#F0FAF8',         // Ultra light
+          100: '#D4F1ED',        // Light backgrounds (WCAG AA: 5.2:1 contrast)
+          500: '#2A9D8F',        // DEFAULT
+          600: '#258A7D',        // Medium dark
+          700: '#1F7A6F',        // Dark variant
+          900: '#1A6259',        // Ultra dark for high contrast
+        },
+
+        warning: {
+          DEFAULT: '#F4A261',    // Correct from PRD
+          50: '#FEF9F3',         // Ultra light
+          100: '#FEF3E8',        // Light backgrounds (WCAG AA compliant)
+          500: '#F4A261',        // DEFAULT
+          600: '#F29A4F',        // Medium dark
+          700: '#E08B47',        // Dark variant
+          900: '#C67639',        // Ultra dark
+        },
+
+        error: {
+          DEFAULT: '#E63946',    // Correct from PRD
+          50: '#FEF5F6',         // Ultra light
+          100: '#FDECEE',        // Light backgrounds (WCAG AA compliant)
+          500: '#E63946',        // DEFAULT
+          600: '#D93440',        // Medium dark
+          700: '#C82333',        // Dark variant
+          900: '#A61E2A',        // Ultra dark
+        },
+
+        // NEUTRALS (PRD Line 1704)
+        neutral: {
+          DEFAULT: '#F8F9FA',    // Clean gray
+          50: '#FAFBFC',         // Ultra light
+          100: '#F8F9FA',        // DEFAULT
+          200: '#E9ECEF',        // Light dark
+          300: '#DEE2E6',        // Medium
+          400: '#CED4DA',        // Medium dark
+          500: '#ADB5BD',        // Dark
+          600: '#6C757D',        // Darker
+          700: '#495057',        // Very dark
+          800: '#343A40',        // Ultra dark
+          900: '#212529',        // Almost black
+        },
+
+        // TEXT COLORS (PRD Lines 1698, 1700)
+        text: {
+          DEFAULT: '#1D3557',    // Navy (WCAG AAA: 12.63:1 on white)
+          light: '#457B9D',      // Lighter for less emphasis
+          muted: '#6C757D',      // WCAG AA: 4.54:1 on white
+          'muted-dark': '#495057', // WCAG AAA: 8.59:1 on white (for critical labels)
+        },
+
+        // BACKGROUND COLORS
+        background: {
+          DEFAULT: '#FFFFFF',    // Clean white
+          alt: '#F8F9FA',        // Subtle gray background
+        },
       },
       spacing: {
         // Design System Spacing from PRD

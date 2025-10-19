@@ -79,7 +79,7 @@ export default function SeniorProfileView() {
           {profile.memories.hobbies.map((hobby, i) => (
             <span
               key={i}
-              className="badge-primary transition-all duration-300 hover:scale-105"
+              className="badge-primary font-semibold border-2 border-primary-900 transition-all duration-300 hover:scale-105"
             >
               {hobby}
             </span>
@@ -122,9 +122,9 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
         {expanded.medications && (
           <div className="mt-2 space-y-2 ml-4">
             {healthData.medications.map((med, i) => (
-              <div key={i} className="border-l-2 border-primary pl-3">
-                <p className="font-medium text-primary">{med.name} {med.dosage}</p>
-                <p className="text-sm text-text-muted">{med.frequency} - {med.purpose}</p>
+              <div key={i} className="border-l-4 border-primary-900 pl-3 bg-primary-50">
+                <p className="font-medium text-primary-900">{med.name} {med.dosage}</p>
+                <p className="text-sm text-text-muted-dark">{med.frequency} - {med.purpose}</p>
               </div>
             ))}
           </div>
@@ -144,11 +144,11 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
         {expanded.conditions && (
           <div className="mt-2 space-y-2 ml-4">
             {healthData.conditions.map((cond, i) => (
-              <div key={i} className="border-l-2 border-success pl-3">
-                <p className="font-medium text-primary">{cond.name}</p>
-                <p className="text-sm text-text-muted">Since {cond.since} - {cond.status}</p>
-                {cond.a1c && <p className="text-sm text-text-muted">A1C: {cond.a1c}</p>}
-                {cond.locations && <p className="text-sm text-text-muted">Locations: {cond.locations.join(', ')}</p>}
+              <div key={i} className="border-l-4 border-success-dark pl-3 bg-success-light">
+                <p className="font-medium text-success-dark">{cond.name}</p>
+                <p className="text-sm text-text-muted-dark">Since {cond.since} - {cond.status}</p>
+                {cond.a1c && <p className="text-sm text-text-muted-dark">A1C: {cond.a1c}</p>}
+                {cond.locations && <p className="text-sm text-text-muted-dark">Locations: {cond.locations.join(', ')}</p>}
               </div>
             ))}
           </div>

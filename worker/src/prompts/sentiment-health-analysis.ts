@@ -2,6 +2,8 @@
 // Combined analysis for emotional state and health mentions
 
 import { SeniorProfile } from './sam-personality';
+import { callGeminiForAnalysis } from '../services/gemini-service';
+import { Env } from '../services/kv-service';
 
 export interface SentimentHealthAnalysis {
   sentiment: number;  // -1 to 1
@@ -78,25 +80,22 @@ If no health mentions, return empty healthMentions array.
 `;
 }
 
-// Mock Gemini API call for testing
-async function callGemini(_prompt: string): Promise<string> {
-  // Return mock analysis for testing
-  // Will be replaced with actual Gemini API call
-  
-  const mockAnalysis: SentimentHealthAnalysis = {
-    sentiment: 0,
-    emotions: [],
-    healthMentions: [],
-    escalationLevel: 'low',
-    concernFlags: [],
-    wellnessIndicators: {
-      socialConnection: 0,
-      mood: 0,
-      engagement: 0
-    }
-  };
-  
-  return JSON.stringify(mockAnalysis);
+// Helper to extract JSON from Gemini response (handles markdown code blocks)
+function extractJSON(text: string): string {
+  // Try to find JSON in markdown code block
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (jsonMatch) {
+    return jsonMatch[1];
+  }
+
+  // Try to find raw JSON object
+  const objectMatch = text.match(/\{[\s\S]*\}/);
+  if (objectMatch) {
+    return objectMatch[0];
+  }
+
+  // Return as is
+  return text;
 }
 
 /**
@@ -104,30 +103,61 @@ async function callGemini(_prompt: string): Promise<string> {
  * @param message - The senior's message
  * @param context - Recent conversation context
  * @param profile - The senior's profile
+ * @param env - Cloudflare environment with GEMINI_API_KEY (optional for fallback)
  * @returns Combined sentiment and health analysis
  */
 export async function analyzeSentimentAndHealth(
   message: string,
   context: string[],
-  profile: SeniorProfile
+  profile: SeniorProfile,
+  env?: Env
 ): Promise<SentimentHealthAnalysis> {
   try {
     const prompt = buildSentimentHealthPrompt(message, context, profile);
-    const response = await callGemini(prompt);
-    const analysis = JSON.parse(response);
-    
+
+    // Call real Gemini API if env is provided
+    let responseText: string;
+    if (env && env.GEMINI_API_KEY) {
+      console.log('[SENTIMENT] Calling real Gemini API for sentiment analysis...');
+      responseText = await callGeminiForAnalysis(prompt, env);
+    } else {
+      console.log('[SENTIMENT] No API key, using fallback neutral analysis');
+      throw new Error('No Gemini API key provided');
+    }
+
+    // Extract JSON from response (handles markdown code blocks)
+    const jsonText = extractJSON(responseText);
+    const analysis = JSON.parse(jsonText);
+
     // Add escalation level based on concerns
-    const hasCrisis = analysis.healthMentions?.some((h: any) => h.severity === 'severe');
+    const hasCrisis = analysis.healthMentions?.some((h: any) => h.severity === 'severe') ||
+                      analysis.concerns?.some((c: any) => c.severity === 'high');
     analysis.escalationLevel = hasCrisis ? 'high' : 'low';
-    
+
     // Add concern flags
     analysis.concernFlags = hasCrisis ? ['medical'] : [];
-    
+
+    // Ensure emotions is an array
+    if (!Array.isArray(analysis.emotions)) {
+      analysis.emotions = [];
+    }
+
+    // Ensure healthMentions is an array
+    if (!Array.isArray(analysis.healthMentions)) {
+      analysis.healthMentions = [];
+    }
+
+    console.log('[SENTIMENT] Analysis complete:', {
+      sentiment: analysis.sentiment,
+      emotionsCount: analysis.emotions?.length || 0,
+      healthMentionsCount: analysis.healthMentions?.length || 0
+    });
+
     return analysis;
-    
+
   } catch (error) {
-    console.error('Error analyzing sentiment and health:', error);
-    
+    console.error('[SENTIMENT] Error analyzing sentiment and health:', error);
+
     // Return neutral analysis on error
     return {
       sentiment: 0,

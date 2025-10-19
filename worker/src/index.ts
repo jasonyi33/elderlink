@@ -129,10 +129,12 @@ export default {
         }
       }
 
-      // Live sentiment endpoint - GET
+      // Live sentiment endpoint - GET (fixed KV key to match webhook handler)
       if (url.pathname === '/api/sentiment/live' && request.method === 'GET') {
-        const sentiment = await env.KV.get('live-sentiment');
-        const data = sentiment ? JSON.parse(sentiment) : { sentiment: 0, emotions: [], timestamp: new Date().toISOString() };
+        // Default to mrs-chen for the demo
+        const seniorId = 'mrs-chen';
+        const sentiment = await env.KV.get(`live-sentiment-${seniorId}`);
+        const data = sentiment ? JSON.parse(sentiment) : { sentiment: 0, emotions: [], language: 'english', timestamp: new Date().toISOString() };
         return new Response(JSON.stringify(data), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
@@ -144,6 +146,16 @@ export default {
         const sentimentData = await request.json() as any;
         await env.KV.put(`live-sentiment-${seniorId}`, JSON.stringify(sentimentData));
         return new Response(JSON.stringify({ success: true }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Call state endpoint - GET (check if call is active)
+      if (url.pathname === '/api/call-state' && request.method === 'GET') {
+        const seniorId = 'mrs-chen';
+        const callState = await env.KV.get(`call-state-${seniorId}`);
+        const data = callState ? JSON.parse(callState) : { isActive: false };
+        return new Response(JSON.stringify(data), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
       }

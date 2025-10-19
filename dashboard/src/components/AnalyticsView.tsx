@@ -52,11 +52,13 @@ export default function AnalyticsView() {
           <div className="w-64 h-64 mx-auto">
             {/* Radial progress indicator - simplified as percentage bar */}
             <div className="relative pt-1">
-              <div className="overflow-hidden h-4 mb-4 text-xs flex rounded bg-neutral-dark">
+              <div className="overflow-hidden h-6 mb-4 rounded bg-neutral-darker">
                 <div
                   style={{ width: `${holisticScore}%` }}
-                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-primary to-success transition-all duration-500"
-                />
+                  className="h-6 bg-primary-dark text-white text-center font-semibold projector-text-base flex items-center justify-center transition-all duration-500"
+                >
+                  {holisticScore}%
+                </div>
               </div>
             </div>
           </div>
@@ -67,23 +69,23 @@ export default function AnalyticsView() {
           <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Breakdown:</h4>
 
           {/* Mental Health */}
-          <div className="border-l-4 border-primary pl-4">
+          <div className="border-l-4 border-primary-900 bg-primary-50 pl-4 py-3 rounded">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-primary">Mental Health</span>
-              <span className="text-primary font-bold">↑ 42%</span>
+              <span className="font-semibold text-primary-900 projector-text-lg">Mental Health</span>
+              <span className="text-primary-900 font-bold text-xl projector-text-2xl">↑ 42%</span>
             </div>
-            <p className="text-sm text-text-muted">
+            <p className="text-base projector-text-base text-text-muted-dark">
               {analytics.totalConversations} conversations
             </p>
           </div>
 
           {/* Physical Health */}
-          <div className="border-l-4 border-success pl-4">
+          <div className="border-l-4 border-success-dark bg-success-light pl-4 py-3 rounded">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-primary">Physical</span>
-              <span className="text-success font-bold">{analytics.totalHealthNotes} health notes</span>
+              <span className="font-semibold text-success-dark projector-text-lg">Physical</span>
+              <span className="text-success-dark font-bold text-xl projector-text-2xl">{analytics.totalHealthNotes} health notes</span>
             </div>
-            <p className="text-sm text-text-muted">
+            <p className="text-base projector-text-base text-text-muted-dark">
               {profile.healthData.notes.filter((n: any) => {
                 const weekAgo = new Date()
                 weekAgo.setDate(weekAgo.getDate() - 7)
@@ -93,14 +95,14 @@ export default function AnalyticsView() {
           </div>
 
           {/* Social Health */}
-          <div className="border-l-4 border-secondary pl-4">
+          <div className="border-l-4 border-error bg-error/10 pl-4 py-3 rounded">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-primary">Social</span>
-              <span className="text-secondary font-bold">
+              <span className="font-semibold text-error projector-text-lg">Social</span>
+              <span className="text-error font-bold text-xl projector-text-2xl">
                 {analytics.totalMatches} matches, {profile.groups.length} groups
               </span>
             </div>
-            <p className="text-sm text-text-muted">Community growing</p>
+            <p className="text-base projector-text-base text-text-muted-dark">Community growing</p>
           </div>
         </div>
 

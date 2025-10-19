@@ -82,18 +82,19 @@
               left var(--animation-duration, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Phase 4: Solid colors for projector visibility */
 .sentiment-fill.positive {
-  background: var(--gradient-success);
-  box-shadow: 0 0 20px rgba(6, 214, 160, 0.4);
+  background: #1F7A6F; /* success-dark - high contrast */
+  box-shadow: 0 0 20px rgba(42, 157, 143, 0.4);
 }
 
 .sentiment-fill.negative {
-  background: var(--gradient-error);
+  background: #E63946; /* error.DEFAULT */
   box-shadow: 0 0 20px rgba(230, 57, 70, 0.4);
 }
 
 .sentiment-fill.neutral {
-  background: linear-gradient(90deg, #FDB94E, #FDCB6E);
+  background: #CED4DA; /* neutral-darkest - solid color */
 }
 
 /* Shimmer effect using pure CSS */
@@ -178,16 +179,18 @@
 
 /* ============================================
    Emotion Badges with Staggered Animation
+   Phase 4: Enhanced for projector visibility
    ============================================ */
 
 .emotion-badge {
   display: inline-block;
-  padding: 0.375rem 1rem;
-  background: var(--gradient-wellness);
+  padding: 0.5rem 1.25rem; /* Increased padding */
+  background: #457B9D; /* Primary color - solid, no gradient */
   color: white;
+  border: 2px solid #2C5570; /* Added border (primary-900) */
   border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 1rem; /* Increased from 0.875rem */
+  font-weight: 600; /* Semibold - increased from 500 */
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   transform: translateZ(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -199,20 +202,34 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Solid PRD-compliant colors for better projector visibility */
 .emotion-badge.happy {
-  background: linear-gradient(135deg, #06D6A0, #48BB78);
+  background: #2A9D8F; /* success.DEFAULT */
+  border-color: #1F7A6F; /* success-dark */
 }
 
 .emotion-badge.sad {
-  background: linear-gradient(135deg, #4299E1, #3182CE);
+  background: #457B9D; /* primary.DEFAULT */
+  border-color: #2C5570; /* primary-900 */
 }
 
 .emotion-badge.anxious {
-  background: linear-gradient(135deg, #F6D55C, #ED8936);
+  background: #F4A261; /* warning.DEFAULT */
+  border-color: #E08B47; /* warning-dark */
 }
 
 .emotion-badge.calm {
-  background: linear-gradient(135deg, #9D84B7, #B794F4);
+  background: #A8DADC; /* accent.DEFAULT */
+  border-color: #7BC5C9; /* accent-dark */
+  color: #1D3557; /* Dark text for better contrast on light background */
+}
+
+/* Projector optimization - larger text on big screens */
+@media (min-width: 1920px) {
+  .emotion-badge {
+    font-size: 1.125rem; /* projector-text-lg equivalent */
+    padding: 0.625rem 1.5rem;
+  }
 }
 
 /* ============================================

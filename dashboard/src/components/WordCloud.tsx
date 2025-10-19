@@ -44,15 +44,15 @@ const WordCloud: React.FC<WordCloudProps> = ({
     return 12 + (scaledFreq * sizeRange);
   };
 
-  // Color palette for different frequency ranges
+  // Phase 4: High-contrast PRD-compliant colors for projector visibility
   const getColorClass = (frequency: number): string => {
     const percentile = (frequency - minFreq) / (maxFreq - minFreq);
-    
-    if (percentile >= 0.8) return 'text-blue-600'; // Highest frequency
-    if (percentile >= 0.6) return 'text-green-600'; // High frequency
-    if (percentile >= 0.4) return 'text-yellow-600'; // Medium frequency
-    if (percentile >= 0.2) return 'text-orange-600'; // Low frequency
-    return 'text-gray-500'; // Lowest frequency
+
+    if (percentile >= 0.8) return 'text-primary-900'; // Highest: #2C5570 (primary-900)
+    if (percentile >= 0.6) return 'text-success-dark'; // High: #1F7A6F (success-dark)
+    if (percentile >= 0.4) return 'text-warning-dark'; // Medium: #E08B47 (warning-dark)
+    if (percentile >= 0.2) return 'text-error-dark'; // Low: #C82333 (error-dark)
+    return 'text-secondary-dark'; // Lowest: #0D1D2F (secondary-dark)
   };
 
   return (

@@ -83,9 +83,9 @@ export const OptimizedSentimentMeter = memo<SentimentMeterProps>(
           </div>
         </div>
 
-        {/* Numeric Display */}
+        {/* Numeric Display - Phase 4: Solid color for projector */}
         <div className="flex justify-center mt-3">
-          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+          <span className="text-2xl font-bold text-primary-900">
             {percentage}
           </span>
         </div>

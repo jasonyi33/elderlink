@@ -11,7 +11,6 @@ import { Task511ActualVerification } from './tests/task511ActualVerification'
 import { Toaster } from 'react-hot-toast'
 import './utils/consoleErrorCheck' // Auto-start console error monitoring
 import './styles/design-system.css' // Design system styles
-import APIDebugPanel from './components/APIDebugPanel'
 
 // Lazy load all tab components for optimal performance
 const LiveCallViewEnhanced = lazy(() => import('./components/LiveCallViewEnhanced'))
@@ -153,8 +152,8 @@ function App() {
       {/* Main app */}
       <div className={`min-h-screen bg-gradient-to-br from-background-alt to-white ${performanceMode ? 'performance-mode' : ''}`}>
         <Tab.Group>
-          {/* Enhanced tab navigation with gradients */}
-          <nav className="bg-white/70 backdrop-blur-sm border-b sticky top-0 z-10 shadow-sm">
+          {/* Enhanced tab navigation - backdrop blur removed for projector optimization (Phase 3) */}
+          <nav className="bg-white border-b sticky top-0 z-10 shadow-sm">
             <div className="max-w-7xl mx-auto px-4">
               <Tab.List className="flex space-x-8">
                 <Tab className={({ selected }) =>
@@ -165,7 +164,7 @@ function App() {
                   }`
                 }>
                   <span className="flex items-center gap-2">
-                    📞 Live Call
+                    <span className="text-xl">📞</span> Live Call
                     <span className="inline-flex items-center">
                       <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                     </span>
@@ -178,7 +177,7 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  👤 Senior Profile
+                  <span className="text-xl">👤</span> Senior Profile
                 </Tab>
                 <Tab className={({ selected }) =>
                   `py-3 px-1 border-b-2 transition-all duration-300 font-medium ${
@@ -187,7 +186,7 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  👥 Community
+                  <span className="text-xl">👥</span> Community
                 </Tab>
                 <Tab className={({ selected }) =>
                   `py-3 px-1 border-b-2 transition-all duration-300 font-medium ${
@@ -196,16 +195,13 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  📊 Analytics
+                  <span className="text-xl">📊</span> Analytics
                 </Tab>
               </Tab.List>
             </div>
           </nav>
 
           <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-300">
-            {/* Debug Panel */}
-            <APIDebugPanel />
-
             <Tab.Panels>
               {/* Live Call Tab */}
               <Tab.Panel>

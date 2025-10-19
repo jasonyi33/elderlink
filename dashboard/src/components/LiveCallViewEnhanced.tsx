@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import toast, { Toaster } from 'react-hot-toast';
 import { apiClient } from '../services/api-client';
 import { validateSentimentData } from '../utils/dataValidation';
 import { useThrottledAnimation, usePerformanceMonitor, useOptimizedPolling } from '../hooks/useThrottledAnimation';
@@ -44,6 +43,7 @@ export default function LiveCallViewEnhanced() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [isCallActive, setIsCallActive] = useState(false);
 
   // Performance optimizations
   const sentiment = useThrottledAnimation(rawSentiment, 1000); // Throttle to 1 update per second
@@ -52,6 +52,19 @@ export default function LiveCallViewEnhanced() {
   // Fetch sentiment data with validation
   const fetchSentiment = useCallback(async () => {
     try {
+      // Fetch call state first
+      const callStateResponse = await fetch('https://elderlink-dev.elderlinkhelper.workers.dev/api/call-state');
+      const callState = await callStateResponse.json();
+
+      // Update call state
+      setIsCallActive(callState.isActive || false);
+
+      // Only fetch sentiment if call is active
+      if (!callState.isActive) {
+        setIsLoading(false);
+        return;
+      }
+
       const response = await apiClient.fetchLiveSentiment();
 
       if (response.error) {
@@ -67,22 +80,6 @@ export default function LiveCallViewEnhanced() {
       setError(null);
       setIsLoading(false);
       setLastUpdate(new Date());
-
-      // Show toast for significant sentiment changes
-      if (Math.abs(validated.sentiment - rawSentiment) > 0.3) {
-        const message = validated.sentiment > rawSentiment
-          ? '😊 Sentiment improving!'
-          : '😟 Monitoring emotional state';
-
-        toast(message, {
-          duration: 3000,
-          position: 'bottom-right',
-          style: {
-            background: validated.sentiment > 0 ? '#06D6A0' : '#E63946',
-            color: 'white',
-          },
-        });
-      }
     } catch (err) {
       console.error('Failed to fetch sentiment:', err);
       if (isLoading) {
@@ -142,14 +139,30 @@ export default function LiveCallViewEnhanced() {
     );
   }
 
+  // No active call state
+  if (!isCallActive && !isLoading) {
+    return (
+      <div className="glass-card p-6">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📞</div>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-2">No Active Call</h3>
+          <p className="text-gray-600 mb-4">
+            Waiting for {profile.name} to call Sam...
+          </p>
+          <p className="text-sm text-gray-500">
+            Real-time sentiment and emotions will appear when the call starts.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Toaster />
-      <div className={`glass-card p-6 ${isPerformanceDegraded ? 'performance-mode' : ''}`}>
-        {/* Performance warning */}
+    <div className={`glass-card p-6 ${isPerformanceDegraded ? 'performance-mode' : ''}`}>
+        {/* Performance warning - Phase 5: Fixed color clash */}
         {isPerformanceDegraded && (
-          <div className="mb-4 p-3 bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 rounded-lg flex items-center gap-2">
-            <span className="text-xl">⚠️</span>
+          <div className="mb-4 p-3 bg-accent text-text rounded-lg shadow-lg flex items-center gap-2">
+            <span className="text-xl">🚀</span>
             <span className="text-sm">Performance mode enabled - animations reduced for optimal experience</span>
           </div>
         )}
@@ -160,11 +173,13 @@ export default function LiveCallViewEnhanced() {
             Live Call with {profile.name}
           </h2>
 
-          {/* Enhanced LIVE indicator */}
-          <div className="live-indicator">
-            <span className="live-dot"></span>
-            <span className="font-medium">LIVE</span>
-          </div>
+          {/* Enhanced LIVE indicator - only show when call is active */}
+          {isCallActive && (
+            <div className="live-indicator">
+              <span className="live-dot"></span>
+              <span className="font-medium">LIVE</span>
+            </div>
+          )}
         </div>
 
         {/* Optimized Sentiment Meter */}
@@ -202,7 +217,7 @@ export default function LiveCallViewEnhanced() {
                     className={`emotion-badge ${EMOTION_STYLES[emotion.toLowerCase()] || ''}`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <span className="mr-1">{EMOTION_ICONS[emotion.toLowerCase()] || '💭'}</span>
+                    <span className="text-2xl mr-1">{EMOTION_ICONS[emotion.toLowerCase()] || '💭'}</span>
                     {emotion}
                   </motion.span>
                 ))
@@ -260,6 +275,5 @@ export default function LiveCallViewEnhanced() {
           </div>
         </div>
       </div>
-    </>
   );
 }

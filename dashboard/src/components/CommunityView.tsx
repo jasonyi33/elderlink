@@ -106,10 +106,10 @@ export default function CommunityView() {
           <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Suggested Groups</h3>
           <div className="space-y-3">
             {profile.groups.map((group: any, i: number) => (
-              <div key={i} className="flex items-center justify-between p-md bg-success-light rounded-lg border border-success">
+              <div key={i} className="flex items-center justify-between p-md bg-success-light rounded-lg border-2 border-success-dark">
                 <div>
-                  <p className="font-medium text-success-dark">{group.name}</p>
-                  <p className="text-sm text-success-dark">
+                  <p className="font-semibold text-success-dark text-base projector-text-lg">{group.name}</p>
+                  <p className="text-sm projector-text-base text-text-muted-dark">
                     {group.memberCount} members • {group.language} • {group.schedule}
                   </p>
                 </div>
@@ -147,23 +147,23 @@ function MatchCard({ match }: { match: any }) {
       </div>
 
       {/* Compatibility Score */}
-      <div className="text-center mb-4">
-        <div className="text-2xl projector-text-2xl font-bold text-primary">{matchInfo.score}%</div>
-        <div className="text-warning">
+      <div className="text-center mb-4 bg-primary-50 py-3 rounded-lg">
+        <div className="text-3xl projector-text-3xl font-bold text-primary-900">{matchInfo.score}%</div>
+        <div className="text-warning text-xl projector-text-xl font-bold">
           {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
         </div>
-        <p className="text-sm font-medium text-text capitalize">
+        <p className="text-base projector-text-lg font-semibold text-text capitalize mt-2">
           {matchInfo.compatibility} Compatibility
         </p>
       </div>
 
       {/* Compatibility Bar */}
       <div className="mb-4">
-        <div className="w-full bg-neutral rounded-full h-2">
+        <div className="w-full bg-neutral-darker rounded-full h-3">
           <div
-            className={`h-2 rounded-full transition-normal ${
-              compatibilityColor === 'green' ? 'bg-success' :
-              compatibilityColor === 'yellow' ? 'bg-warning' : 'bg-error'
+            className={`h-3 rounded-full transition-normal ${
+              compatibilityColor === 'green' ? 'bg-success-dark' :
+              compatibilityColor === 'yellow' ? 'bg-warning-dark' : 'bg-error'
             }`}
             style={{ width: `${matchInfo.score}%` }}
           />
