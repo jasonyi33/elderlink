@@ -1,0 +1,283 @@
+{
+  "info": {
+    "name": "ElderLink API Collection",
+    "description": "Task 3.1f: Independent verification of all API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/health",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Verify worker is healthy and KV is connected"
+      }
+    },
+    {
+      "name": "Vapi Webhook - Test 1 (English)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"transcript\": {\"content\": \"Hello Sam\"},\n    \"language\": \"english\"\n  },\n  \"conversationHistory\": []\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/vapi-webhook",
+          "host": ["{{BASE_URL}}"],
+          "path": ["vapi-webhook"]
+        }
+      }
+    },
+    {
+      "name": "Vapi Webhook - Test 2 (Mandarin)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"transcript\": {\"content\": \"我今天很好\"},\n    \"language\": \"mandarin\"\n  },\n  \"conversationHistory\": []\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/vapi-webhook",
+          "host": ["{{BASE_URL}}"],
+          "path": ["vapi-webhook"]
+        }
+      }
+    },
+    {
+      "name": "Vapi Webhook - Test 3 (Empty Message)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"transcript\": {\"content\": \"\"},\n    \"language\": \"english\"\n  },\n  \"conversationHistory\": []\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/vapi-webhook",
+          "host": ["{{BASE_URL}}"],
+          "path": ["vapi-webhook"]
+        }
+      }
+    },
+    {
+      "name": "Vapi Webhook - Test 4 (Health Question)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"transcript\": {\"content\": \"My back hurts when I garden\"},\n    \"language\": \"english\"\n  },\n  \"conversationHistory\": []\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/vapi-webhook",
+          "host": ["{{BASE_URL}}"],
+          "path": ["vapi-webhook"]
+        }
+      }
+    },
+    {
+      "name": "Vapi Webhook - Test 5 (Long Conversation)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": {\n    \"transcript\": {\"content\": \"I planted tomatoes and Sarah visited with Tommy\"},\n    \"language\": \"english\"\n  },\n  \"conversationHistory\": [\n    {\"role\": \"senior\", \"content\": \"Hello Sam\"},\n    {\"role\": \"sam\", \"content\": \"Hi Mrs. Chen!\"}\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/vapi-webhook",
+          "host": ["{{BASE_URL}}"],
+          "path": ["vapi-webhook"]
+        }
+      }
+    },
+    {
+      "name": "Get Senior Profile",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/senior/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "senior", "mrs-chen"]
+        }
+      }
+    },
+    {
+      "name": "Get Live Sentiment",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/sentiment/live",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "sentiment", "live"]
+        }
+      }
+    },
+    {
+      "name": "Get Analytics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/analytics",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "analytics"]
+        }
+      }
+    },
+    {
+      "name": "Get MyChart Health Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/mychart/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "mychart", "mrs-chen"]
+        }
+      }
+    },
+    {
+      "name": "Get MyChart Appointments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/mychart/mrs-chen/appointments",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "mychart", "mrs-chen", "appointments"]
+        }
+      }
+    },
+    {
+      "name": "Update MyChart Notes - Test 1",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": [\n    {\n      \"timestamp\": \"2025-01-19T10:30:00Z\",\n      \"source\": \"Sam AI Conversation\",\n      \"note\": \"Patient reports: back pain when gardening\",\n      \"mentions\": [\n        {\"type\": \"symptom\", \"text\": \"back pain\", \"context\": \"gardening\", \"severity\": \"mild\"}\n      ]\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/mychart/mrs-chen/update",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "mychart", "mrs-chen", "update"]
+        }
+      }
+    },
+    {
+      "name": "Update MyChart Notes - Test 2 (Multiple)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": [\n    {\n      \"timestamp\": \"2025-01-19T11:00:00Z\",\n      \"source\": \"Sam AI Conversation\",\n      \"note\": \"Patient reports: forgot morning pills\",\n      \"mentions\": [\n        {\"type\": \"medication\", \"text\": \"forgot pills\", \"status\": \"non-adherent\"}\n      ]\n    },\n    {\n      \"timestamp\": \"2025-01-19T11:05:00Z\",\n      \"source\": \"Sam AI Conversation\",\n      \"note\": \"Patient reports: knee pain moderate severity\",\n      \"mentions\": [\n        {\"type\": \"symptom\", \"text\": \"knee pain\", \"severity\": \"moderate\"}\n      ]\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/mychart/mrs-chen/update",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "mychart", "mrs-chen", "update"]
+        }
+      }
+    },
+    {
+      "name": "Get Matches",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/matches/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "matches", "mrs-chen"]
+        }
+      }
+    },
+    {
+      "name": "Get Groups",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/groups/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "groups", "mrs-chen"]
+        }
+      }
+    },
+    {
+      "name": "Get Alerts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/alerts/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "alerts", "mrs-chen"]
+        }
+      }
+    },
+    {
+      "name": "Initialize Demo Data - Test 1 (Mrs. Chen)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"mrs-chen\",\n  \"name\": \"Mrs. Chen\",\n  \"age\": 72,\n  \"location\": \"Seattle, WA\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/init-demo",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "init-demo"]
+        }
+      }
+    },
+    {
+      "name": "Initialize Demo Data - Test 2 (Mrs. Lee)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"mrs-lee\",\n  \"name\": \"Mrs. Lee\",\n  \"age\": 69,\n  \"location\": \"Seattle, WA\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/api/init-demo",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "init-demo"]
+        }
+      }
+    },
+    {
+      "name": "Dashboard API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/api/dashboard/mrs-chen",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "dashboard", "mrs-chen"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:8787",
+      "type": "string"
+    }
+  ]
+}
+

@@ -583,11 +583,13 @@ if (sentiment.concerns?.some(c => c.severity === 'high')) {
   // Store in KV: 'alerts-{seniorId}'
 }
 
-// Alert structure
+// Alert structure (Updated: Combined structure per Task 3.6 implementation)
 interface Alert {
   seniorId: string;
   timestamp: string;
   severity: "high" | "medium" | "low";
+  type: "medical" | "crisis" | "depression" | "general"; // Added: Alert category
+  message: string; // Added: Human-readable alert message
   concerns: Array<{
     type: string;
     excerpt: string;
@@ -992,8 +994,11 @@ Focus on extracting actionable, specific details.
 ## 7. API Implementation
 
 ### Complete Worker Structure
+
+**Note:** The code below shows a consolidated example for clarity. In actual implementation (Task 3.1d), use modular handler files (`worker/src/handlers/*.ts`) for better code organization.
+
 ```typescript
-// src/index.ts
+// worker/src/index.ts (Main router - delegates to handlers)
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -1010,7 +1015,7 @@ export default {
 
     // Main webhook endpoint (CRITICAL PATH)
     if (url.pathname === '/vapi-webhook' && request.method === 'POST') {
-      return handleVapiWebhook(request, env);
+      return handleVapiWebhook(request, env); // Imported from handlers/vapi-webhook.ts
     }
 
     // Dashboard API - Single call gets everything
@@ -1119,7 +1124,11 @@ async function handleDashboardAPI(
 ```
 
 ### Vapi Webhook Handler (OPTIMIZED FOR <3s LATENCY)
+
+**Implementation Note (Task 3.1d):** Create full webhook architecture in `worker/src/handlers/vapi-webhook.ts`. Use stub `generateSamResponse()` until Developer 1 provides real function at Hour 5.
+
 ```typescript
+// worker/src/handlers/vapi-webhook.ts
 async function handleVapiWebhook(request: Request, env: Env): Promise<Response> {
   try {
     // Set up 7-second timeout for Vapi's 10-second limit
@@ -2759,29 +2768,30 @@ wrangler kv:namespace create "ELDERLINK_KV" --preview
 elderlink/
 ├── worker/
 │   ├── src/
-│   │   ├── index.ts                      # Main worker router
+│   │   ├── index.ts                      # Main worker router (routes to handlers)
 │   │   ├── handlers/
 │   │   │   ├── vapi-webhook.ts           # Optimized webhook (<3s)
 │   │   │   ├── dashboard-api.ts          # Single dashboard endpoint
 │   │   │   ├── mychart-api.ts            # 3 health endpoints
-│   │   │   └── matching-api.ts           # Community logic
+│   │   │   ├── alert-api.ts              # Alert retrieval endpoint
+│   │   │   └── matching-api.ts           # Community logic (matches/groups)
 │   │   ├── services/
-│   │   │   ├── gemini-service.ts         # 5 helper functions
-│   │   │   ├── profile-service.ts        # KV operations
-│   │   │   ├── health-service.ts         # Health data mgmt
+│   │   │   ├── kv-service.ts             # KV operations (getProfile, saveProfile, etc)
+│   │   │   ├── gemini-service.ts         # Gemini API calls with timeout
+│   │   │   ├── health-service.ts         # Health data management
 │   │   │   ├── matching-service.ts       # Algorithm + groups
-│   │   │   └── background-jobs.ts        # Async processing
-│   │   ├── prompts/
-│   │   │   └── index.ts                  # All 3 prompts
+│   │   │   ├── alert-service.ts          # Crisis detection & alerts
+│   │   │   ├── wellness-service.ts       # Metrics calculation
+│   │   │   ├── conversation-summary.ts   # Summary generation
+│   │   │   └── word-cloud.ts             # Word frequency analysis
 │   │   ├── types/
-│   │   │   └── index.ts                  # SeniorProfile interface
+│   │   │   └── index.ts                  # SeniorProfile interface & types
 │   │   └── utils/
 │   │       └── helpers.ts
-│   ├── test/
-│   │   ├── vapi-webhook.test.ts
-│   │   ├── health-extraction.test.ts
-│   │   ├── matching-algorithm.test.ts
-│   │   └── latency.test.ts
+│   ├── tests/
+│   │   ├── index.test.ts                 # API endpoint tests (Task 3.1)
+│   │   ├── health.test.ts                # Health check tests (pre-existing)
+│   │   └── [service].test.ts             # Service-specific unit tests
 │   ├── wrangler.toml
 │   └── package.json
 ├── dashboard/

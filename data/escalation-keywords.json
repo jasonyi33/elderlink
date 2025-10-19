@@ -1,0 +1,50 @@
+{
+  "medical": [
+    "chest pain",
+    "chest discomfort",
+    "can't breathe",
+    "can't breath",
+    "cannot breathe",
+    "stroke",
+    "stroke symptoms",
+    "severe bleeding",
+    "unconscious",
+    "heart attack",
+    "heart racing",
+    "extreme pain",
+    "difficulty breathing",
+    "severe headache",
+    "loss of consciousness",
+    "collapsed",
+    "choking"
+  ],
+  "crisis": [
+    "end it all",
+    "not worth living",
+    "wish I was dead",
+    "better off dead",
+    "suicide",
+    "kill myself",
+    "end my life",
+    "don't want to live",
+    "want to die",
+    "no reason to live",
+    "can't go on anymore",
+    "rather be dead"
+  ],
+  "depression": [
+    "hopeless",
+    "no meaning",
+    "worthless",
+    "nothing matters",
+    "can't go on",
+    "no point",
+    "pointless",
+    "empty inside",
+    "nobody cares",
+    "all alone",
+    "give up",
+    "no future"
+  ]
+}
+
