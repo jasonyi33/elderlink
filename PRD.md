@@ -583,11 +583,13 @@ if (sentiment.concerns?.some(c => c.severity === 'high')) {
   // Store in KV: 'alerts-{seniorId}'
 }
 
-// Alert structure
+// Alert structure (Updated: Combined structure per Task 3.6 implementation)
 interface Alert {
   seniorId: string;
   timestamp: string;
   severity: "high" | "medium" | "low";
+  type: "medical" | "crisis" | "depression" | "general"; // Added: Alert category
+  message: string; // Added: Human-readable alert message
   concerns: Array<{
     type: string;
     excerpt: string;
