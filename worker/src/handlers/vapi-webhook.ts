@@ -23,6 +23,32 @@ import { extractMemories } from '../prompts/memory-extraction';
 import { analyzeSentimentAndHealth } from '../prompts/sentiment-health-analysis';
 
 /**
+ * Validate response content before sending to Vapi
+ * Ensures no meta-text, JSON, or malformed content reaches TTS
+ */
+function validateResponse(response: string): { isValid: boolean; reason?: string } {
+  if (!response || response.trim().length === 0) {
+    return { isValid: false, reason: 'empty' };
+  }
+  if (response.length > 500) {
+    return { isValid: false, reason: 'too_long' };
+  }
+  // Check for JSON remnants
+  if (/\{[\s\S]*\}/.test(response)) {
+    return { isValid: false, reason: 'contains_json' };
+  }
+  // Check for code blocks
+  if (/```/.test(response)) {
+    return { isValid: false, reason: 'contains_code_block' };
+  }
+  // Check for meta-instructions
+  if (/^\[.*?\]:/.test(response)) {
+    return { isValid: false, reason: 'contains_meta_instruction' };
+  }
+  return { isValid: true };
+}
+
+/**
  * Load Mrs. Chen seed data from static JSON
  * This is used for demo purposes to have a rich starting profile
  */
@@ -450,7 +476,7 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const exchangeNumber = profile.conversations.length + 1;
 
   // PRIORITY PATH: Generate Sam's response immediately (Developer 1's real function)
-  const samResponse = await generateSamResponse(
+  let samResponse = await generateSamResponse(
     seniorMessage,
     profile,
     exchangeNumber,
@@ -461,12 +487,38 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     }
   );
 
+  // CRITICAL: Validate response before sending to Vapi
+  const validation = validateResponse(samResponse);
+  if (!validation.isValid) {
+    console.error('[VAPI] Invalid response detected:', validation.reason, 'Response:', samResponse.substring(0, 100));
+    // Use safe fallback
+    samResponse = `Hi ${profile.name}! How are you doing today?`;
+  }
+
+  // Log response metrics
+  console.log('[VAPI] Response metrics:', {
+    length: samResponse.length,
+    wordCount: samResponse.split(/\s+/).length,
+    language,
+    exchangeNumber,
+    seniorId: profile.id,
+    timeMs: Date.now() - start
+  });
+
+  // Alert on suspicious responses
+  if (samResponse.length > 400) {
+    console.warn('[VAPI] ⚠️ Response longer than expected:', samResponse.length, 'chars');
+  }
+  if (samResponse.split(/\s+/).length > 60) {
+    console.warn('[VAPI] ⚠️ Response wordier than expected:', samResponse.split(/\s+/).length, 'words');
+  }
+
   // Select voice based on language
   const voiceId = language === 'mandarin'
     ? env.ELEVENLABS_MANDARIN_VOICE
     : env.ELEVENLABS_ENGLISH_VOICE;
 
-  console.log(`[VAPI] Response generated in ${Date.now() - start}ms`);
+  console.log(`[VAPI] Response validated and ready in ${Date.now() - start}ms`);
 
   // Set call state to active (for dashboard to show live sentiment)
   const callState = {
@@ -537,8 +589,8 @@ async function backgroundProcessing(
       env // Pass env to enable real Gemini API calls
     );
 
-    // 2. Memory Extraction (Developer 1's real function)
-    const newMemories = await extractMemories(message, profile);
+    // 2. Memory Extraction (Developer 1's real function with real Gemini API)
+    const newMemories = await extractMemories(message, profile, env); // Pass env for real API calls
 
     // 2.5 Update profile with new memories
     if (newMemories && newMemories.newFacts) {
