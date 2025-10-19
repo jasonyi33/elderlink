@@ -1,101 +1,15 @@
 /**
- * Task 3.1d: KV Service STUB
+ * Task 3.3d: KV Service Implementation
  * 
- * TEMPORARY IMPLEMENTATION - Returns mock data to make tests pass
- * TODO: Task 3.3 - Replace with real Cloudflare KV operations
+ * Real Cloudflare KV operations for senior profiles and live sentiment
+ * Implements conversation limit (max 10) and TTL for live data
  * 
- * Reference: PRD.md lines 772-788
+ * Reference: 
+ * - PRD.md lines 772-788
+ * - DEVELOPER_2_IMPLEMENTATION.md Task 3.3
  */
 
 import { SeniorProfile } from '../types';
-
-// Mock data for testing (from PRD lines 358-383)
-const MOCK_MRS_CHEN: SeniorProfile = {
-  id: 'mrs-chen',
-  name: 'Mrs. Chen',
-  age: 72,
-  phone: '+1-206-555-0123',
-  languages: ['english', 'mandarin'],
-  location: 'Seattle, WA',
-  memories: {
-    family: [
-      { name: 'Sarah', relationship: 'daughter', details: ['Visits weekly', 'Lives nearby'] },
-      { name: 'Tommy', relationship: 'grandson', details: ['5 years old'] }
-    ],
-    hobbies: ['gardening', 'piano', 'cooking'],
-    health: ['arthritis in knees', 'takes medication regularly'],
-    recentEvents: ['planted tomatoes last week'],
-    preferences: {
-      topicsEnjoys: ['family', 'gardening', 'music'],
-      topicsAvoid: [],
-      conversationStyle: 'warm and nostalgic'
-    }
-  },
-  socialProfile: {
-    interests: ['gardening', 'piano', 'cooking', 'Shanghai culture'],
-    culturalBackground: 'Shanghai, Mandarin',
-    openToMatching: true
-  },
-  healthData: {
-    conditions: [
-      { name: 'Hypertension', since: '2018', status: 'controlled' },
-      { name: 'Type 2 Diabetes', since: '2020', status: 'managed' },
-      { name: 'Osteoarthritis', since: '2020', status: 'managed' }
-    ],
-    medications: [
-      { name: 'Lisinopril', dosage: '10mg', frequency: 'daily morning', purpose: 'blood pressure' },
-      { name: 'Metformin', dosage: '500mg', frequency: 'with meals', purpose: 'diabetes' },
-      { name: 'Vitamin D', dosage: '1000 IU', frequency: 'daily', purpose: 'bone health' }
-    ],
-    vitals: {
-      lastUpdated: '2025-01-10',
-      bloodPressure: '128/82',
-      weight: '145 lbs',
-      bloodSugar: '110 mg/dL'
-    },
-    appointments: [
-      { date: '2025-01-25', time: '10:00am', type: 'Primary care checkup', doctor: 'Dr. Smith' },
-      { date: '2025-02-15', time: '2:00pm', type: 'Cardiology follow-up', doctor: 'Dr. Johnson' }
-    ],
-    notes: []
-  },
-  matches: [
-    { seniorId: 'mrs-lee', score: 90, compatibility: 'high', sharedInterests: ['gardening', 'piano', 'cooking'], calculatedAt: '2025-01-18' },
-    { seniorId: 'mr-wang', score: 85, compatibility: 'high', sharedInterests: ['gardening', 'cooking'], calculatedAt: '2025-01-18' },
-    { seniorId: 'mrs-kim', score: 65, compatibility: 'good', sharedInterests: ['gardening'], calculatedAt: '2025-01-18' }
-  ],
-  groups: [
-    {
-      id: 'mandarin-gardening-circle',
-      name: 'Mandarin Gardening Circle',
-      memberCount: 3,
-      activity: 'gardening',
-      language: 'Mandarin',
-      schedule: 'Weekly'
-    }
-  ],
-  conversations: [],
-  wellnessMetrics: {
-    mentalHealth: {
-      lonelinessScore: 45,
-      averageSentiment: 0.3,
-      trend: 'stable'
-    },
-    physicalHealth: {
-      symptomMentions: 2,
-      medicationAdherence: 90,
-      appointmentReminders: 1
-    },
-    socialHealth: {
-      matchesMade: 3,
-      groupsJoined: 1,
-      communityEngagement: 75
-    },
-    holisticScore: 65,
-    lastCallDate: '2025-01-18',
-    callFrequency: 3
-  }
-};
 
 export interface Env {
   KV: KVNamespace;
@@ -107,39 +21,109 @@ export interface Env {
   context: ExecutionContext;
 }
 
-// TODO: Task 3.3 - Replace stub with real KV implementation
-export async function getProfile(_seniorId: string, _env: Env): Promise<SeniorProfile> {
-  console.log('[KV-STUB] getProfile called for:', _seniorId);
-  // STUB: Return mock data
-  return MOCK_MRS_CHEN;
+/**
+ * Get senior profile from KV storage
+ * Returns null if profile doesn't exist
+ */
+export async function getProfile(seniorId: string, env: Env): Promise<SeniorProfile | null> {
+  console.log('[KV] getProfile called for:', seniorId);
+  
+  try {
+    const key = `senior-${seniorId}`;
+    const data = await env.KV.get(key);
+    
+    if (!data) {
+      console.log('[KV] Profile not found:', seniorId);
+      return null;
+    }
+    
+    const profile = JSON.parse(data) as SeniorProfile;
+    console.log('[KV] Profile retrieved:', seniorId);
+    return profile;
+    
+  } catch (error) {
+    console.error('[KV] Error getting profile:', error);
+    return null;
+  }
 }
 
-// TODO: Task 3.3 - Replace stub with real KV implementation
-export async function saveProfile(profile: SeniorProfile, _env: Env): Promise<void> {
-  console.log('[KV-STUB] saveProfile called for:', profile.id);
-  // STUB: No-op for now
-  return;
+/**
+ * Save senior profile to KV storage
+ * Enforces conversation limit (max 10)
+ */
+export async function saveProfile(profile: SeniorProfile, env: Env): Promise<void> {
+  console.log('[KV] saveProfile called for:', profile.id);
+  
+  try {
+    // Enforce conversation limit: keep only last 10
+    if (profile.conversations && profile.conversations.length > 10) {
+      profile.conversations = profile.conversations.slice(-10);
+      console.log('[KV] Truncated conversations to last 10');
+    }
+    
+    const key = `senior-${profile.id}`;
+    const value = JSON.stringify(profile);
+    
+    await env.KV.put(key, value);
+    console.log('[KV] Profile saved:', profile.id);
+    
+  } catch (error) {
+    console.error('[KV] Error saving profile:', error);
+    throw error;
+  }
 }
 
-// TODO: Task 3.3 - Replace stub with real KV implementation
+/**
+ * Save live sentiment data with 5-minute TTL
+ * Used for real-time dashboard updates
+ */
 export async function saveLiveSentiment(
-  _seniorId: string,
-  _data: { sentiment: number; emotions: string[]; timestamp: string },
-  _env: Env
+  seniorId: string,
+  data: { sentiment: number; emotions: string[]; timestamp: string },
+  env: Env
 ): Promise<void> {
-  console.log('[KV-STUB] saveLiveSentiment called for:', _seniorId);
-  // STUB: No-op for now
-  return;
+  console.log('[KV] saveLiveSentiment called for:', seniorId);
+  
+  try {
+    const key = `live-sentiment-${seniorId}`;
+    const value = JSON.stringify(data);
+    
+    // Set 5-minute TTL (300 seconds)
+    await env.KV.put(key, value, { expirationTtl: 300 });
+    console.log('[KV] Live sentiment saved with 5-min TTL:', seniorId);
+    
+  } catch (error) {
+    console.error('[KV] Error saving live sentiment:', error);
+    throw error;
+  }
 }
 
-// TODO: Task 3.3 - Replace stub with real KV implementation
-export async function getLiveSentiment(_seniorId: string, _env: Env): Promise<any> {
-  console.log('[KV-STUB] getLiveSentiment called for:', _seniorId);
-  // STUB: Return mock sentiment
-  return {
-    sentiment: 0,
-    emotions: [],
-    timestamp: new Date().toISOString()
-  };
+/**
+ * Get live sentiment data
+ * Returns null if expired or doesn't exist
+ */
+export async function getLiveSentiment(
+  seniorId: string,
+  env: Env
+): Promise<{ sentiment: number; emotions: string[]; timestamp: string } | null> {
+  console.log('[KV] getLiveSentiment called for:', seniorId);
+  
+  try {
+    const key = `live-sentiment-${seniorId}`;
+    const data = await env.KV.get(key);
+    
+    if (!data) {
+      console.log('[KV] Live sentiment not found or expired:', seniorId);
+      return null;
+    }
+    
+    const sentiment = JSON.parse(data);
+    console.log('[KV] Live sentiment retrieved:', seniorId);
+    return sentiment;
+    
+  } catch (error) {
+    console.error('[KV] Error getting live sentiment:', error);
+    return null;
+  }
 }
 

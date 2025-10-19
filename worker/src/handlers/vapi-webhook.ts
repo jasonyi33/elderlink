@@ -54,6 +54,68 @@ async function extractMemories(
 }
 
 /**
+ * Create default profile structure for new seniors
+ */
+function createDefaultProfile(seniorId: string): SeniorProfile {
+  return {
+    id: seniorId,
+    name: seniorId,
+    age: 0,
+    phone: '',
+    languages: ['english'],
+    location: '',
+    memories: {
+      family: [],
+      hobbies: [],
+      health: [],
+      recentEvents: [],
+      preferences: {
+        topicsEnjoys: [],
+        topicsAvoid: [],
+        conversationStyle: ''
+      }
+    },
+    socialProfile: {
+      interests: [],
+      culturalBackground: '',
+      openToMatching: false
+    },
+    healthData: {
+      conditions: [],
+      medications: [],
+      vitals: {
+        lastUpdated: ''
+      },
+      appointments: [],
+      notes: []
+    },
+    matches: [],
+    groups: [],
+    conversations: [],
+    wellnessMetrics: {
+      mentalHealth: {
+        lonelinessScore: 0,
+        averageSentiment: 0,
+        trend: 'stable'
+      },
+      physicalHealth: {
+        symptomMentions: 0,
+        medicationAdherence: 0,
+        appointmentReminders: 0
+      },
+      socialHealth: {
+        matchesMade: 0,
+        groupsJoined: 0,
+        communityEngagement: 0
+      },
+      holisticScore: 0,
+      lastCallDate: '',
+      callFrequency: 0
+    }
+  };
+}
+
+/**
  * Main webhook handler - Optimized for <3s latency
  * Priority path: Response generation
  * Async path: Sentiment, memory, health processing
@@ -108,6 +170,12 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
 
   // Get senior profile
   let profile = await getProfile('mrs-chen', env);
+  
+  // Handle missing profile (create default for demo)
+  if (!profile) {
+    console.log('[VAPI] Profile not found, using default');
+    profile = createDefaultProfile('mrs-chen');
+  }
 
   // Extract senior's message
   const seniorMessage = message?.transcript?.content || '';

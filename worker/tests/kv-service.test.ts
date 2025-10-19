@@ -124,9 +124,10 @@ describe('KV Service - Task 3.3', () => {
     expect(mockKV.get).toHaveBeenCalledWith('senior-test-senior');
 
     // Verify retrieved profile matches
-    expect(retrieved.id).toBe('test-senior');
-    expect(retrieved.name).toBe('Test Senior');
-    expect(retrieved.age).toBe(70);
+    expect(retrieved).not.toBeNull();
+    expect(retrieved!.id).toBe('test-senior');
+    expect(retrieved!.name).toBe('Test Senior');
+    expect(retrieved!.age).toBe(70);
   });
 
   // Test 2: Conversation limit enforced (max 10)
