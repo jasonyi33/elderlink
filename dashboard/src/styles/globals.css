@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import medical theme */
+@import './medical-theme.css';
+
 /* Custom design tokens from PRD */
 /* NOTE: Colors now defined in tailwind.config.js for single source of truth */
 /* Use Tailwind classes: bg-primary, text-primary, border-primary, etc. */

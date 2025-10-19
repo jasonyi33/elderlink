@@ -9,6 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { setupGlobalErrorHandling } from './utils/errorMonitoring'
 import { Task511ActualVerification } from './tests/task511ActualVerification'
 import { Toaster } from 'react-hot-toast'
+import Icons from './components/ui/Icons'
 import './utils/consoleErrorCheck' // Auto-start console error monitoring
 import './styles/design-system.css' // Design system styles
 
@@ -151,8 +152,41 @@ function App() {
 
       {/* Main app */}
       <div className={`min-h-screen bg-gradient-to-br from-background-alt to-white ${performanceMode ? 'performance-mode' : ''}`}>
+        {/* Professional Medical Header */}
+        <header style={{
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #F7F8FA 100%)',
+          borderBottom: '1px solid rgba(29, 53, 87, 0.08)',
+          padding: '16px 32px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+            <Icons.heartPulse size={32} style={{color: '#457B9D'}} />
+            <div>
+              <h1 style={{fontSize: '24px', fontWeight: 700, color: '#457B9D', margin: 0, letterSpacing: '-0.5px'}}>
+                ElderLink
+              </h1>
+              <p style={{fontSize: '12px', color: '#6C757D', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0}}>
+                Holistic Senior Care Platform
+              </p>
+            </div>
+          </div>
+
+          <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(69, 123, 157, 0.1)', borderRadius: '8px'}}>
+              <Icons.hospital size={16} style={{color: '#457B9D'}} />
+              <span style={{fontSize: '13px', fontWeight: 600, color: '#1D3557'}}>Seattle Medical Network</span>
+            </div>
+            <div style={{fontSize: '13px', color: '#6C757D', fontWeight: 500}}>
+              {new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
+            </div>
+          </div>
+        </header>
+
         <Tab.Group>
-          {/* Enhanced tab navigation - backdrop blur removed for projector optimization (Phase 3) */}
+          {/* Premium tab navigation with professional icons */}
           <nav className="bg-white border-b sticky top-0 z-10 shadow-sm">
             <div className="max-w-7xl mx-auto px-4">
               <Tab.List className="flex space-x-8">
@@ -164,10 +198,8 @@ function App() {
                   }`
                 }>
                   <span className="flex items-center gap-2">
-                    <span className="text-xl">📞</span> Live Call
-                    <span className="inline-flex items-center">
-                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    </span>
+                    <Icons.phone size={20} /> Live Monitoring
+                    <span className="live-indicator"></span>
                   </span>
                 </Tab>
                 <Tab className={({ selected }) =>
@@ -177,7 +209,9 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  <span className="text-xl">👤</span> Senior Profile
+                  <span className="flex items-center gap-2">
+                    <Icons.userCircle size={20} /> Patient Profile
+                  </span>
                 </Tab>
                 <Tab className={({ selected }) =>
                   `py-3 px-1 border-b-2 transition-all duration-300 font-medium ${
@@ -186,7 +220,9 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  <span className="text-xl">👥</span> Community
+                  <span className="flex items-center gap-2">
+                    <Icons.users size={20} /> Community Care
+                  </span>
                 </Tab>
                 <Tab className={({ selected }) =>
                   `py-3 px-1 border-b-2 transition-all duration-300 font-medium ${
@@ -195,7 +231,9 @@ function App() {
                       : 'border-transparent text-text-muted hover:text-primary hover:border-primary/30'
                   }`
                 }>
-                  <span className="text-xl">📊</span> Analytics
+                  <span className="flex items-center gap-2">
+                    <Icons.chart size={20} /> Clinical Analytics
+                  </span>
                 </Tab>
               </Tab.List>
             </div>
