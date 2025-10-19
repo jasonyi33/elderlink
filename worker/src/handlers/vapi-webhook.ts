@@ -165,11 +165,21 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
  */
 async function processVapiCall(request: Request, env: Env): Promise<{content: string; voiceId: string}> {
   const start = Date.now();
-  const data = await request.json() as { message?: any };
-  const { message } = data;
+  const data = await request.json() as { message?: any; call?: any };
+  const { message, call } = data;
+
+  // Map phone number to senior ID
+  const phoneNumber = call?.phoneNumber;
+  const phoneToSeniorId: Record<string, string> = {
+    '+12248581016': 'mrs-chen',
+    '+12065551234': 'mrs-chen', // Backup number
+  };
+  
+  const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
+  console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
 
   // Get senior profile
-  let profile = await getProfile('mrs-chen', env);
+  let profile = await getProfile(seniorId, env);
   
   // Handle missing profile (create default for demo)
   if (!profile) {
