@@ -23,6 +23,151 @@ import { extractMemories } from '../prompts/memory-extraction';
 import { analyzeSentimentAndHealth } from '../prompts/sentiment-health-analysis';
 
 /**
+ * Load Mrs. Chen seed data from static JSON
+ * This is used for demo purposes to have a rich starting profile
+ */
+async function loadMrsChenSeedData(): Promise<SeniorProfile | null> {
+  try {
+    // Seed data embedded as constant (could also fetch from R2/DO in production)
+    const seedData: SeniorProfile = {
+      "id": "mrs-chen",
+      "name": "Mrs. Chen",
+      "age": 72,
+      "phone": "+12248581016",
+      "languages": ["english", "mandarin"],
+      "location": "Seattle, WA",
+      "memories": {
+        "family": [
+          {
+            "name": "Sarah",
+            "relationship": "daughter",
+            "details": ["Lives in Portland", "Visits monthly", "Has two kids"]
+          },
+          {
+            "name": "Tommy",
+            "relationship": "grandson",
+            "details": ["8 years old", "Loves dinosaurs", "Learning piano"]
+          },
+          {
+            "name": "Emily",
+            "relationship": "granddaughter",
+            "details": ["10 years old", "Soccer player", "Straight-A student"]
+          }
+        ],
+        "hobbies": ["gardening", "piano", "cooking Chinese food", "watching Beijing opera"],
+        "health": ["arthritis in knees", "high blood pressure", "trouble sleeping"],
+        "recentEvents": [
+          "Sarah visited last weekend with the kids",
+          "Tomatoes in garden are growing well",
+          "Played piano at community center last Tuesday",
+          "Made dumplings for church potluck"
+        ],
+        "preferences": {
+          "topicsEnjoys": ["family", "gardening", "cooking", "music", "grandchildren"],
+          "topicsAvoid": ["politics", "death", "finances"],
+          "conversationStyle": "warm and patient"
+        }
+      },
+      "socialProfile": {
+        "interests": ["gardening", "piano", "Chinese cooking", "Beijing opera"],
+        "culturalBackground": "Shanghai, Mandarin speaker",
+        "openToMatching": true
+      },
+      "healthData": {
+        "conditions": [
+          {"name": "Hypertension", "since": "2018", "status": "controlled"},
+          {"name": "Type 2 Diabetes", "since": "2020", "status": "managed"},
+          {"name": "Osteoarthritis", "since": "2019", "status": "mild"}
+        ],
+        "medications": [
+          {"name": "Lisinopril", "dosage": "10mg", "frequency": "daily morning", "purpose": "blood pressure"},
+          {"name": "Metformin", "dosage": "500mg", "frequency": "twice daily with meals", "purpose": "diabetes"},
+          {"name": "Vitamin D", "dosage": "1000 IU", "frequency": "daily", "purpose": "bone health"}
+        ],
+        "vitals": {
+          "lastUpdated": "2025-01-18T00:00:00Z",
+          "bloodPressure": "128/82",
+          "weight": "145 lbs",
+          "bloodSugar": "110 mg/dL fasting"
+        },
+        "appointments": [
+          {"date": "2025-01-25", "time": "10:00 AM", "type": "Primary care checkup", "doctor": "Dr. Smith"},
+          {"date": "2025-02-15", "time": "2:00 PM", "type": "Cardiology follow-up", "doctor": "Dr. Johnson"}
+        ],
+        "notes": []
+      },
+      "matches": [
+        {
+          "seniorId": "mrs-lee",
+          "score": 92,
+          "compatibility": "high",
+          "sharedInterests": ["gardening", "cooking", "Mandarin"],
+          "calculatedAt": "2025-01-18T00:00:00Z"
+        },
+        {
+          "seniorId": "mr-wong",
+          "score": 85,
+          "compatibility": "good",
+          "sharedInterests": ["piano", "music", "opera"],
+          "calculatedAt": "2025-01-18T00:00:00Z"
+        },
+        {
+          "seniorId": "mrs-zhang",
+          "score": 88,
+          "compatibility": "good",
+          "sharedInterests": ["cooking", "gardening", "grandchildren"],
+          "calculatedAt": "2025-01-18T00:00:00Z"
+        }
+      ],
+      "groups": [
+        {
+          "id": "gardening-club",
+          "name": "Seattle Mandarin Gardening Circle",
+          "memberCount": 8,
+          "activity": "Weekend gardening and tea",
+          "language": "Mandarin",
+          "schedule": "Saturdays 10am"
+        },
+        {
+          "id": "piano-ensemble",
+          "name": "Senior Piano Ensemble",
+          "memberCount": 5,
+          "activity": "Classical and Chinese music",
+          "language": "English/Mandarin",
+          "schedule": "Wednesdays 2pm"
+        }
+      ],
+      "conversations": [],
+      "wellnessMetrics": {
+        "mentalHealth": {
+          "lonelinessScore": 3,
+          "averageSentiment": 0.75,
+          "trend": "improving"
+        },
+        "physicalHealth": {
+          "symptomMentions": 2,
+          "medicationAdherence": 95,
+          "appointmentReminders": 1
+        },
+        "socialHealth": {
+          "matchesMade": 3,
+          "groupsJoined": 3,
+          "communityEngagement": 85
+        },
+        "holisticScore": 82,
+        "lastCallDate": "2025-01-17T10:00:00Z",
+        "callFrequency": 4
+      }
+    };
+
+    return seedData;
+  } catch (error) {
+    console.error('[VAPI] Error loading seed data:', error);
+    return null;
+  }
+}
+
+/**
  * Create default profile structure for new seniors
  */
 function createDefaultProfile(seniorId: string): SeniorProfile {
@@ -201,10 +346,24 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   // Get senior profile
   let profile = await getProfile(seniorId, env);
 
-  // Handle missing profile (create default for demo)
+  // Handle missing profile - auto-load seed data for demo account
   if (!profile) {
-    console.log('[VAPI] Profile not found, using default');
-    profile = createDefaultProfile('mrs-chen');
+    if (seniorId === 'mrs-chen') {
+      console.log('[VAPI] Mrs. Chen profile not found, loading seed data...');
+      // Load seed data from JSON file
+      const seedData = await loadMrsChenSeedData();
+      if (seedData) {
+        await saveProfile(seedData, env);
+        profile = seedData;
+        console.log('[VAPI] Seed data loaded and saved to KV');
+      } else {
+        console.warn('[VAPI] Failed to load seed data, using empty default');
+        profile = createDefaultProfile(seniorId);
+      }
+    } else {
+      console.log('[VAPI] Profile not found for', seniorId, '- creating new empty profile');
+      profile = createDefaultProfile(seniorId);
+    }
   }
 
   // Extract senior's message (support multiple formats)
