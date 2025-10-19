@@ -82,10 +82,10 @@ export default function AnalyticsView() {
           {/* Physical Health */}
           <div className="border-l-4 border-success-dark bg-success-light pl-4 py-3 rounded">
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-success-dark projector-text-lg">Physical</span>
-              <span className="text-success-dark font-bold text-xl projector-text-2xl">{analytics.totalHealthNotes} health notes</span>
+              <span className="font-semibold text-gray-900 projector-text-lg">Physical</span>
+              <span className="text-gray-900 font-bold text-xl projector-text-2xl">{analytics.totalHealthNotes} health notes</span>
             </div>
-            <p className="text-base projector-text-base text-text-muted-dark">
+            <p className="text-base projector-text-base text-gray-700">
               {profile.healthData.notes.filter((n: any) => {
                 const weekAgo = new Date()
                 weekAgo.setDate(weekAgo.getDate() - 7)
@@ -126,8 +126,8 @@ export default function AnalyticsView() {
               <div className="text-warning-dark">Jan 10</div>
             </div>
             <div className="absolute top-4 right-4 bg-success-light border border-success rounded px-2 py-1 text-xs">
-              <div className="font-semibold text-success-dark">Started medication</div>
-              <div className="text-success-dark">Jan 15</div>
+              <div className="font-semibold text-gray-900">Started medication</div>
+              <div className="text-gray-900">Jan 15</div>
             </div>
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary-light border border-primary rounded px-2 py-1 text-xs">
               <div className="font-semibold text-primary-dark">Community match</div>
@@ -146,7 +146,7 @@ export default function AnalyticsView() {
             <div className="text-sm text-text-muted">Total Conversations</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl projector-text-2xl font-bold text-success">8.5 min</div>
+            <div className="text-2xl projector-text-2xl font-bold text-primary">8.5 min</div>
             <div className="text-sm text-text-muted">Average Duration</div>
           </div>
           <div className="text-center">
@@ -256,7 +256,7 @@ export default function AnalyticsView() {
 function MetricCard({ value, label, icon, color }: any) {
   const colorClasses = {
     primary: 'bg-primary-light text-primary-dark border-primary',
-    success: 'bg-success-light text-success-dark border-success',
+    success: 'bg-success-light text-gray-900 border-success',
     secondary: 'bg-secondary-light text-secondary-dark border-secondary',
     warning: 'bg-warning-light text-warning-dark border-warning'
   }

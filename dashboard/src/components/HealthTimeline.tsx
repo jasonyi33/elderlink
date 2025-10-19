@@ -23,7 +23,7 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
   const getMentionTagColor = (type: string) => {
     switch (type) {
       case 'symptom': return 'bg-secondary-light text-secondary-dark'
-      case 'medication': return 'bg-success-light text-success-dark'
+      case 'medication': return 'bg-blue-50 text-primary-dark'
       case 'concern': return 'bg-warning-light text-warning-dark'
       default: return 'bg-neutral text-text-muted'
     }
@@ -42,7 +42,7 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
     switch (source) {
       case 'Sam AI Conversation': return 'bg-primary-light text-primary-dark'
       case 'Manual Entry': return 'bg-warning-light text-warning-dark'
-      case 'Provider': return 'bg-success-light text-success-dark'
+      case 'Provider': return 'bg-blue-50 text-primary-dark'
       default: return 'bg-neutral text-text-muted'
     }
   }

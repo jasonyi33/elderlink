@@ -56,7 +56,7 @@ export default function CommunityView() {
           </div>
           <div>
             <label className="text-sm text-text-muted block mb-1">Open to connecting</label>
-            <p className="text-sm font-medium text-success">
+            <p className="text-sm font-medium text-primary">
               Yes
             </p>
           </div>
@@ -72,7 +72,7 @@ export default function CommunityView() {
             <div className="text-sm text-text-muted">Matches Made</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl projector-text-3xl font-bold text-success">{profile.wellnessMetrics.socialHealth.communityEngagement}/100</div>
+            <div className="text-3xl projector-text-3xl font-bold text-gray-900">{profile.wellnessMetrics.socialHealth.communityEngagement}/100</div>
             <div className="text-sm text-text-muted">Community Engagement</div>
           </div>
           <div className="text-center">
@@ -102,8 +102,8 @@ export default function CommunityView() {
             {profile.groups.map((group: any, i: number) => (
               <div key={i} className="flex items-center justify-between p-md bg-success-light rounded-lg border-2 border-success-dark">
                 <div>
-                  <p className="font-semibold text-success-dark text-base projector-text-lg">{group.name}</p>
-                  <p className="text-sm projector-text-base text-text-muted-dark">
+                  <p className="font-semibold text-gray-900 text-base projector-text-lg">{group.name}</p>
+                  <p className="text-sm projector-text-base text-gray-700">
                     {group.memberCount} members • {group.language} • {group.schedule}
                   </p>
                 </div>

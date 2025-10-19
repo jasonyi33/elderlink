@@ -49,7 +49,7 @@ const WordCloud: React.FC<WordCloudProps> = ({
     const percentile = (frequency - minFreq) / (maxFreq - minFreq);
 
     if (percentile >= 0.8) return 'text-primary-900'; // Highest: #2C5570 (primary-900)
-    if (percentile >= 0.6) return 'text-success-dark'; // High: #1F7A6F (success-dark)
+    if (percentile >= 0.6) return 'text-primary-dark'; // High: #2C5570 (primary-dark)
     if (percentile >= 0.4) return 'text-warning-dark'; // Medium: #E08B47 (warning-dark)
     if (percentile >= 0.2) return 'text-error-dark'; // Low: #C82333 (error-dark)
     return 'text-secondary-dark'; // Lowest: #0D1D2F (secondary-dark)

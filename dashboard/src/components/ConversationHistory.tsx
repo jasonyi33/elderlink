@@ -21,7 +21,7 @@ export default function ConversationHistory({ conversations }: ConversationHisto
   const wellnessData = generateWellnessData(conversations)
 
   const getSentimentColor = (sentiment: number) => {
-    if (sentiment > 0.3) return 'bg-success-light text-success-dark'
+    if (sentiment > 0.3) return 'bg-blue-50 text-primary-dark'
     if (sentiment < 0) return 'bg-secondary-light text-secondary-dark'
     return 'bg-warning-light text-warning-dark'
   }
@@ -122,7 +122,7 @@ export default function ConversationHistory({ conversations }: ConversationHisto
                   {conv.transcript.map((exchange, l) => (
                     <div key={l} className="text-xs">
                       <span className={`font-medium ${
-                        exchange.role === 'senior' ? 'text-primary' : 'text-success'
+                        exchange.role === 'senior' ? 'text-primary' : 'text-secondary'
                       }`}>
                         {exchange.role === 'senior' ? 'Mrs. Chen' : 'Sam'}:
                       </span>

@@ -146,17 +146,17 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
           <div className="mt-2 space-y-2 ml-4">
             {healthData.conditions.map((cond: any, i: number) => (
               <div key={i} className="border-l-4 border-success-dark pl-3 bg-success-light">
-                <p className="font-medium text-success-dark">
+                <p className="font-medium text-gray-900">
                   {typeof cond === 'string' ? cond : cond.name}
                 </p>
                 {typeof cond === 'object' && cond.since && (
-                  <p className="text-sm text-text-muted-dark">Since {cond.since} - {cond.status}</p>
+                  <p className="text-sm text-gray-700">Since {cond.since} - {cond.status}</p>
                 )}
                 {typeof cond === 'object' && cond.a1c && (
-                  <p className="text-sm text-text-muted-dark">A1C: {cond.a1c}</p>
+                  <p className="text-sm text-gray-700">A1C: {cond.a1c}</p>
                 )}
                 {typeof cond === 'object' && cond.locations && (
-                  <p className="text-sm text-text-muted-dark">Locations: {cond.locations.join(', ')}</p>
+                  <p className="text-sm text-gray-700">Locations: {cond.locations.join(', ')}</p>
                 )}
               </div>
             ))}
@@ -208,24 +208,24 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
           </button>
           {expanded.vitals && (
             <div className="mt-2 ml-4 p-3 bg-success-light border-l-4 border-success rounded">
-              <p className="text-sm text-success-dark mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
+              <p className="text-sm text-gray-700 mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {healthData.vitals.bloodPressure && (
                   <div>
-                    <p className="text-sm font-medium text-success-dark">Blood Pressure</p>
-                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodPressure}</p>
+                    <p className="text-sm font-medium text-gray-900">Blood Pressure</p>
+                    <p className="text-lg font-bold text-gray-900">{healthData.vitals.bloodPressure}</p>
                   </div>
                 )}
                 {healthData.vitals.weight && (
                   <div>
-                    <p className="text-sm font-medium text-success-dark">Weight</p>
-                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.weight}</p>
+                    <p className="text-sm font-medium text-gray-900">Weight</p>
+                    <p className="text-lg font-bold text-gray-900">{healthData.vitals.weight}</p>
                   </div>
                 )}
                 {healthData.vitals.bloodSugar && (
                   <div>
-                    <p className="text-sm font-medium text-success-dark">Blood Sugar</p>
-                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodSugar}</p>
+                    <p className="text-sm font-medium text-gray-900">Blood Sugar</p>
+                    <p className="text-lg font-bold text-gray-900">{healthData.vitals.bloodSugar}</p>
                   </div>
                 )}
               </div>
