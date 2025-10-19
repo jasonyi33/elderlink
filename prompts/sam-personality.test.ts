@@ -195,4 +195,27 @@ describe('Sam Personality Module', () => {
       expect(response).toMatch(/[a-zA-Z]/);
     });
   });
+
+  describe('End-of-Call Detection', () => {
+    test('detects ending keywords (goodbye, bye, talk later)', async () => {
+      const endingKeywords = ['goodbye', 'bye', 'talk later', 'need to go', 'see you later'];
+      
+      for (const keyword of endingKeywords) {
+        const response = await generateSamResponse(keyword, MRS_CHEN, 1);
+        // Should trigger end-of-call behavior (community mention)
+        expect(response).toMatch(/found friends|gardening circle|community|take care/i);
+      }
+    });
+  });
+
+  describe('Mixed Language Handling', () => {
+    test('handles mixed language input and responds in primary language', async () => {
+      const mixedInput = '我很好, how are you?'; // Mixed Mandarin and English
+      const response = await generateSamResponse(mixedInput, MRS_CHEN, 1);
+      
+      // Should detect primary language and respond appropriately
+      // Since Mrs. Chen's cultural background is Mandarin, should respond in Mandarin
+      expect(response).toMatch(/[\u4e00-\u9fff]/);
+    });
+  });
 });
