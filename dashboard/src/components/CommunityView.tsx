@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { SeniorProfile } from '../types'
 import { apiClient, apiUtils } from '../services/api-client'
+import Icons from './ui/Icons'
 
 export default function CommunityView() {
   const [profile, setProfile] = useState<SeniorProfile | null>(null)
@@ -126,78 +127,96 @@ export default function CommunityView() {
 
 function MatchCard({ match }: { match: any }) {
   const stars = match.score >= 70 ? 5 : match.score >= 50 ? 4 : 3
-  const compatibilityColor = match.score >= 70 ? 'green' : match.score >= 50 ? 'yellow' : 'red'
+  const compatibilityColor = match.score >= 70 ? 'success' : match.score >= 50 ? 'warning' : 'error'
   const compatibilityLabel = match.score >= 90 ? 'Excellent' : match.score >= 70 ? 'Very Good' : match.score >= 50 ? 'Good' : 'Fair'
 
   // Create cultural background from languages
   const culturalBackground = match.languages?.join(' | ') || 'English'
 
+  // Get initials for avatar
+  const initials = match.name.split(' ').map((n: string) => n[0]).join('')
+
   return (
-    <div className="card hover:shadow-lg transition-normal">
-      {/* Header */}
-      <div className="text-center mb-4">
-        <div className="w-16 h-16 bg-neutral rounded-full mx-auto mb-2 flex items-center justify-center text-3xl">
-          👤
+    <div className="medical-card hover-lift group relative overflow-hidden">
+      {/* Gradient border effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-teal/20 to-purple/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+
+      <div className="relative">
+        {/* Header */}
+        <div className="text-center mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-teal rounded-full mx-auto mb-3 flex items-center justify-center text-2xl text-white font-bold shadow-lg">
+            {initials}
+          </div>
+          <h4 className="text-lg font-semibold text-primary">{match.name}, {match.age}</h4>
+          <p className="text-caption text-text-muted uppercase tracking-wide">{culturalBackground}</p>
         </div>
-        <h4 className="text-lg font-semibold text-text">{match.name}, {match.age}</h4>
-        <p className="text-sm text-text-muted">{culturalBackground}</p>
-      </div>
 
-      {/* Compatibility Score */}
-      <div className="text-center mb-4 bg-primary-50 py-3 rounded-lg">
-        <div className="text-3xl projector-text-3xl font-bold text-primary-900">{match.score}%</div>
-        <div className="text-warning text-xl projector-text-xl font-bold">
-          {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
+        {/* Compatibility Score */}
+        <div className="text-center mb-4 glass-card py-4">
+          <div className="text-display font-display bg-gradient-to-r from-primary via-teal to-purple bg-clip-text text-transparent">
+            {match.score}%
+          </div>
+          <div className="text-warning text-2xl mb-2">
+            {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
+          </div>
+          <p className="text-caption uppercase tracking-wide font-semibold text-text-muted">
+            {compatibilityLabel} Match
+          </p>
         </div>
-        <p className="text-base projector-text-lg font-semibold text-text capitalize mt-2">
-          {compatibilityLabel} Compatibility
-        </p>
-      </div>
 
-      {/* Compatibility Bar */}
-      <div className="mb-4">
-        <div className="w-full bg-neutral-darker rounded-full h-3">
-          <div
-            className={`h-3 rounded-full transition-normal ${
-              compatibilityColor === 'green' ? 'bg-success-dark' :
-              compatibilityColor === 'yellow' ? 'bg-warning-dark' : 'bg-error'
-            }`}
-            style={{ width: `${match.score}%` }}
-          />
+        {/* Compatibility Bar */}
+        <div className="mb-4">
+          <div className="w-full bg-clinical-gray-100 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-2 rounded-full transition-all duration-500 ${
+                compatibilityColor === 'success' ? 'bg-gradient-to-r from-success to-success-dark' :
+                compatibilityColor === 'warning' ? 'bg-gradient-to-r from-warning to-warning-dark' :
+                'bg-gradient-to-r from-error to-red-700'
+              }`}
+              style={{ width: `${match.score}%` }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Shared Interests */}
-      <div className="mb-4">
-        <label className="text-xs font-medium text-text-muted block mb-1">Shared Interests:</label>
-        <div className="flex flex-wrap gap-1">
-          {match.sharedInterests?.map((int: string, i: number) => (
-            <span key={i} className="text-xs bg-primary-light text-primary-dark px-2 py-1 rounded">
-              {int}
-            </span>
-          ))}
+        {/* Shared Interests */}
+        <div className="mb-4">
+          <label className="text-caption font-semibold text-text-muted block mb-2 uppercase tracking-wide">
+            <Icons.heart size={14} className="inline mr-1" />
+            Shared Interests
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {match.sharedInterests?.map((int: string, i: number) => (
+              <span key={i} className="interest-tag">
+                {int}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Location */}
-      <div className="mb-4">
-        <label className="text-xs font-medium text-text-muted block mb-1">Location:</label>
-        <p className="text-xs text-text">
-          {match.location?.city} ({match.location?.distance} miles away)
-        </p>
-      </div>
+        {/* Location */}
+        <div className="mb-6">
+          <label className="text-caption font-semibold text-text-muted block mb-1 uppercase tracking-wide">
+            <Icons.hospital size={14} className="inline mr-1" />
+            Location
+          </label>
+          <p className="text-sm text-primary flex items-center gap-2">
+            <span className="font-medium">{match.location?.city}</span>
+            <span className="text-text-muted">•</span>
+            <span className="text-text-muted">{match.location?.distance} mi</span>
+          </p>
+        </div>
 
-      {/* Actions */}
-      <div className="grid grid-cols-2 gap-2">
-        <button className="px-3 py-2 bg-primary text-white text-sm rounded hover:bg-primary-dark transition-normal">
-          View Profile
-        </button>
-        <button
-          className="px-3 py-2 bg-success text-white text-sm rounded hover:bg-success-dark transition-normal disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled
-        >
-          Facilitate Connection
-        </button>
+        {/* Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <button className="btn-primary text-sm">
+            <Icons.userCircle size={16} />
+            View Profile
+          </button>
+          <button className="btn-secondary text-sm" disabled>
+            <Icons.users size={16} />
+            Connect
+          </button>
+        </div>
       </div>
     </div>
   )
