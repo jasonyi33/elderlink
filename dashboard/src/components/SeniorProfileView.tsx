@@ -41,7 +41,9 @@ export default function SeniorProfileView() {
           </div>
           <div>
             <label className="text-sm text-text-muted">Location</label>
-            <p className="text-lg projector-text-lg font-medium text-primary">{profile.location}</p>
+            <p className="text-lg projector-text-lg font-medium text-primary">
+              {typeof profile.location === 'string' ? profile.location : profile.location?.city || profile.location?.address || 'Not specified'}
+            </p>
           </div>
           <div>
             <label className="text-sm text-text-muted">Languages</label>
@@ -49,19 +51,18 @@ export default function SeniorProfileView() {
           </div>
           <div>
             <label className="text-sm text-text-muted">Phone</label>
-            <p className="text-lg projector-text-lg font-medium text-primary">{profile.phone}</p>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.phoneNumber || profile.phone || 'Not specified'}</p>
           </div>
         </div>
 
         <div className="mt-4">
           <label className="text-sm text-text-muted block mb-2">Family</label>
           <div className="space-y-2">
-            {profile.memories.family.map((fm, i) => (
+            {(profile.memories?.family || []).map((fm: string, i: number) => (
               <div key={i} className="flex items-start">
                 <span className="text-2xl mr-2">👤</span>
                 <div>
-                  <p className="font-medium text-primary">{fm.name} ({fm.relationship})</p>
-                  <p className="text-sm text-text-muted">{fm.details.join(', ')}</p>
+                  <p className="font-medium text-primary">{fm}</p>
                 </div>
               </div>
             ))}

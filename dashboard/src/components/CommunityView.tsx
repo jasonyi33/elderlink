@@ -39,7 +39,7 @@ export default function CommunityView() {
           <div>
             <label className="text-sm text-text-muted block mb-1">Interests</label>
             <div className="flex flex-wrap gap-1">
-              {profile.socialProfile.interests.map((int: string, i: number) => (
+              {(profile.memories?.hobbies || profile.interests || []).map((int: string, i: number) => (
                 <span key={i} className="badge-primary text-xs">
                   {int}
                 </span>
@@ -47,17 +47,17 @@ export default function CommunityView() {
             </div>
           </div>
           <div>
-            <label className="text-sm text-text-muted block mb-1">Cultural Background</label>
-            <p className="text-sm font-medium text-primary">{profile.socialProfile.culturalBackground}</p>
+            <label className="text-sm text-text-muted block mb-1">Languages</label>
+            <p className="text-sm font-medium text-primary">{profile.languages?.join(', ') || 'English'}</p>
           </div>
           <div>
             <label className="text-sm text-text-muted block mb-1">Location</label>
-            <p className="text-sm font-medium text-primary">{profile.location}</p>
+            <p className="text-sm font-medium text-primary">{profile.location?.city || profile.location?.address || 'Not specified'}</p>
           </div>
           <div>
             <label className="text-sm text-text-muted block mb-1">Open to connecting</label>
             <p className="text-sm font-medium text-success">
-              {profile.socialProfile.openToMatching ? 'Yes' : 'No'}
+              Yes
             </p>
           </div>
         </div>
