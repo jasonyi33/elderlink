@@ -139,7 +139,7 @@ describe('Gemini Service - API Wrapper', () => {
     
     const elapsed = Date.now() - start;
     expect(elapsed).toBeLessThan(7500); // Should timeout around 7s, not wait 8s
-  });
+  }, 10000); // Increase Jest timeout to 10s to allow testing 7s Gemini timeout
 
   // Test 6: Handles malformed JSON response (returns safe fallback)
   test('handles malformed JSON response', async () => {
