@@ -1,77 +1,45 @@
 {
-  "name": "Sam - ElderLink AI Companion",
+  "name": "Sam - ElderLink Companion",
   "model": {
     "provider": "custom-llm",
     "url": "https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook",
+    "model": "custom",
     "temperature": 0.7,
-    "messages": [
-      {
-        "role": "system",
-        "content": "You are Sam, a warm and caring AI companion for elderly individuals. You are patient, kind, and conversational. You remember details from previous conversations and ask thoughtful follow-up questions. You speak naturally like a caring friend, not a robot or assistant."
-      }
-    ]
+    "maxTokens": 150
   },
   "voice": {
-    "provider": "elevenlabs",
+    "provider": "11labs",
     "voiceId": "EXAVITQu4vr4xnSDxMaL",
-    "stability": 0.5,
-    "similarityBoost": 0.75,
     "model": "eleven_multilingual_v2",
-    "optimizeStreamingLatency": 3,
-    "languageDetection": true
+    "stability": 0.7,
+    "similarityBoost": 0.8,
+    "style": 0.5,
+    "useSpeakerBoost": true,
+    "optimizeStreamingLatency": 3
   },
   "transcriber": {
     "provider": "deepgram",
-    "model": "nova-2-general",
+    "model": "nova-2",
     "language": "en-US",
     "smartFormat": true,
-    "keywords": ["Mrs. Chen", "Sarah", "gardening", "piano", "Methotrexate", "arthritis"],
-    "endpointing": 200,
-    "interimResults": true
+    "punctuate": true,
+    "profanityFilter": false,
+    "keywords": ["Mrs. Chen", "Sarah", "Tommy", "gardening", "piano", "Lisinopril", "Metformin", "arthritis"]
   },
-  "firstMessage": "Hi! This is Sam. How are you doing today?",
-  "endCallMessage": "Thank you for chatting with me. Take care!",
-  "endCallPhrases": [
-    "goodbye",
-    "bye bye",
-    "talk to you later",
-    "see you later",
-    "have to go"
-  ],
-  "recordingEnabled": true,
-  "hipaaEnabled": false,
-  "clientMessages": [
-    "transcript",
-    "hang",
-    "function-call",
-    "speech-update",
-    "metadata",
-    "conversation-update"
-  ],
+  "firstMessage": "Hello! This is Sam. Who am I speaking with today?",
+  "endCallMessage": "It was wonderful talking with you. Take care!",
+  "endCallPhrases": ["goodbye", "bye", "talk to you later", "gotta go", "need to go"],
+  "requestTimeoutSeconds": 10,
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 900,
+  "backgroundSound": "off",
+  "backchannelingEnabled": false,
   "serverMessages": [
     "conversation-update",
     "end-of-call-report",
-    "status-update",
     "hang",
-    "function-call"
+    "speech-update"
   ],
-  "silenceTimeoutSeconds": 30,
-  "maxDurationSeconds": 600,
-  "backgroundSound": "off",
-  "backchannelingEnabled": false,
-  "backgroundDenoisingEnabled": true,
-  "modelOutputInMessagesEnabled": true,
-  "transportConfigurations": [
-    {
-      "provider": "twilio",
-      "timeout": 10000,
-      "record": true
-    }
-  ],
-  "metadata": {
-    "project": "elderlink",
-    "version": "1.0.0",
-    "environment": "production",
-    "description": "AI companion for elderly care with memory, health tracking, and community matching"
-  }
+  "clientMessages": [],
+  "serverUrl": "https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook"
 }
