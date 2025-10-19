@@ -1,0 +1,20 @@
+# Cloudflare Pages Configuration for ElderLink Dashboard
+# This file configures the Pages deployment
+
+[env.production]
+name = "elderlink-dashboard"
+compatibility_date = "2024-01-01"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+API_BASE_URL = "https://elderlink-dev.workers.dev"
+
+# Build configuration
+[build]
+command = "echo 'Static build - no build step required'"
+publish = "dist"
+
+# Custom domains (if needed)
+# [[env.production.routes]]
+# pattern = "dashboard.elderlink.com/*"
+# custom_domain = true

@@ -1,0 +1,293 @@
+import React, { useState, useEffect } from 'react'
+import type { SeniorProfile } from '../types'
+import HealthTimeline from './HealthTimeline'
+import { apiClient } from '../services/api-client'
+
+export default function SeniorProfileView() {
+  const [profile, setProfile] = useState<SeniorProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
+
+  async function fetchProfile() {
+    try {
+      const data = await apiClient.fetchProfile('mrs-chen')
+      setProfile(data.profile)
+    } catch (error) {
+      console.error('Failed to fetch profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) return <div>Loading...</div>
+  if (!profile) return <div>Profile not found</div>
+
+  return (
+    <div data-testid="senior-profile-view" className="space-y-6 projector-optimized">
+      {/* Personal Info Card */}
+      <div className="card">
+        <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Personal Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="text-sm text-text-muted">Name</label>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.name}</p>
+          </div>
+          <div>
+            <label className="text-sm text-text-muted">Age</label>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.age}</p>
+          </div>
+          <div>
+            <label className="text-sm text-text-muted">Location</label>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.location}</p>
+          </div>
+          <div>
+            <label className="text-sm text-text-muted">Languages</label>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.languages.join(', ')}</p>
+          </div>
+          <div>
+            <label className="text-sm text-text-muted">Phone</label>
+            <p className="text-lg projector-text-lg font-medium text-primary">{profile.phone}</p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="text-sm text-text-muted block mb-2">Family</label>
+          <div className="space-y-2">
+            {profile.memories.family.map((fm, i) => (
+              <div key={i} className="flex items-start">
+                <span className="text-2xl mr-2">👤</span>
+                <div>
+                  <p className="font-medium text-primary">{fm.name} ({fm.relationship})</p>
+                  <p className="text-sm text-text-muted">{fm.details.join(', ')}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Health Overview Card */}
+      <HealthOverviewCard healthData={profile.healthData} />
+
+      {/* Interests Card */}
+      <div className="card">
+        <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Interests & Hobbies</h3>
+        <div className="flex flex-wrap gap-2">
+          {profile.memories.hobbies.map((hobby, i) => (
+            <span
+              key={i}
+              className="badge-primary transition-all duration-300 hover:scale-105"
+            >
+              {hobby}
+            </span>
+          ))}
+        </div>
+      </div>
+
+          {/* Health Timeline */}
+          <HealthTimeline healthNotes={profile.healthData.notes} />
+
+          {/* Conversation History */}
+          <ConversationHistoryCard conversations={profile.conversations} />
+        </div>
+      )
+    }
+
+function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthData'] }) {
+  const [expanded, setExpanded] = useState({
+    medications: true,
+    conditions: true,
+    appointments: true,
+    vitals: true,
+    notes: true
+  })
+
+  return (
+    <div className="card">
+      <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Health Overview</h3>
+
+      {/* Medications */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, medications: !e.medications}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.medications ? '▼' : '▶'} Medications ({healthData.medications.length})
+          </span>
+        </button>
+        {expanded.medications && (
+          <div className="mt-2 space-y-2 ml-4">
+            {healthData.medications.map((med, i) => (
+              <div key={i} className="border-l-2 border-primary pl-3">
+                <p className="font-medium text-primary">{med.name} {med.dosage}</p>
+                <p className="text-sm text-text-muted">{med.frequency} - {med.purpose}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Conditions */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, conditions: !e.conditions}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.conditions ? '▼' : '▶'} Conditions ({healthData.conditions.length})
+          </span>
+        </button>
+        {expanded.conditions && (
+          <div className="mt-2 space-y-2 ml-4">
+            {healthData.conditions.map((cond, i) => (
+              <div key={i} className="border-l-2 border-success pl-3">
+                <p className="font-medium text-primary">{cond.name}</p>
+                <p className="text-sm text-text-muted">Since {cond.since} - {cond.status}</p>
+                {cond.a1c && <p className="text-sm text-text-muted">A1C: {cond.a1c}</p>}
+                {cond.locations && <p className="text-sm text-text-muted">Locations: {cond.locations.join(', ')}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Next Appointment */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, appointments: !e.appointments}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.appointments ? '▼' : '▶'} Next Appointment
+          </span>
+        </button>
+        {expanded.appointments && healthData.appointments[0] && (
+          <div className="mt-2 ml-4 p-3 bg-warning-light border-l-4 border-warning rounded">
+            <p className="font-medium text-warning-dark">{healthData.appointments[0].type}</p>
+            <p className="text-sm text-warning-dark">
+              {healthData.appointments[0].date} at {healthData.appointments[0].time}
+            </p>
+            <p className="text-sm text-warning-dark">with {healthData.appointments[0].doctor}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Latest Vitals */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, vitals: !e.vitals}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.vitals ? '▼' : '▶'} Latest Vitals
+          </span>
+        </button>
+        {expanded.vitals && (
+          <div className="mt-2 ml-4 p-3 bg-success-light border-l-4 border-success rounded">
+            <p className="text-sm text-success-dark mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {healthData.vitals.bloodPressure && (
+                <div>
+                  <p className="text-sm font-medium text-success-dark">Blood Pressure</p>
+                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodPressure}</p>
+                </div>
+              )}
+              {healthData.vitals.weight && (
+                <div>
+                  <p className="text-sm font-medium text-success-dark">Weight</p>
+                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.weight}</p>
+                </div>
+              )}
+              {healthData.vitals.bloodSugar && (
+                <div>
+                  <p className="text-sm font-medium text-success-dark">Blood Sugar</p>
+                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodSugar}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Recent Health Notes */}
+      <div>
+        <button
+          onClick={() => setExpanded(e => ({...e, notes: !e.notes}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.notes ? '▼' : '▶'} Recent Health Notes ({healthData.notes.length})
+          </span>
+        </button>
+        {expanded.notes && (
+          <div className="mt-2 space-y-3 ml-4">
+            {healthData.notes.slice(-3).reverse().map((note, i) => (
+              <div key={i} className="p-3 bg-primary-light border-l-4 border-primary rounded">
+                <p className="text-xs text-primary mb-1">
+                  {new Date(note.timestamp).toLocaleString()} - {note.source}
+                </p>
+                <p className="text-sm text-primary-dark">{note.note}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ConversationHistoryCard({ conversations }: { conversations: SeniorProfile['conversations'] }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="card">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between w-full text-left card-section transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+      >
+        <h3 className="text-xl projector-text-xl font-semibold text-primary">
+          {expanded ? '▼' : '▶'} Conversation History
+        </h3>
+        <span className="text-sm text-text-muted">{conversations.length} conversations</span>
+      </button>
+
+      {expanded && (
+        <div className="space-y-3">
+          {conversations.slice(-5).reverse().map((conv, i) => (
+            <div key={i} className="border-l-4 border-primary pl-4 py-2">
+              <div className="flex justify-between items-start mb-1">
+                <span className="text-sm font-medium text-primary">
+                  {new Date(conv.timestamp).toLocaleDateString()}
+                </span>
+                <span className={`badge ${
+                  conv.sentiment > 0.3 ? 'badge-success' :
+                  conv.sentiment < 0 ? 'badge-secondary' :
+                  'badge-primary'
+                }`}>
+                  Sentiment: {conv.sentiment.toFixed(2)}
+                </span>
+              </div>
+              <p className="text-sm text-text-muted mb-2">{conv.summary}</p>
+              <div className="flex flex-wrap gap-1">
+                {conv.keyTopics?.map((topic, j) => (
+                  <span key={j} className="badge-primary text-xs">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+              {conv.healthMentions && conv.healthMentions.length > 0 && (
+                <div className="mt-2 text-xs text-primary">
+                  🩺 Health: {conv.healthMentions.join(', ')}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
