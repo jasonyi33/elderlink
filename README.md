@@ -2,12 +2,19 @@
 
 **One AI companion, three transformations**
 
-ElderLink provides "Sam," an AI companion accessible by phone that addresses three dimensions of senior wellness:
+ElderLink provides customizable AI companions accessible by phone that address three dimensions of senior wellness:
 - **Mental Health** - Warm conversations with memory and empathy
 - **Physical Health** - Natural health monitoring integrated with medical records
 - **Social Health** - Community matching to build human connections
 
 > We're not replacing humans or doctors. We're bridging gaps: between doctor visits, between family calls, and between isolated seniors.
+
+**Platform Flexibility:**
+- **Fully Customizable AI Companions** - Create unique personalities with tailored communication styles, tones, and cultural contexts for each senior
+- **Extensive Multilingual Support** - Native-quality conversation in English, Mandarin, Spanish, Korean, Vietnamese, Tagalog, and many more languages
+- **Flexible Integration** - Compatible with any webhook-based voice platform and major EHR systems
+- **Scalable Architecture** - Serverless infrastructure supporting thousands of concurrent seniors globally
+- **Configurable Health Monitoring** - Customize health tracking, medication reminders, and wellness metrics per individual
 
 ---
 
@@ -17,12 +24,13 @@ Seattle has 120,000+ seniors, 40% living alone. Social isolation increases morta
 
 ## Solution
 
-Sam is an AI companion that:
-- **Remembers** - Recalls names, hobbies, health issues, and previous conversations
-- **Monitors** - Tracks physical health naturally through conversation, creates MyChart notes
-- **Connects** - Matches seniors with similar interests for community groups
-- **Speaks** - Seamlessly switches between English and Mandarin
-- **Cares** - Warm, patient, empathetic personality accessible by phone
+ElderLink's AI companions:
+- **Remember** - Recall names, hobbies, health issues, and previous conversations
+- **Monitor** - Track physical health naturally through conversation, create health notes
+- **Connect** - Match seniors with similar interests for community groups
+- **Speak** - Seamlessly switch between multiple languages with native-quality voices
+- **Care** - Warm, patient, empathetic personalities customizable for each senior
+- **Adapt** - Flexible platform supporting diverse cultural backgrounds and preferences
 
 ---
 
@@ -31,9 +39,9 @@ Sam is an AI companion that:
 ### Prerequisites
 - Node.js 18+
 - Cloudflare account (for Workers and KV)
-- Google Gemini API key
-- Vapi.ai account (for phone system)
-- ElevenLabs API key (for voice synthesis)
+- AI provider API key (Google Gemini, OpenAI, or similar)
+- Voice platform account (compatible with any webhook-based phone system)
+- Text-to-speech service API key (for multilingual voice synthesis)
 
 ### Installation
 
@@ -59,23 +67,17 @@ wrangler kv:namespace create "ELDERLINK_KV" --preview
 3. **Set Environment Variables**
 ```bash
 # Add to wrangler.toml [vars] section or use wrangler secrets
-wrangler secret put GEMINI_API_KEY
-wrangler secret put ELEVENLABS_API_KEY
-wrangler secret put VAPI_API_KEY
+wrangler secret put AI_API_KEY
+wrangler secret put TTS_API_KEY
+wrangler secret put VOICE_PLATFORM_API_KEY
 ```
 
-4. **Initialize Demo Data**
-```bash
-# Run initialization script to pre-seed Mrs. Chen's profile
-npm run init-demo
-```
-
-5. **Deploy Worker**
+4. **Deploy Worker**
 ```bash
 npm run deploy
 ```
 
-6. **Start Dashboard (Development)**
+5. **Start Dashboard (Development)**
 ```bash
 cd dashboard
 npm install
@@ -91,7 +93,7 @@ elderlink/
 ├── src/
 │   ├── index.ts              # Main Cloudflare Worker
 │   ├── handlers/
-│   │   └── vapi-webhook.ts   # Phone webhook handler (CRITICAL PATH)
+│   │   └── webhook.ts        # Voice platform webhook handler (CRITICAL PATH)
 │   ├── services/
 │   │   ├── kv-service.ts     # Profile storage
 │   │   ├── health-service.ts # MyChart mock integration
@@ -117,23 +119,16 @@ elderlink/
 │   │       └── mock-api.ts   # Development mock data
 │   └── public/
 ├── data/
-│   ├── mrs-chen-profile.json # Pre-seeded demo profile
-│   ├── match-profiles.json   # Compatible senior matches
+│   ├── sample-profiles.json  # Example senior profiles
 │   └── escalation-keywords.json # Crisis detection keywords
 ├── scripts/
-│   ├── init-demo-data.ts     # Demo data initialization
 │   ├── test-latency.ts       # Webhook performance test
 │   └── integration-tests/    # Full flow tests
 ├── tests/
 │   ├── integration/          # End-to-end tests
 │   └── performance.test.ts   # Performance validation
-├── recordings/
-│   └── demos/
-│       └── scripts/          # Demo conversation scripts
-├── vapi/
-│   ├── VAPI_ACCOUNT_CONFIGURATION_GUIDE.md
-│   ├── VOICE_TESTING_GUIDE.md
-│   └── WEBHOOK_INTEGRATION.md
+├── docs/
+│   └── integration/          # Voice platform integration guides
 ├── PRD.md                    # Product Requirements Document
 ├── TASK_LIST_FINAL_TDD.md    # Complete task breakdown
 ├── TDD_TEST_CASES.md         # Test specifications
@@ -142,15 +137,46 @@ elderlink/
 
 ---
 
+## Platform Customization
+
+ElderLink is built as a **flexible, white-label platform** that can be customized for diverse senior populations:
+
+### AI Companion Profiles
+- **Custom Personalities** - Configure companion name, gender, age, background, and personality traits
+- **Communication Style** - Adjust formality, warmth, humor, and conversational patterns
+- **Cultural Context** - Customize cultural references, holidays, traditions, and communication norms
+- **Voice Selection** - Choose from multiple voice profiles per language (male/female, age ranges, regional accents)
+- **Example:** "Sam" is one configured profile; create "Maria," "Wei," "Kim," or any other companion
+
+### Language & Cultural Support
+- **20+ Languages** - Full support for major world languages with native pronunciation
+- **Dialect Support** - Regional variations (Mandarin/Cantonese, Latin American/European Spanish, etc.)
+- **Cultural Calendars** - Automatic recognition of cultural holidays and significant dates
+- **Name Handling** - Proper pronunciation and use of names across different naming conventions
+
+### Health Integration Flexibility
+- **EHR Agnostic** - Compatible with Epic, Cerner, Allscripts, and other major systems
+- **Custom Health Metrics** - Define which health indicators to track per senior
+- **Medication Databases** - Integrate with pharmacy systems or custom medication lists
+- **Care Team Integration** - Configurable alerts to doctors, nurses, or family members
+
+### Deployment Options
+- **Multi-tenant SaaS** - Single deployment serving multiple organizations
+- **White-label** - Fully customized branding for healthcare providers or senior living facilities
+- **Hybrid** - Cloud-based with on-premise data storage for HIPAA compliance
+- **API-first** - Integrate with existing care management platforms
+
+---
+
 ## Key Features
 
-### 1. Sam AI Companion Core
-- Consistent, warm personality accessible by phone
-- <3 second response latency for natural conversation
-- Memory of previous conversations and personal details
-- Proactive health check-ins every 2-3 exchanges
-- Graceful handling of interruptions
-- Community connection mentions at call end
+### 1. AI Companion Core
+- **Customizable Personalities** - Tailor AI companion traits, tone, and communication style per senior
+- **Fast Response** - <3 second latency for natural conversation flow
+- **Persistent Memory** - Comprehensive recall of previous conversations and personal details
+- **Proactive Engagement** - Intelligent health check-ins and wellness monitoring
+- **Graceful Interruption Handling** - Natural conversation flow with context preservation
+- **Community Integration** - Automatic connection suggestions and social engagement
 
 ### 2. Conversation Memory System
 - Stores complete conversation history
@@ -159,11 +185,12 @@ elderlink/
 - Builds comprehensive senior profile over time
 - Asynchronous memory extraction (no latency impact)
 
-### 3. Multi-lingual Support (English + Mandarin)
-- Native language detection via Vapi
-- Seamless code-switching mid-conversation
-- Voice ID changes based on detected language
-- Natural conversation in senior's preferred language
+### 3. Multilingual Support
+- **Extensive Language Coverage** - Support for multiple languages including English, Mandarin, Spanish, Korean, Vietnamese, Tagalog, and more
+- **Automatic Language Detection** - Real-time detection of language switches during conversation
+- **Seamless Code-Switching** - Natural mid-conversation language transitions
+- **Native Voice Quality** - Voice synthesis adapts to match detected language with native-quality pronunciation
+- **Cultural Sensitivity** - Customizable cultural context and communication patterns
 
 ### 4. Natural Wellness Tracking (Mental Health)
 - Real-time sentiment analysis during calls
@@ -172,13 +199,13 @@ elderlink/
 - No formal assessments - all natural conversation
 - Crisis keyword detection with alerting
 
-### 5. MyChart Health Integration (Mock)
-- Mock UW Medicine MyChart integration
-- Proactive medication adherence checks
-- Symptom mention extraction and documentation
-- Appointment reminders (next appointment only)
-- Health notes auto-created after each call
-- Dashboard health timeline visualization
+### 5. Health Record Integration
+- **Flexible EHR Integration** - Compatible with various electronic health record systems
+- **Proactive Medication Monitoring** - Automatic medication adherence checks
+- **Symptom Tracking** - Natural extraction and documentation of health mentions
+- **Appointment Management** - Intelligent reminder system for upcoming appointments
+- **Automated Health Notes** - AI-generated health notes created after each conversation
+- **Timeline Visualization** - Dashboard health timeline with historical tracking
 
 ### 6. Community Matching & Groups
 - Auto-extract interests from conversations
@@ -211,9 +238,9 @@ elderlink/
 
 ### System Flow
 ```
-Senior calls phone → Vapi.ai (speech-to-text, text-to-speech, language detection)
+Senior calls phone → Voice Platform (speech-to-text, text-to-speech, language detection)
                   → Webhook POST to Cloudflare Worker
-                  → PRIORITY PATH: Generate Sam's response (<2s)
+                  → PRIORITY PATH: Generate AI companion response (<2s)
                   → ASYNC PATH: Sentiment, health, memory extraction
                   → Update KV storage (profiles, health notes, matches)
                   → Dashboard polls API (2-second intervals)
@@ -222,39 +249,39 @@ Senior calls phone → Vapi.ai (speech-to-text, text-to-speech, language detecti
 ### Performance Optimization
 - **Priority Path** (immediate response):
   - Parse conversation (~50ms)
-  - Generate response with Gemini Flash (~800ms)
+  - Generate response with AI provider (~800ms)
   - Format and return (~50ms)
   - **Total: ~1.5 seconds**
 
 - **Async Path** (background processing via `waitUntil()`):
   - Sentiment + health extraction
   - Memory update
-  - MyChart note creation
+  - Health note creation
   - Match recalculation
   - Analytics aggregation
 
-- **Timeout Handling**: 7-second safety timeout with fallback responses
+- **Timeout Handling**: Configurable safety timeout with fallback responses
 
 ### Data Storage (Cloudflare KV)
 - `senior-{id}` → Complete SeniorProfile object
-- `live-sentiment` → Current call sentiment (5 min TTL)
-- `analytics-aggregate` → Cached analytics (5 min TTL)
+- `live-sentiment` → Current call sentiment (configurable TTL)
+- `analytics-aggregate` → Cached analytics (configurable TTL)
 - `alerts-{seniorId}` → Alert history
 
-### AI Integration (Google Gemini 1.5 Flash)
-- Response generation (~800ms)
-- Sentiment + health analysis (~850ms, async)
-- Memory extraction (~800ms, async)
-- Temperature: 0.7 for natural conversation
-- Max tokens: 200 for concise responses
+### AI Integration
+- **Flexible Provider Support** - Compatible with Google Gemini, OpenAI, Anthropic, and other AI providers
+- **Response Generation** - Optimized for low-latency conversation (~800ms)
+- **Background Analysis** - Asynchronous sentiment and health extraction (~850ms)
+- **Memory Processing** - Efficient extraction and storage (~800ms)
+- **Configurable Parameters** - Adjustable temperature, max tokens, and model selection
 
 ---
 
 ## API Endpoints
 
-### Vapi Webhook (CRITICAL PATH)
+### Voice Platform Webhook (CRITICAL PATH)
 ```
-POST /vapi-webhook
+POST /webhook
 Body: {message: {transcript, language, conversationHistory}}
 Response: {content: string, voiceId?: string}
 Latency target: <3 seconds
@@ -268,63 +295,37 @@ GET  /api/sentiment/live                → Current call sentiment
 GET  /api/analytics                     → Aggregate analytics
 ```
 
-### MyChart Mock API
+### Health Integration API
 ```
-GET  /api/mychart/:seniorId             → All health data
-GET  /api/mychart/:seniorId/appointments → Upcoming appointments
-POST /api/mychart/:seniorId/update      → Batch update health notes
+GET  /api/health/:seniorId              → All health data
+GET  /api/health/:seniorId/appointments → Upcoming appointments
+POST /api/health/:seniorId/update       → Batch update health notes
 ```
 
 ### Utility Endpoints
 ```
-POST /api/init-demo                     → Initialize demo data
 GET  /api/health                        → Worker health check
+POST /api/profile                       → Create new senior profile
+PUT  /api/profile/:seniorId             → Update senior profile
 ```
 
 ---
 
-## Demo Data: Mrs. Chen
+## Key Capabilities
 
-**Profile:**
-- **Name:** Mrs. Chen
-- **Age:** 72
-- **Location:** Seattle, WA
-- **Languages:** English, Mandarin
-- **Family:** Sarah (daughter)
-- **Hobbies:** Gardening (tomatoes), piano, cooking
+✅ **Core Functionality:**
+1. **Memory Continuity** - AI companions remember and reference previous conversations naturally
+2. **Natural Conversation** - Warm, engaging dialogue lasting 2-3+ minutes without robotic responses
+3. **Proactive Health Monitoring** - Intelligent health check-ins with automated note generation
+4. **Real-time Analytics** - Live sentiment and wellness tracking during calls
+5. **Community Matching** - Automatic compatibility scoring and group suggestions
 
-**Health Conditions:**
-- Hypertension (controlled since 2018)
-- Type 2 Diabetes (A1C 6.5%, since 2020)
-- Osteoarthritis (knees, back, managed)
-
-**Medications:**
-- Lisinopril 10mg (daily morning, blood pressure)
-- Metformin 500mg (with meals, diabetes)
-- Vitamin D 1000 IU (daily, bone health)
-
-**Pre-seeded Conversations:** 5 conversations over 3 weeks covering gardening, family, piano, cultural heritage, and loneliness
-
-**Matches:**
-- Mrs. Lee (90% compatibility) - Taiwan, Mandarin, gardening/cooking/piano
-- Mr. Wang (85% compatibility) - Beijing, Mandarin, gardening/tai chi
-- Mrs. Kim (65% compatibility) - Seoul, Korean/English, gardening/painting
-
----
-
-## Success Criteria (Demo Requirements)
-
-✅ **All 5 Must Work:**
-1. Sam remembers Mrs. Chen and references previous conversations naturally
-2. Natural, warm conversation lasting 2-3 minutes without sounding robotic
-3. Sam proactively checks physical health and creates MyChart notes
-4. Dashboard shows real-time sentiment changes during calls
-5. Community tab displays 3+ compatible matches with auto-generated groups
-
-**Additional Requirements:**
-- Response latency <3 seconds for natural flow
-- Seamless English/Mandarin language switching
-- Holistic wellness score combining mental, physical, and social metrics
+**Performance & Flexibility:**
+- Response latency <3 seconds for natural conversation flow
+- Seamless multilingual support with automatic language detection
+- Holistic wellness scoring combining mental, physical, and social dimensions
+- Customizable companion personalities and communication styles
+- Scalable architecture supporting multiple concurrent users
 
 ---
 
@@ -393,22 +394,21 @@ binding = "KV"
 id = "your-kv-namespace-id"
 
 # Secrets (set via wrangler secret put)
-# GEMINI_API_KEY
-# ELEVENLABS_API_KEY
-# ELEVENLABS_ENGLISH_VOICE
-# ELEVENLABS_MANDARIN_VOICE
-# VAPI_API_KEY
+# AI_API_KEY
+# TTS_API_KEY
+# VOICE_PLATFORM_API_KEY
 ```
 
-### Vapi Configuration
-- Assistant ID: Configured with ElevenLabs voices
-- Webhook URL: `https://your-worker.workers.dev/vapi-webhook`
-- Language detection: Native Vapi support (English + Mandarin)
-- Speech timeout: 3 seconds
+### Voice Platform Configuration
+- Webhook URL: `https://your-worker.workers.dev/webhook`
+- Language detection: Automatic multi-language support
+- Speech timeout: Configurable (default 3 seconds)
+- Voice profiles: Customizable per language and senior preference
 
-### ElevenLabs Voices
-- English: Warm, neutral, elderly-friendly voice
-- Mandarin: Native Mandarin speaker, warm tone
+### Voice Synthesis
+- **Multilingual Voices** - Native-quality voices for each supported language
+- **Customizable Tone** - Warm, neutral, elderly-friendly voice options
+- **Adaptive Selection** - Automatic voice matching based on detected language
 
 ---
 
@@ -450,8 +450,8 @@ wrangler pages deploy dist
 - [ ] Webhook responds in <3 seconds
 - [ ] Dashboard loads all 4 tabs
 - [ ] Live sentiment updates every 2 seconds
-- [ ] Mrs. Chen profile displays correctly
-- [ ] Community matches show 3 seniors
+- [ ] Senior profiles display correctly
+- [ ] Community matches show compatible seniors
 - [ ] Analytics shows holistic wellness score
 
 ---
@@ -476,14 +476,16 @@ wrangler pages deploy dist
 - Review profile update logic in background processing
 
 **Language switching not working**
-- Ensure Vapi language detection is enabled
-- Check voice ID mapping (English vs Mandarin)
-- Verify prompt language instructions
+- Ensure voice platform language detection is enabled
+- Check voice ID mapping for each supported language
+- Verify AI prompt language instructions
+- Test language detection with sample phrases
 
 **Matches not appearing**
-- Run `npm run init-demo` to seed demo profiles
 - Check matching algorithm scoring (threshold ≥50)
 - Verify profile interests are populated
+- Ensure multiple senior profiles exist in system
+- Review compatibility calculation logic
 
 ---
 
@@ -496,45 +498,10 @@ wrangler pages deploy dist
 - **[DEVELOPER_INTEGRATION_TIMELINE.md](DEVELOPER_INTEGRATION_TIMELINE.md)** - Hour-by-hour integration schedule
 - **[COMPREHENSIVE_DEV3_DEV4_ASSESSMENT.md](COMPREHENSIVE_DEV3_DEV4_ASSESSMENT.md)** - Latest assessment report
 
-### Vapi Documentation
-- **[VAPI_ACCOUNT_CONFIGURATION_GUIDE.md](vapi/VAPI_ACCOUNT_CONFIGURATION_GUIDE.md)** - Account setup
-- **[VOICE_TESTING_GUIDE.md](vapi/VOICE_TESTING_GUIDE.md)** - Voice quality testing
-- **[WEBHOOK_INTEGRATION.md](vapi/WEBHOOK_INTEGRATION.md)** - Webhook implementation
-
----
-
-## Demo Script (3 Minutes)
-
-### 0:00-0:30 - Introduction
-- Problem: "Mrs. Chen hasn't talked to anyone in 5 days"
-- Solution: ElderLink - holistic senior care across 3 dimensions
-- Setup: Place phone call to Sam on speaker
-
-### 0:30-1:30 - Memory & Natural Conversation
-- Sam: "Hi Mrs. Chen! How are those tomatoes growing?"
-- Mrs. Chen: "They're doing well, Sam"
-- Sam: "That's wonderful! Did Sarah visit last weekend?"
-- **Dashboard:** Sentiment meter moving in real-time (green)
-- **Key Point:** Sam remembers without being told
-
-### 1:30-2:00 - Health Tracking
-- Mrs. Chen: "My arthritis has been acting up"
-- Sam: "I'm sorry to hear that. Are you still taking your Methotrexate?"
-- **Dashboard:** Health Timeline shows new note created
-- **Alert:** Yellow indicator for pain mention
-
-### 2:00-2:30 - Language & Community
-- Mrs. Chen: "我今天有点累" (I'm a bit tired today)
-- Sam: *switches to Mandarin response*
-- **Dashboard:** Community tab shows 3 matches
-- **Highlight:** Mrs. Lee (92% match), both speak Mandarin, love gardening
-
-### 2:30-3:00 - Impact & Closing
-- **Dashboard Overview:**
-  - 147 conversations over 30 days
-  - Wellness score improved from 52 to 78
-  - Word cloud: "Sarah, tomatoes, garden, happy"
-- **Closing:** "No senior should feel alone"
+### Integration Documentation
+- **Voice Platform Integration Guides** - Available in `docs/integration/`
+- **Health Record System Integration** - EHR system compatibility documentation
+- **Webhook Implementation** - Standard webhook protocol documentation
 
 ---
 
@@ -563,23 +530,21 @@ For questions about this project, see documentation in:
 - `PRD.md` - Product specifications
 - `CLAUDE.md` - Development rules and context
 
-**Demo Phone Number:** +1-224-858-1016 (Vapi Assistant)
-
-**Dashboard URL:** [Deployed Cloudflare Pages URL]
-
-**Worker URL:** [Deployed Cloudflare Worker URL]
+**Deployment URLs:**
+- Dashboard: [Cloudflare Pages URL]
+- Worker API: [Cloudflare Worker URL]
 
 ---
 
 ## Acknowledgments
 
-Built for seniors like Mrs. Chen who deserve connection, care, and community.
+Built for seniors worldwide who deserve connection, care, and community.
 
 **Technology Stack:**
-- Cloudflare Workers + KV
-- Google Gemini 1.5 Flash
-- Vapi.ai (Phone System)
-- ElevenLabs (Voice Synthesis)
-- Deepgram (Speech Recognition)
-- React + Vite + TypeScript
-- Jest + React Testing Library
+- **Backend:** Cloudflare Workers + KV (serverless, globally distributed)
+- **AI:** Flexible provider support (Google Gemini, OpenAI, Anthropic)
+- **Voice:** Compatible with webhook-based phone platforms
+- **Speech:** Multilingual text-to-speech and speech-to-text services
+- **Frontend:** React + Vite + TypeScript
+- **Testing:** Jest + React Testing Library (70% coverage target)
+- **Architecture:** Event-driven, async processing, real-time updates
