@@ -212,6 +212,33 @@ describe('CommunityView', () => {
     })
   })
 
+  it('shows open to connecting status', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ profile: mockProfile })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockMatches[0])
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockMatches[1])
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockMatches[2])
+      })
+
+    render(<CommunityView />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Open to connecting')).toBeInTheDocument()
+      expect(screen.getByText('Yes')).toBeInTheDocument()
+    })
+  })
+
   it('group suggestions auto-generated', async () => {
     mockFetch
       .mockResolvedValueOnce({
@@ -266,7 +293,7 @@ describe('CommunityView', () => {
     await waitFor(() => {
       // Check for action buttons on match cards
       expect(screen.getAllByText('View Profile')).toHaveLength(3)
-      expect(screen.getAllByText('Details')).toHaveLength(3)
+      expect(screen.getAllByText('Facilitate Connection')).toHaveLength(3)
       
       // Check for group action buttons
       expect(screen.getAllByText('View Details')).toHaveLength(2)

@@ -44,7 +44,7 @@ export default function CommunityView() {
         <h3 className="text-xl font-semibold mb-4 text-gray-900">
           {profile.name}'s Social Profile
         </h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="text-sm text-gray-600 block mb-1">Interests</label>
             <div className="flex flex-wrap gap-1">
@@ -62,6 +62,12 @@ export default function CommunityView() {
           <div>
             <label className="text-sm text-gray-600 block mb-1">Location</label>
             <p className="text-sm font-medium">{profile.location}</p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 block mb-1">Open to connecting</label>
+            <p className="text-sm font-medium text-green-600">
+              {profile.socialProfile.openToMatching ? 'Yes' : 'No'}
+            </p>
           </div>
         </div>
       </div>
@@ -140,7 +146,7 @@ function MatchCard({ match }: { match: any }) {
           👤
         </div>
         <h4 className="text-lg font-semibold text-gray-900">{match.name}, {match.age}</h4>
-        <p className="text-sm text-gray-600">{match.socialProfile.culturalBackground}</p>
+        <p className="text-sm text-gray-600">{match.socialProfile.culturalBackground.replace(', ', ' | ')}</p>
       </div>
 
       {/* Compatibility Score */}
@@ -179,21 +185,29 @@ function MatchCard({ match }: { match: any }) {
         </div>
       </div>
 
-      {/* Groups */}
-      {match.groups && match.groups.length > 0 && (
-        <div className="mb-4">
-          <label className="text-xs font-medium text-gray-600 block mb-1">Groups:</label>
-          <p className="text-xs text-gray-700">{match.groups[0].name}</p>
-        </div>
-      )}
+      {/* Suggested Groups */}
+      <div className="mb-4">
+        <label className="text-xs font-medium text-gray-600 block mb-1">Suggested Groups:</label>
+        <p className="text-xs text-gray-700">
+          {matchInfo.sharedInterests.includes('gardening') && matchInfo.sharedInterests.includes('Mandarin') 
+            ? 'Mandarin Gardening Circle' 
+            : matchInfo.sharedInterests.includes('piano') 
+            ? 'Piano & Music Appreciation'
+            : 'No groups suggested yet'
+          }
+        </p>
+      </div>
 
       {/* Actions */}
       <div className="grid grid-cols-2 gap-2">
         <button className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition">
           View Profile
         </button>
-        <button className="px-3 py-2 border border-blue-600 text-blue-600 text-sm rounded hover:bg-blue-50 transition">
-          Details
+        <button 
+          className="px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
+          Facilitate Connection
         </button>
       </div>
     </div>
