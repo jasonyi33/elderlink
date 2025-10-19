@@ -82,20 +82,28 @@ If no health mentions, return empty healthMentions array.
 
 // Helper to extract JSON from Gemini response (handles markdown code blocks)
 function extractJSON(text: string): string {
-  // Try to find JSON in markdown code block
-  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-  if (jsonMatch) {
-    return jsonMatch[1];
+  // Try markdown code block first
+  const markdownMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (markdownMatch) return markdownMatch[1].trim();
+
+  // Try to find FIRST complete JSON object (non-greedy)
+  let depth = 0;
+  let start = -1;
+  const cleanedText = text.replace(/^[^{]*/, ''); // Remove preamble text
+
+  for (let i = 0; i < cleanedText.length; i++) {
+    if (cleanedText[i] === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (cleanedText[i] === '}') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        return cleanedText.substring(start, i + 1);
+      }
+    }
   }
 
-  // Try to find raw JSON object
-  const objectMatch = text.match(/\{[\s\S]*\}/);
-  if (objectMatch) {
-    return objectMatch[0];
-  }
-
-  // Return as is
-  return text;
+  throw new Error('No valid JSON object found in response');
 }
 
 /**

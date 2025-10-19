@@ -2,6 +2,8 @@
 // Extracts key facts from conversations for building senior profiles
 
 import { SeniorProfile } from './sam-personality';
+import { callGeminiForAnalysis } from '../services/gemini-service';
+import { Env } from '../services/kv-service';
 
 export interface ExtractedMemories {
   newFacts: {
@@ -70,43 +72,69 @@ Focus on extracting actionable, specific details.
 `;
 }
 
-// Mock Gemini API call for testing
-async function callGemini(_prompt: string): Promise<string> {
-  // Return mock extraction for testing
-  // Will be replaced with actual Gemini API call
-  
-  const mockExtraction: ExtractedMemories = {
-    newFacts: {
-      family: [],
-      hobbies: [],
-      interests: [],
-      health: [],
-      recentEvents: [],
-      preferences: []
+/**
+ * Extract JSON from Gemini response (handles markdown code blocks)
+ */
+function extractJSON(text: string): string {
+  // Try markdown code block first
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (jsonMatch) return jsonMatch[1].trim();
+
+  // Try to find first complete JSON object (non-greedy)
+  let depth = 0;
+  let start = -1;
+  const cleanedText = text.replace(/^[^{]*/, ''); // Remove preamble
+
+  for (let i = 0; i < cleanedText.length; i++) {
+    if (cleanedText[i] === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (cleanedText[i] === '}') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        return cleanedText.substring(start, i + 1);
+      }
     }
-  };
-  
-  return JSON.stringify(mockExtraction);
+  }
+
+  throw new Error('No valid JSON object found in response');
 }
 
 /**
  * Extract memories from a senior's message
  * @param message - The senior's message
  * @param profile - The senior's existing profile
+ * @param env - Cloudflare environment with GEMINI_API_KEY
  * @returns Extracted memories to merge into profile
  */
 export async function extractMemories(
   message: string,
-  profile: SeniorProfile
+  profile: SeniorProfile,
+  env?: Env
 ): Promise<ExtractedMemories> {
   try {
     const prompt = buildMemoryExtractionPrompt(profile, message);
-    const response = await callGemini(prompt);
-    return JSON.parse(response);
-    
+
+    // Call REAL Gemini API if env is provided
+    if (env && env.GEMINI_API_KEY) {
+      console.log('[MEMORY] Calling real Gemini API for memory extraction...');
+      const responseText = await callGeminiForAnalysis(prompt, env);
+      const jsonText = extractJSON(responseText);
+      const parsed = JSON.parse(jsonText);
+      console.log('[MEMORY] Successfully extracted memories:', {
+        familyCount: parsed.newFacts?.family?.length || 0,
+        hobbiesCount: parsed.newFacts?.hobbies?.length || 0,
+        interestsCount: parsed.newFacts?.interests?.length || 0
+      });
+      return parsed;
+    } else {
+      console.warn('[MEMORY] No Gemini API key provided, skipping memory extraction');
+      throw new Error('No Gemini API key provided');
+    }
+
   } catch (error) {
-    console.error('Error extracting memories:', error);
-    
+    console.error('[MEMORY] Error extracting memories:', error);
+
     // Return empty extraction on error
     return {
       newFacts: {
