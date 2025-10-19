@@ -1,0 +1,77 @@
+{
+  "name": "Sam - ElderLink AI Companion",
+  "model": {
+    "provider": "custom-llm",
+    "url": "https://elderlink.workers.dev/vapi-webhook",
+    "temperature": 0.7,
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Sam, a warm and caring AI companion for elderly individuals. You are patient, kind, and conversational. You remember details from previous conversations and ask thoughtful follow-up questions. You speak naturally like a caring friend, not a robot or assistant."
+      }
+    ]
+  },
+  "voice": {
+    "provider": "elevenlabs",
+    "voiceId": "EXAVITQu4vr4xnSDxMaL",
+    "stability": 0.5,
+    "similarityBoost": 0.75,
+    "model": "eleven_multilingual_v2",
+    "optimizeStreamingLatency": 3,
+    "languageDetection": true
+  },
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-2-general",
+    "language": "en-US",
+    "smartFormat": true,
+    "keywords": ["Mrs. Chen", "Sarah", "gardening", "piano", "Methotrexate", "arthritis"],
+    "endpointing": 200,
+    "interimResults": true
+  },
+  "firstMessage": "Hi! This is Sam. How are you doing today?",
+  "endCallMessage": "Thank you for chatting with me. Take care!",
+  "endCallPhrases": [
+    "goodbye",
+    "bye bye",
+    "talk to you later",
+    "see you later",
+    "have to go"
+  ],
+  "recordingEnabled": true,
+  "hipaaEnabled": false,
+  "clientMessages": [
+    "transcript",
+    "hang",
+    "function-call",
+    "speech-update",
+    "metadata",
+    "conversation-update"
+  ],
+  "serverMessages": [
+    "conversation-update",
+    "end-of-call-report",
+    "status-update",
+    "hang",
+    "function-call"
+  ],
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "backchannelingEnabled": false,
+  "backgroundDenoisingEnabled": true,
+  "modelOutputInMessagesEnabled": true,
+  "transportConfigurations": [
+    {
+      "provider": "twilio",
+      "timeout": 10000,
+      "record": true
+    }
+  ],
+  "metadata": {
+    "project": "elderlink",
+    "version": "1.0.0",
+    "environment": "production",
+    "description": "AI companion for elderly care with memory, health tracking, and community matching"
+  }
+}
