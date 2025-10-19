@@ -123,10 +123,8 @@ Return JSON:
     "family": [],
     "hobbies": [],
     "interests": [],
-    "health": [],
     "recentEvents": [],
-    "preferences": [],
-    "culturalBackground": ""
+    "preferences": []
   }
 }
 
