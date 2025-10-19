@@ -9,4 +9,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
   },
+  define: {
+    // Force production Worker URL in development
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('https://elderlink-dev.elderlinkhelper.workers.dev')
+  }
 })
