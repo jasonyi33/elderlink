@@ -88,7 +88,7 @@ export default function CommunityView() {
         <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">
           Recommended Matches ({matches.length})
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-2">
           {matches.map((match: any) => (
             <MatchCard key={match.id} match={match} />
           ))}

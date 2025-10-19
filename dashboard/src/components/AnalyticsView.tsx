@@ -22,7 +22,7 @@ function RadialWellnessChart({ mental, physical, social }: { mental: number; phy
 
       <div className="card-section flex flex-col items-center">
         {/* Radial Chart SVG */}
-        <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] mb-6">
+        <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] mb-6 mt-4">
           {/* Background rings */}
           <circle cx="150" cy="150" r="120" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="24" />
           <circle cx="150" cy="150" r="90" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="20" />
