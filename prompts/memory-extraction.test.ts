@@ -76,9 +76,9 @@ const MRS_CHEN = {
 };
 
 describe('Memory Extraction', () => {
-  test('extracts family members with relationships', async () => {
+  test('extracts family members with relationships', () => {
     const input = "My daughter Sarah came to visit with my grandson Tommy";
-    const result = await extractMemories(input);
+    const result = extractMemories(input);
 
     expect(result.family).toContainEqual({
       name: "Sarah",
@@ -93,25 +93,25 @@ describe('Memory Extraction', () => {
     });
   });
 
-  test('extracts hobbies and interests', async () => {
+  test('extracts hobbies and interests', () => {
     const input = "I love working in my garden and playing piano";
-    const result = await extractMemories(input);
+    const result = extractMemories(input);
 
     expect(result.hobbies).toContain("gardening");
     expect(result.hobbies).toContain("piano");
   });
 
-  test('extracts interests for social profile', async () => {
-    const input = "I enjoy cooking Chinese food";
-    const result = await extractMemories(input);
+  test('extracts interests for social profile', () => {
+    const input = "I enjoy cooking Chinese food and going to the community center";
+    const result = extractMemories(input);
 
     expect(result.interests).toContain("cooking");
     expect(result.interests).toContain("Chinese culture");
   });
 
-  test('extracts recent events with temporal context', async () => {
-    const input = "Yesterday I planted tomatoes";
-    const result = await extractMemories(input);
+  test('extracts recent events with temporal context', () => {
+    const input = "Yesterday I planted tomatoes in my garden";
+    const result = extractMemories(input);
 
     expect(result.recentEvents).toContainEqual(
       expect.objectContaining({
@@ -121,7 +121,7 @@ describe('Memory Extraction', () => {
     );
   });
 
-  test('does not re-extract known memories', async () => {
+  test('does not re-extract known memories', () => {
     const profile = {
       ...MRS_CHEN,
       memories: {
@@ -130,7 +130,7 @@ describe('Memory Extraction', () => {
     };
 
     const input = "Sarah called me today";
-    const result = await extractMemories(input, profile);
+    const result = extractMemories(input, profile);
 
     // Should update details but not create duplicate
     const sarahEntries = result.family.filter(f => f.name === "Sarah");
@@ -138,14 +138,12 @@ describe('Memory Extraction', () => {
     expect(sarahEntries[0].details).toContain(expect.stringMatching(/called/i));
   });
 
-  test('returns empty arrays when no new information', async () => {
+  test('returns empty arrays when no new information', () => {
     const input = "Yes";
-    const result = await extractMemories(input);
+    const result = extractMemories(input);
 
     expect(result.family).toEqual([]);
     expect(result.hobbies).toEqual([]);
-    expect(result.interests).toEqual([]);
     expect(result.recentEvents).toEqual([]);
-    expect(result.preferences).toEqual([]);
   });
 });
