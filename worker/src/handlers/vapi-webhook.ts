@@ -112,10 +112,20 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
       }, 7000)
     );
 
+    // Check if streaming is requested
+    const requestData = await request.clone().json() as any;
+    const isStreamingRequest = requestData.stream === true;
+
     const responsePromise = processVapiCall(request, env);
 
     // Race: return whichever finishes first
     const result = await Promise.race([responsePromise, timeoutPromise]);
+
+    // If streaming requested, return SSE format
+    if (isStreamingRequest) {
+      console.log('[VAPI] Returning SSE stream response');
+      return createSSEResponse(result);
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { 'Content-Type': 'application/json' }
@@ -153,6 +163,10 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
 async function processVapiCall(request: Request, env: Env): Promise<any> {
   const start = Date.now();
   const data = await request.json() as any;
+
+  // Check if streaming is requested
+  const isStreamingRequest = data.stream === true;
+  console.log('[VAPI] Stream requested:', isStreamingRequest);
 
   // DEBUG: First, log top-level keys to understand structure
   console.log('[VAPI] PAYLOAD KEYS:', Object.keys(data));
@@ -274,8 +288,14 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     contentPreview: samResponse.substring(0, 100),
     language: language === 'mandarin' ? 'zh-CN' : 'en-US',
     voiceId: voiceId,
-    fullResponse: response
+    fullResponse: response,
+    isStreaming: isStreamingRequest
   }, null, 2));
+
+  // If streaming is requested, return SSE format with stream marker
+  if (isStreamingRequest) {
+    response.stream = true;
+  }
 
   return response;
 }
@@ -430,5 +450,64 @@ async function backgroundProcessing(
     console.error('[ASYNC] Background processing error:', error);
     // Don't fail the call, just log
   }
+}
+
+/**
+ * Create SSE (Server-Sent Events) response for streaming
+ * Format: OpenAI-compatible streaming format
+ */
+function createSSEResponse(result: any): Response {
+  const responseContent = result.choices?.[0]?.message?.content || '';
+
+  // Create SSE stream - send entire response at once
+  const sseData = [];
+
+  // Send the response as a delta chunk
+  sseData.push(`data: ${JSON.stringify({
+    id: result.id,
+    object: 'chat.completion.chunk',
+    created: Math.floor(Date.now() / 1000),
+    model: 'custom',
+    choices: [
+      {
+        index: 0,
+        delta: {
+          role: 'assistant',
+          content: responseContent
+        },
+        finish_reason: null
+      }
+    ]
+  })}\n\n`);
+
+  // Send final chunk with finish_reason
+  sseData.push(`data: ${JSON.stringify({
+    id: result.id,
+    object: 'chat.completion.chunk',
+    created: Math.floor(Date.now() / 1000),
+    model: 'custom',
+    choices: [
+      {
+        index: 0,
+        delta: {},
+        finish_reason: 'stop'
+      }
+    ]
+  })}\n\n`);
+
+  // Send [DONE] marker
+  sseData.push('data: [DONE]\n\n');
+
+  const sseBody = sseData.join('');
+
+  console.log('[VAPI] SSE Response:', sseBody.substring(0, 200));
+
+  return new Response(sseBody, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }
+  });
 }
 

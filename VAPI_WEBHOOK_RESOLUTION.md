@@ -269,3 +269,68 @@ If Sam still doesn't speak, we may need to investigate:
 - Additional fields in custom-LLM response
 - Voice provider configuration
 - Call flow timing issues
+
+---
+
+## ✅ ROOT CAUSE FOUND - 2025-10-19 07:50 UTC
+
+### THE ACTUAL ISSUE: Vapi Requires SSE Streaming
+
+After deep investigation focusing on ElevenLabs integration, I discovered the **actual root cause**:
+
+**Vapi sends `"stream": true` in custom-LLM requests and expects Server-Sent Events (SSE) streaming responses.**
+
+### Evidence:
+
+1. **Logs showed**: `"stream": true` in ALL conversation requests from Vapi
+2. **Research confirmed**: "you need to return properly structured JSON or stream SSE responses... **or Vapi will stay silent after the intro**" (exact symptom!)
+3. **OpenAI compatibility**: Vapi expects OpenAI-compatible SSE streaming format
+
+### What Was Happening:
+
+1. ✅ Sam says first message (pre-configured `firstMessage`)
+2. ✅ User speaks and gets transcribed by ElevenLabs
+3. ✅ Our webhook generates Sam's response (672-1037ms)
+4. ❌ **We returned JSON instead of SSE stream**
+5. ❌ **Vapi ignored JSON response when `stream: true`**
+6. ❌ **Sam stayed silent** (waiting for SSE stream that never came)
+
+### Solution Implemented:
+
+Added SSE streaming support in vapi-webhook.ts:
+
+```typescript
+// Detect streaming request
+const isStreamingRequest = requestData.stream === true;
+
+// Return SSE format when stream: true
+if (isStreamingRequest) {
+  return createSSEResponse(result);
+}
+
+// SSE Format (OpenAI-compatible):
+function createSSEResponse(result: any) {
+  return new Response(sseBody, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }
+  });
+}
+```
+
+SSE format sends:
+1. `data: {delta with content}\n\n` - The actual response
+2. `data: {delta with finish_reason: 'stop'}\n\n` - End marker
+3. `data: [DONE]\n\n` - OpenAI-compatible termination
+
+### Deployment:
+
+✅ Deployed to dev environment at 2025-10-19T07:50 UTC
+- Version: 8611b698-084d-43fc-8273-9efb896a5403
+- URL: https://elderlink-dev.elderlinkhelper.workers.dev
+
+### Next Step:
+
+**User should make a test call NOW** to verify Sam actually speaks responses with SSE streaming enabled.
