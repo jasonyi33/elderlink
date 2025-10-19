@@ -497,7 +497,7 @@ id = "your-cloudflare-kv-namespace-id"  # Create via: wrangler kv:namespace crea
 
 ### Vapi.ai + ElevenLabs Configuration
 - **Webhook URL:** `https://your-worker.workers.dev/vapi-webhook`
-- **Speech-to-Text:** ElevenLabs Whisper (industry-leading accuracy, 30+ languages)
+- **Speech-to-Text:** ElevenLabs Scribe v1 (industry-leading accuracy, 30+ languages)
 - **Language Detection:** Automatic detection via Vapi (English, Mandarin, Spanish, etc.)
 - **Speech Timeout:** 3 seconds (configurable)
 - **Voice Synthesis:** ElevenLabs multilingual voices
@@ -647,7 +647,7 @@ Built for seniors worldwide who deserve connection, care, and community.
 - **AI:** Google Gemini 1.5 Flash (sub-second response, 1M token context, multilingual native)
 - **Voice Synthesis:** ElevenLabs (native-quality voices in 30+ languages, emotional warmth)
 - **Phone Platform:** Vapi.ai (webhook-based, automatic language detection)
-- **Speech Recognition:** ElevenLabs Whisper (industry-leading accuracy, 30+ languages)
+- **Speech Recognition:** ElevenLabs Scribe v1 (industry-leading accuracy, 30+ languages)
 - **Frontend:** React + Vite + TypeScript (Cloudflare Pages deployment)
 - **Testing:** Jest + React Testing Library (70% coverage target)
 - **Architecture:** Event-driven, async processing, edge-first, real-time updates

@@ -2749,7 +2749,7 @@ wrangler kv:namespace create "ELDERLINK_KV" --preview
    Name: Sam Companion
    Voice Provider: ElevenLabs
    Voice ID: [your selected voice]
-   Transcriber: ElevenLabs (Whisper)
+   Transcriber: ElevenLabs (scribe_v1)
 
    CRITICAL - Custom LLM:
    Provider: Custom

@@ -18,8 +18,8 @@
     "optimizeStreamingLatency": 3
   },
   "transcriber": {
-    "provider": "talkscriber",
-    "model": "whisper",
+    "provider": "11labs",
+    "model": "scribe_v1",
     "language": "en"
   },
   "firstMessage": "Hello! This is Sam. Who am I speaking with today?",
