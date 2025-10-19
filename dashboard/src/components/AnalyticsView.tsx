@@ -2,6 +2,113 @@ import React, { useState, useEffect } from 'react'
 import type { SeniorProfile, Analytics } from '../types'
 import { apiClient } from '../services/api-client'
 import WordCloud from './WordCloud'
+import Icons from './ui/Icons'
+
+// Apple Watch-style Radial Wellness Chart Component
+function RadialWellnessChart({ mental, physical, social }: { mental: number; physical: number; social: number }) {
+  const holistic = Math.round((mental + physical + social) / 3);
+
+  return (
+    <div className="medical-card">
+      <div className="card-header">
+        <div className="flex items-center gap-3">
+          <Icons.heartPulse size={24} className="text-primary" />
+          <div>
+            <h3 className="card-title">Holistic Wellness Score</h3>
+            <span className="card-subtitle">Multi-dimensional health tracking</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="card-section flex flex-col items-center">
+        {/* Radial Chart SVG */}
+        <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] mb-6">
+          {/* Background rings */}
+          <circle cx="150" cy="150" r="120" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="24" />
+          <circle cx="150" cy="150" r="90" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="20" />
+          <circle cx="150" cy="150" r="64" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="16" />
+
+          {/* Mental health ring (outer) */}
+          <circle
+            cx="150"
+            cy="150"
+            r="120"
+            fill="none"
+            stroke="var(--chart-blue)"
+            strokeWidth="24"
+            strokeLinecap="round"
+            strokeDasharray={`${mental * 7.54} 754`}
+            transform="rotate(-90 150 150)"
+            style={{ transition: 'stroke-dasharray 0.8s ease-in-out' }}
+          />
+
+          {/* Physical health ring (middle) */}
+          <circle
+            cx="150"
+            cy="150"
+            r="90"
+            fill="none"
+            stroke="var(--chart-teal)"
+            strokeWidth="20"
+            strokeLinecap="round"
+            strokeDasharray={`${physical * 5.65} 565`}
+            transform="rotate(-90 150 150)"
+            style={{ transition: 'stroke-dasharray 0.8s ease-in-out' }}
+          />
+
+          {/* Social health ring (inner) */}
+          <circle
+            cx="150"
+            cy="150"
+            r="64"
+            fill="none"
+            stroke="var(--chart-purple)"
+            strokeWidth="16"
+            strokeLinecap="round"
+            strokeDasharray={`${social * 4.02} 402`}
+            transform="rotate(-90 150 150)"
+            style={{ transition: 'stroke-dasharray 0.8s ease-in-out' }}
+          />
+
+          {/* Center text */}
+          <text x="150" y="135" textAnchor="middle" style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            fill: 'var(--text-muted)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>
+            Holistic Score
+          </text>
+          <text x="150" y="175" textAnchor="middle" style={{
+            fontSize: '56px',
+            fontWeight: 800,
+            fill: 'var(--primary)',
+            letterSpacing: '-2px'
+          }}>
+            {holistic}
+          </text>
+        </svg>
+
+        {/* Legend */}
+        <div className="flex gap-6 flex-wrap justify-center">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--chart-blue)' }} />
+            <span className="text-sm font-semibold text-primary">Mental {mental}/100</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--chart-teal)' }} />
+            <span className="text-sm font-semibold text-primary">Physical {physical}/100</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--chart-purple)' }} />
+            <span className="text-sm font-semibold text-primary">Social {social}/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AnalyticsView() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -38,54 +145,44 @@ export default function AnalyticsView() {
 
   return (
     <div data-testid="analytics-view" className="space-y-6 projector-optimized">
-      {/* Holistic Wellness Score */}
-      <div className="card projector-spacing">
-        <h3 className="text-2xl projector-text-2xl font-semibold card-section text-center text-primary">
-          Holistic Wellness Score
-        </h3>
+      {/* Radial Wellness Chart */}
+      <RadialWellnessChart
+        mental={mentalScore}
+        physical={physicalScore}
+        social={socialScore}
+      />
 
-        {/* Big Score Display */}
-        <div className="text-center card-section">
-          <div className="text-6xl projector-text-3xl font-bold text-primary mb-2">
-            {holisticScore}/100
-          </div>
-          <div className="w-64 h-64 mx-auto">
-            {/* Radial progress indicator - simplified as percentage bar */}
-            <div className="relative pt-1">
-              <div className="overflow-hidden h-6 mb-4 rounded bg-neutral-darker">
-                <div
-                  style={{ width: `${holisticScore}%` }}
-                  className="h-6 bg-primary-dark text-white text-center font-semibold projector-text-base flex items-center justify-center transition-all duration-500"
-                >
-                  {holisticScore}%
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Health Dimension Breakdown */}
+      <div className="medical-card">
+        <div className="card-header">
+          <h3 className="card-title">Health Dimension Breakdown</h3>
         </div>
 
-        {/* Breakdown */}
-        <div className="space-y-4">
-          <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Breakdown:</h4>
-
+        <div className="card-section space-y-4">
           {/* Mental Health */}
-          <div className="border-l-4 border-primary-900 bg-primary-50 pl-4 py-3 rounded">
+          <div className="glass-card p-4 border-l-4" style={{ borderColor: 'var(--chart-blue)' }}>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-primary-900 projector-text-lg">Mental Health</span>
-              <span className="text-primary-900 font-bold text-xl projector-text-2xl">↑ 42%</span>
+              <div className="flex items-center gap-3">
+                <Icons.heartPulse size={20} style={{ color: 'var(--chart-blue)' }} />
+                <span className="font-semibold text-primary projector-text-lg">Mental Health</span>
+              </div>
+              <span className="text-primary font-bold text-xl projector-text-2xl">↑ 42%</span>
             </div>
-            <p className="text-base projector-text-base text-text-muted-dark">
+            <p className="text-base projector-text-base text-text-muted mt-2">
               {analytics.totalConversations} conversations
             </p>
           </div>
 
           {/* Physical Health */}
-          <div className="border-l-4 border-success-dark bg-success-light pl-4 py-3 rounded">
+          <div className="glass-card p-4 border-l-4" style={{ borderColor: 'var(--chart-teal)' }}>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-900 projector-text-lg">Physical</span>
-              <span className="text-gray-900 font-bold text-xl projector-text-2xl">{analytics.totalHealthNotes} health notes</span>
+              <div className="flex items-center gap-3">
+                <Icons.activity size={20} style={{ color: 'var(--chart-teal)' }} />
+                <span className="font-semibold text-primary projector-text-lg">Physical Health</span>
+              </div>
+              <span className="text-primary font-bold text-xl projector-text-2xl">{analytics.totalHealthNotes} health notes</span>
             </div>
-            <p className="text-base projector-text-base text-gray-700">
+            <p className="text-base projector-text-base text-text-muted mt-2">
               {profile.healthData.notes.filter((n: any) => {
                 const weekAgo = new Date()
                 weekAgo.setDate(weekAgo.getDate() - 7)
@@ -95,14 +192,17 @@ export default function AnalyticsView() {
           </div>
 
           {/* Social Health */}
-          <div className="border-l-4 border-error bg-error/10 pl-4 py-3 rounded">
+          <div className="glass-card p-4 border-l-4" style={{ borderColor: 'var(--chart-purple)' }}>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-error projector-text-lg">Social</span>
-              <span className="text-error font-bold text-xl projector-text-2xl">
+              <div className="flex items-center gap-3">
+                <Icons.users size={20} style={{ color: 'var(--chart-purple)' }} />
+                <span className="font-semibold text-primary projector-text-lg">Social Health</span>
+              </div>
+              <span className="text-primary font-bold text-xl projector-text-2xl">
                 {analytics.totalMatches} matches, {profile.groups.length} groups
               </span>
             </div>
-            <p className="text-base projector-text-base text-text-muted-dark">Community growing</p>
+            <p className="text-base projector-text-base text-text-muted mt-2">Community growing</p>
           </div>
         </div>
 
@@ -254,18 +354,29 @@ export default function AnalyticsView() {
 }
 
 function MetricCard({ value, label, icon, color }: any) {
-  const colorClasses = {
-    primary: 'bg-primary-light text-primary-dark border-primary',
-    success: 'bg-success-light text-gray-900 border-success',
-    secondary: 'bg-secondary-light text-secondary-dark border-secondary',
-    warning: 'bg-warning-light text-warning-dark border-warning'
-  }
+  const iconMap: Record<string, any> = {
+    '📞': Icons.phone,
+    '😊': Icons.heartPulse,
+    '🩺': Icons.activity,
+    '👥': Icons.users,
+  };
+
+  const colorMap: Record<string, string> = {
+    primary: 'var(--chart-blue)',
+    success: 'var(--chart-teal)',
+    secondary: 'var(--primary)',
+    warning: 'var(--chart-purple)'
+  };
+
+  const IconComponent = iconMap[icon] || Icons.chart;
 
   return (
-    <div className={`${colorClasses[color]} rounded-lg border p-4 text-center transition-all duration-300 hover:scale-105`}>
-      <div className="text-3xl mb-2">{icon}</div>
-      <div className="text-2xl projector-text-2xl font-bold">{value}</div>
-      <div className="text-sm text-text-muted">{label}</div>
+    <div className="stat-card hover-lift text-center">
+      <div className="mb-3 flex justify-center">
+        <IconComponent size={32} style={{ color: colorMap[color] }} />
+      </div>
+      <div className="text-2xl projector-text-2xl font-bold text-primary">{value}</div>
+      <div className="text-caption text-text-muted uppercase tracking-wide">{label}</div>
     </div>
   )
 }
