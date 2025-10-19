@@ -10,6 +10,7 @@ import { setupGlobalErrorHandling } from './utils/errorMonitoring'
 import { Task511ActualVerification } from './tests/task511ActualVerification'
 import { Toaster } from 'react-hot-toast'
 import Icons from './components/ui/Icons'
+import { CardSkeleton } from './components/ui/LoadingSkeleton'
 import './utils/consoleErrorCheck' // Auto-start console error monitoring
 import './styles/design-system.css' // Design system styles
 
@@ -19,19 +20,12 @@ const SeniorProfileView = lazy(() => import('./components/SeniorProfileView'))
 const CommunityView = lazy(() => import('./components/CommunityView'))
 const AnalyticsView = lazy(() => import('./components/AnalyticsView'))
 
-// Loading skeleton component for lazy loading
+// Loading skeleton component for lazy loading with shimmer effect
 function TabSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-        <div className="space-y-3">
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-        </div>
-        <div className="h-32 bg-gray-200 rounded mt-4"></div>
-      </div>
+    <div className="space-y-6">
+      <CardSkeleton />
+      <CardSkeleton />
     </div>
   )
 }
