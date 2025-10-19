@@ -157,62 +157,68 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
       </div>
 
       {/* Next Appointment */}
-      <div className="card-section">
-        <button
-          onClick={() => setExpanded(e => ({...e, appointments: !e.appointments}))}
-          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
-        >
-          <span className="font-medium text-primary">
-            {expanded.appointments ? '▼' : '▶'} Next Appointment
-          </span>
-        </button>
-        {expanded.appointments && healthData.appointments[0] && (
-          <div className="mt-2 ml-4 p-3 bg-warning-light border-l-4 border-warning rounded">
-            <p className="font-medium text-warning-dark">{healthData.appointments[0].type}</p>
-            <p className="text-sm text-warning-dark">
-              {healthData.appointments[0].date} at {healthData.appointments[0].time}
-            </p>
-            <p className="text-sm text-warning-dark">with {healthData.appointments[0].doctor}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Latest Vitals */}
-      <div className="card-section">
-        <button
-          onClick={() => setExpanded(e => ({...e, vitals: !e.vitals}))}
-          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
-        >
-          <span className="font-medium text-primary">
-            {expanded.vitals ? '▼' : '▶'} Latest Vitals
-          </span>
-        </button>
-        {expanded.vitals && (
-          <div className="mt-2 ml-4 p-3 bg-success-light border-l-4 border-success rounded">
-            <p className="text-sm text-success-dark mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {healthData.vitals.bloodPressure && (
-                <div>
-                  <p className="text-sm font-medium text-success-dark">Blood Pressure</p>
-                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodPressure}</p>
-                </div>
-              )}
-              {healthData.vitals.weight && (
-                <div>
-                  <p className="text-sm font-medium text-success-dark">Weight</p>
-                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.weight}</p>
-                </div>
-              )}
-              {healthData.vitals.bloodSugar && (
-                <div>
-                  <p className="text-sm font-medium text-success-dark">Blood Sugar</p>
-                  <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodSugar}</p>
-                </div>
+      {healthData.upcomingAppointments && healthData.upcomingAppointments.length > 0 && (
+        <div className="card-section">
+          <button
+            onClick={() => setExpanded(e => ({...e, appointments: !e.appointments}))}
+            className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+          >
+            <span className="font-medium text-primary">
+              {expanded.appointments ? '▼' : '▶'} Next Appointment
+            </span>
+          </button>
+          {expanded.appointments && healthData.upcomingAppointments[0] && (
+            <div className="mt-2 ml-4 p-3 bg-warning-light border-l-4 border-warning rounded">
+              <p className="font-medium text-warning-dark">{healthData.upcomingAppointments[0].type || 'Appointment'}</p>
+              <p className="text-sm text-warning-dark">
+                {healthData.upcomingAppointments[0].date} {healthData.upcomingAppointments[0].time ? `at ${healthData.upcomingAppointments[0].time}` : ''}
+              </p>
+              {healthData.upcomingAppointments[0].doctor && (
+                <p className="text-sm text-warning-dark">with {healthData.upcomingAppointments[0].doctor}</p>
               )}
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* Latest Vitals */}
+      {healthData.vitals && (
+        <div className="card-section">
+          <button
+            onClick={() => setExpanded(e => ({...e, vitals: !e.vitals}))}
+            className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+          >
+            <span className="font-medium text-primary">
+              {expanded.vitals ? '▼' : '▶'} Latest Vitals
+            </span>
+          </button>
+          {expanded.vitals && (
+            <div className="mt-2 ml-4 p-3 bg-success-light border-l-4 border-success rounded">
+              <p className="text-sm text-success-dark mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {healthData.vitals.bloodPressure && (
+                  <div>
+                    <p className="text-sm font-medium text-success-dark">Blood Pressure</p>
+                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodPressure}</p>
+                  </div>
+                )}
+                {healthData.vitals.weight && (
+                  <div>
+                    <p className="text-sm font-medium text-success-dark">Weight</p>
+                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.weight}</p>
+                  </div>
+                )}
+                {healthData.vitals.bloodSugar && (
+                  <div>
+                    <p className="text-sm font-medium text-success-dark">Blood Sugar</p>
+                    <p className="text-lg font-bold text-success-dark">{healthData.vitals.bloodSugar}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recent Health Notes */}
       <div>
