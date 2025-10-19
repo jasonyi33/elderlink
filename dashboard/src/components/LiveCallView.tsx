@@ -22,24 +22,24 @@ export default function LiveCallView() {
   }, [])
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Live Call - Mrs. Chen</h2>
-        <span className="flex items-center text-red-600 font-medium">
-          <span className="w-3 h-3 bg-red-600 rounded-full mr-2 animate-pulse" />
+    <div className="card projector-optimized">
+      <div className="flex items-center justify-between card-section">
+        <h2 className="text-2xl projector-text-2xl font-semibold text-primary">Live Call - Mrs. Chen</h2>
+        <span className="flex items-center text-secondary font-medium">
+          <span className="w-3 h-3 bg-secondary rounded-full mr-2 animate-pulse-slow" />
           LIVE
         </span>
       </div>
 
       {/* Sentiment Meter */}
-      <div className="mb-6">
-        <label className="text-sm font-medium text-gray-600 mb-2 block">
+      <div className="card-section">
+        <label className="text-sm font-medium text-text-muted mb-2 block">
           Real-time Sentiment
         </label>
-        <div className="relative h-10 bg-gray-200 rounded-full overflow-hidden">
+        <div className="relative h-10 bg-neutral-dark rounded-full overflow-hidden">
           <div
             className={`absolute h-full transition-all duration-500 ${
-              sentiment > 0 ? 'bg-green-500' : sentiment < 0 ? 'bg-red-500' : 'bg-yellow-500'
+              sentiment > 0 ? 'bg-success' : sentiment < 0 ? 'bg-secondary' : 'bg-warning'
             }`}
             style={{
               width: `${Math.abs(sentiment) * 100}%`,
@@ -47,36 +47,36 @@ export default function LiveCallView() {
               right: sentiment > 0 ? '0' : '50%'
             }}
           />
-          <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900">
+          <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-primary">
             {sentiment > 0 ? '😊' : sentiment < 0 ? '😔' : '😐'} {sentiment.toFixed(2)}
           </span>
         </div>
       </div>
 
       {/* Detected Emotions */}
-      <div className="mb-6">
-        <label className="text-sm font-medium text-gray-600 mb-2 block">
+      <div className="card-section">
+        <label className="text-sm font-medium text-text-muted mb-2 block">
           Detected Emotions
         </label>
         <div className="flex flex-wrap gap-2">
           {emotions.map((emotion, i) => (
             <span
               key={i}
-              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium animate-fade-in"
+              className="badge-primary animate-fade-in transition-all duration-300"
             >
               {emotion}
             </span>
           ))}
           {emotions.length === 0 && (
-            <span className="text-gray-400 text-sm">No emotions detected yet</span>
+            <span className="text-text-muted text-sm">No emotions detected yet</span>
           )}
         </div>
       </div>
 
       {/* Language Indicator */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-600">Language:</span>
-        <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+        <span className="text-sm font-medium text-text-muted">Language:</span>
+        <span className="badge bg-info-light text-info">
           {language === 'mandarin' ? '中文 Mandarin' : 'English'}
         </span>
       </div>

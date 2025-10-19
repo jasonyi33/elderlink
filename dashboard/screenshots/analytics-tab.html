@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElderLink Dashboard - Analytics Tab Screenshot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --color-primary: #457B9D;
+            --color-primary-light: #A8DADC;
+            --color-primary-dark: #1D3557;
+            --color-secondary: #E63946;
+            --color-secondary-light: #F1FAEE;
+            --color-secondary-dark: #C0392B;
+            --color-success: #06D6A0;
+            --color-success-light: #D4F8F0;
+            --color-success-dark: #04A07F;
+            --color-warning: #F4A261;
+            --color-warning-light: #FEEBC8;
+            --color-warning-dark: #D97706;
+            --color-error: #E63946;
+            --color-error-light: #FEE2E2;
+            --color-error-dark: #DC2626;
+            --color-text: #1D3557;
+            --color-text-muted: #6B7280;
+            --color-background: #F8F9FA;
+            --color-surface: #FFFFFF;
+            --color-neutral: #E5E7EB;
+            --color-neutral-dark: #9CA3AF;
+        }
+        .card {
+            background-color: var(--color-surface);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+        }
+        .badge-primary {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .transition-normal {
+            transition: all 0.3s ease-in-out;
+        }
+        @media (min-width: 1920px) {
+            .projector-optimized {
+                font-size: 1.1rem;
+            }
+            .projector-text-xl { font-size: 1.75rem; }
+            .projector-text-2xl { font-size: 2.25rem; }
+            .projector-text-3xl { font-size: 3rem; }
+            .projector-text-lg { font-size: 1.25rem; }
+            .projector-spacing {
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white border-b sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex space-x-8">
+                    <button class="py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors">
+                        📞 Live Call
+                    </button>
+                    <button class="py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors">
+                        👤 Senior Profile
+                    </button>
+                    <button class="py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors">
+                        👥 Community
+                    </button>
+                    <button class="py-3 px-1 border-b-2 border-blue-500 text-blue-600 transition-colors">
+                        📊 Analytics
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- Holistic Wellness Card -->
+            <div class="card mb-8">
+                <h2 class="text-2xl projector-text-2xl font-bold text-primary mb-6">Holistic Wellness Overview</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Overall Wellness Score -->
+                    <div class="text-center">
+                        <div class="relative w-48 h-48 mx-auto mb-6">
+                            <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+                                <!-- Background circle -->
+                                <circle cx="50" cy="50" r="40" stroke="#E5E7EB" stroke-width="8" fill="none"/>
+                                <!-- Progress circle -->
+                                <circle cx="50" cy="50" r="40" stroke="#06D6A0" stroke-width="8" fill="none"
+                                        stroke-dasharray="251.2" stroke-dashoffset="55.2" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-4xl projector-text-4xl font-bold text-success">78</div>
+                                    <div class="text-sm text-text-muted">Wellness Score</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center space-x-2">
+                            <span class="text-success text-xl">↗</span>
+                            <span class="text-success font-semibold">Improving</span>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown by Dimension -->
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-primary">Mental Health</span>
+                                <span class="text-2xl projector-text-2xl font-bold text-success">82/100</span>
+                            </div>
+                            <div class="w-full bg-neutral rounded-full h-3">
+                                <div class="bg-success h-3 rounded-full" style="width: 82%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-primary">Physical Health</span>
+                                <span class="text-2xl projector-text-2xl font-bold text-warning">75/100</span>
+                            </div>
+                            <div class="w-full bg-neutral rounded-full h-3">
+                                <div class="bg-warning h-3 rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-primary">Social Health</span>
+                                <span class="text-2xl projector-text-2xl font-bold text-success">85/100</span>
+                            </div>
+                            <div class="w-full bg-neutral rounded-full h-3">
+                                <div class="bg-success h-3 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 30-Day Wellness Trend -->
+            <div class="card mb-8">
+                <h2 class="text-2xl projector-text-2xl font-bold text-primary mb-6">30-Day Wellness Trend</h2>
+                
+                <div class="h-64 bg-neutral rounded-lg flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">📈</div>
+                        <p class="text-text-muted mb-2">Wellness trend graph showing sentiment over 30 days</p>
+                        <div class="text-sm text-text-muted">
+                            <div class="flex items-center justify-center space-x-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-success rounded"></div>
+                                    <span>Mental Health</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-warning rounded"></div>
+                                    <span>Physical Health</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-primary rounded"></div>
+                                    <span>Social Health</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call Analytics -->
+            <div class="card mb-8">
+                <h2 class="text-2xl projector-text-2xl font-bold text-primary mb-6">Call Analytics</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl projector-text-3xl font-bold text-primary mb-2">147</div>
+                        <div class="text-sm text-text-muted">Total Conversations</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl projector-text-3xl font-bold text-success mb-2">4.2</div>
+                        <div class="text-sm text-text-muted">Avg Duration (min)</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl projector-text-3xl font-bold text-warning mb-2">9-11 AM</div>
+                        <div class="text-sm text-text-muted">Peak Hours</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl projector-text-3xl font-bold text-primary mb-2">85%</div>
+                        <div class="text-sm text-text-muted">Positive Sentiment</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic Word Cloud -->
+            <div class="card">
+                <h2 class="text-2xl projector-text-2xl font-bold text-primary mb-6">Topic Word Cloud</h2>
+                
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <span class="px-3 py-2 bg-primary-light text-primary-dark rounded-full text-lg font-medium" style="font-size: 24px;">Sarah</span>
+                    <span class="px-3 py-2 bg-success-light text-success-dark rounded-full text-base font-medium" style="font-size: 20px;">tomatoes</span>
+                    <span class="px-3 py-2 bg-success-light text-success-dark rounded-full text-base font-medium" style="font-size: 20px;">garden</span>
+                    <span class="px-3 py-2 bg-success-light text-success-dark rounded-full text-base font-medium" style="font-size: 20px;">happy</span>
+                    <span class="px-3 py-2 bg-warning-light text-warning-dark rounded-full text-sm font-medium" style="font-size: 16px;">piano</span>
+                    <span class="px-3 py-2 bg-warning-light text-warning-dark rounded-full text-sm font-medium" style="font-size: 16px;">cooking</span>
+                    <span class="px-3 py-2 bg-warning-light text-warning-dark rounded-full text-sm font-medium" style="font-size: 16px;">family</span>
+                    <span class="px-3 py-2 bg-primary-light text-primary-dark rounded-full text-sm font-medium" style="font-size: 14px;">arthritis</span>
+                    <span class="px-3 py-2 bg-primary-light text-primary-dark rounded-full text-sm font-medium" style="font-size: 14px;">medication</span>
+                    <span class="px-3 py-2 bg-primary-light text-primary-dark rounded-full text-sm font-medium" style="font-size: 14px;">doctor</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">weather</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">neighbors</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">exercise</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">books</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">music</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">friends</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">health</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">memories</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">stories</span>
+                    <span class="px-3 py-2 bg-neutral text-text-muted rounded-full text-xs font-medium" style="font-size: 12px;">laugh</span>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -6,57 +6,58 @@ import CommunityView from './components/CommunityView'
 import AnalyticsView from './components/AnalyticsView'
 import ErrorBoundary from './components/ErrorBoundary'
 import { setupGlobalErrorHandling } from './utils/errorMonitoring'
-import { Task511Verification } from './utils/task511Verification'
+import { Task511ActualVerification } from './tests/task511ActualVerification'
 import './utils/consoleErrorCheck' // Auto-start console error monitoring
+import './styles/design-system.css' // Design system styles
 
 function App() {
   useEffect(() => {
     // Initialize global error handling
     setupGlobalErrorHandling()
     
-    // Verify Task 5.11 requirements
-    Task511Verification.verifyAllRequirements()
+    // Run ACTUAL verification of Task 5.11
+    Task511ActualVerification.verifyTask511()
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background-alt projector-optimized">
       <Tab.Group>
         {/* Tabs only, no header */}
-        <nav className="bg-white border-b sticky top-0 z-10">
+        <nav className="bg-background border-b sticky top-0 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-4">
             <Tab.List className="flex space-x-8">
               <Tab className={({ selected }) =>
-                `py-3 px-1 border-b-2 transition-colors ${
+                `py-3 px-1 border-b-2 transition-all duration-300 ${
                   selected
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-muted hover:text-primary'
                 }`
               }>
                 📞 Live Call 🔴
               </Tab>
               <Tab className={({ selected }) =>
-                `py-3 px-1 border-b-2 transition-colors ${
+                `py-3 px-1 border-b-2 transition-all duration-300 ${
                   selected
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-muted hover:text-primary'
                 }`
               }>
                 👤 Senior Profile
               </Tab>
               <Tab className={({ selected }) =>
-                `py-3 px-1 border-b-2 transition-colors ${
+                `py-3 px-1 border-b-2 transition-all duration-300 ${
                   selected
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-muted hover:text-primary'
                 }`
               }>
                 👥 Community
               </Tab>
               <Tab className={({ selected }) =>
-                `py-3 px-1 border-b-2 transition-colors ${
+                `py-3 px-1 border-b-2 transition-all duration-300 ${
                   selected
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-muted hover:text-primary'
                 }`
               }>
                 📊 Analytics
@@ -65,7 +66,7 @@ function App() {
           </div>
         </nav>
 
-        <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-300">
+        <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-300 projector-optimized">
           <Tab.Panels>
             <Tab.Panel>
               <ErrorBoundary componentName="LiveCallView">

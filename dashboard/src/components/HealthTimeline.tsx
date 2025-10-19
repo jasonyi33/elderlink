@@ -22,10 +22,10 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
 
   const getMentionTagColor = (type: string) => {
     switch (type) {
-      case 'symptom': return 'bg-red-100 text-red-800'
-      case 'medication': return 'bg-green-100 text-green-800'
-      case 'concern': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'symptom': return 'bg-secondary-light text-secondary-dark'
+      case 'medication': return 'bg-success-light text-success-dark'
+      case 'concern': return 'bg-warning-light text-warning-dark'
+      default: return 'bg-neutral text-text-muted'
     }
   }
 
@@ -40,22 +40,22 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
 
   const getSourceBadgeColor = (source: string) => {
     switch (source) {
-      case 'Sam AI Conversation': return 'bg-blue-100 text-blue-800'
-      case 'Manual Entry': return 'bg-purple-100 text-purple-800'
-      case 'Provider': return 'bg-green-100 text-green-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'Sam AI Conversation': return 'bg-primary-light text-primary-dark'
+      case 'Manual Entry': return 'bg-warning-light text-warning-dark'
+      case 'Provider': return 'bg-success-light text-success-dark'
+      default: return 'bg-neutral text-text-muted'
     }
   }
 
   return (
-    <div data-testid="health-timeline" className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-gray-900">Health Timeline</h3>
+    <div data-testid="health-timeline" className="card">
+      <div className="flex items-center justify-between card-section">
+        <h3 className="text-xl projector-text-xl font-semibold text-primary">Health Timeline</h3>
         <a
           href="https://mychart.uwmedicine.org/portal"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-normal text-sm"
         >
           View in MyChart
         </a>
@@ -63,22 +63,22 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
 
       <div className="relative">
         {/* Vertical line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-neutral"></div>
         
         <div className="space-y-6">
           {sortedNotes.map((note, index) => (
             <div key={index} data-testid="timeline-item" className="relative flex items-start">
               {/* Timeline dot */}
-              <div className="relative z-10 w-8 h-8 bg-white border-2 border-blue-500 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="relative z-10 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
               </div>
               
               {/* Content */}
               <div className="ml-6 flex-1">
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-neutral rounded-lg p-4">
                   {/* Header with timestamp and source */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-text-muted">
                       {new Date(note.timestamp).toLocaleString()}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSourceBadgeColor(note.source)}`}>
@@ -87,7 +87,7 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
                   </div>
                   
                   {/* Natural language note */}
-                  <p className="text-gray-900 mb-3">{note.note}</p>
+                  <p className="text-primary mb-3">{note.note}</p>
                   
                   {/* Structured mentions */}
                   {note.mentions && note.mentions.length > 0 && (
@@ -109,7 +109,7 @@ export default function HealthTimeline({ healthNotes }: HealthTimelineProps) {
                   
                   {/* Context information */}
                   {note.mentions.some(m => m.context) && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-text-muted">
                       Context: {note.mentions.filter(m => m.context).map(m => m.context).join(', ')}
                     </div>
                   )}

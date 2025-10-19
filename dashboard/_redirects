@@ -1,0 +1,7 @@
+# ElderLink Dashboard - Cloudflare Pages Redirects
+
+# SPA fallback - redirect all routes to index.html
+/*    /index.html   200
+
+# API proxy to Worker (if needed)
+/api/*    https://elderlink-dev.workers.dev/api/:splat    200
