@@ -12,7 +12,7 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  Hospital,
+  Building2,
   Bot,
   User,
   Calendar,
@@ -52,7 +52,7 @@ export const Icons = {
   heartPulse: HeartPulse,
   stethoscope: Stethoscope,
   pill: Pill,
-  hospital: Hospital,
+  hospital: Building2,
 
   // Communication
   phone: Phone,
