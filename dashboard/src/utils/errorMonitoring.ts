@@ -55,12 +55,12 @@ export function setupGlobalErrorHandling() {
     ErrorMonitor.logError(event.error || new Error(event.message), 'uncaught-error')
   })
 
-  // Monitor console errors
-  const originalConsoleError = console.error
-  console.error = (...args) => {
-    ErrorMonitor.logError(new Error(args.join(' ')), 'console-error')
-    originalConsoleError.apply(console, args)
-  }
+  // Monitor console errors (DISABLED to prevent infinite loop)
+  // const originalConsoleError = console.error
+  // console.error = (...args) => {
+  //   ErrorMonitor.logError(new Error(args.join(' ')), 'console-error')
+  //   originalConsoleError.apply(console, args)
+  // }
 }
 
 // React error boundary integration
