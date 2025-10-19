@@ -190,10 +190,13 @@ You are the **Backend API & Services** developer responsible for:
 - [ ] Confirm all 12 endpoints return correct structure
 
 **3.1g: COMMIT IMPLEMENTATION**
-- [ ] `git add src/index.ts`
+- [ ] Stage all implementation files: `git add worker/src/ worker/tests/index.test.ts postman/ documentation/`
 - [ ] `git commit -m "feat: Implement API routes (12/12 tests passing)"`
 - [ ] Deploy to dev: `wrangler deploy --env dev`
-- [ ] **Share URL with team immediately**
+  - **Prerequisites:** CLOUDFLARE_API_TOKEN environment variable (Task 1.1b)
+  - **Setup:** Run `wrangler login` OR set `export CLOUDFLARE_API_TOKEN=<token>`
+  - **Secrets:** Set via `wrangler secret put <KEY> --env dev`
+- [ ] **Share URL with team immediately:** `https://elderlink-dev.<account>.workers.dev`
 
 ---
 

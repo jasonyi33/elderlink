@@ -147,6 +147,27 @@ These will be fully implemented in their respective tasks (3.3, 3.7, etc.)
 - Input variations prevent overfitting to unit tests
 - Manual schema verification ensures PRD compliance
 
+### Decision 6: Deployment Prerequisites (Task 3.1g)
+**Context:** Deployment requires CLOUDFLARE_API_TOKEN environment variable  
+**Status:** Implementation committed, deployment pending credential setup  
+**Prerequisites Required (Task 1.1b):**
+- CLOUDFLARE_API_TOKEN environment variable
+- Wrangler authentication configured
+- KV namespace secrets set (GEMINI_API_KEY, VAPI_API_KEY, ELEVENLABS voices)
+
+**Current Status:**
+- ✅ Code committed: Commit 4d89afc
+- ✅ 16 files changed, 1730 insertions
+- ⏸️ Deployment: Waiting for API token setup
+- 📝 Note: Once credentials configured, run: `wrangler deploy --env dev`
+
+**Next Steps for Deployment:**
+1. Set environment variable: `export CLOUDFLARE_API_TOKEN=<token>`
+2. Or login via: `wrangler login`
+3. Set secrets: `wrangler secret put GEMINI_API_KEY --env dev`
+4. Deploy: `wrangler deploy --env dev`
+5. Share URL with team: `https://elderlink-dev.<account>.workers.dev`
+
 ---
 
 **END OF VERIFICATION REPORT**

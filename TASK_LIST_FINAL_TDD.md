@@ -473,9 +473,12 @@ Every task follows this **7-step TDD process**:
 - [ ] Document verification in TASK_3.1F_SCHEMA_VERIFICATION.md
 
 **3.1g: COMMIT IMPLEMENTATION**
-- [ ] `git commit -m "Implement API routes (12/12 tests passing)"`
+- [ ] Stage all files: `git add worker/src/ worker/tests/index.test.ts postman/ TASK_3.1*.md PRD.md TASK_LIST_FINAL_TDD.md DEVELOPER_2_IMPLEMENTATION.md`
+- [ ] `git commit -m "feat: Implement API routes (12/12 tests passing)"`
+- [ ] **Prerequisites for deployment:** Ensure CLOUDFLARE_API_TOKEN set (Task 1.1b) and secrets configured
 - [ ] Deploy to dev: `wrangler deploy --env dev`
-- [ ] Share URL with team immediately
+- [ ] Verify deployment: `curl https://elderlink-dev.<account>.workers.dev/api/health`
+- [ ] **Share URL with team immediately** in team channel
 
 ---
 
