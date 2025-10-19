@@ -80,6 +80,10 @@ function handleApiError(error: any, context: string): ApiResponse<any> {
 // API Client implementation
 export const apiClient: ApiClient = {
   async fetchProfile(seniorId: string): Promise<ApiResponse<any>> {
+    console.log('[API CLIENT] fetchProfile called for:', seniorId)
+    console.log('[API CLIENT] USE_MOCK_DATA =', USE_MOCK_DATA)
+    console.log('[API CLIENT] API_BASE_URL =', API_BASE_URL)
+
     // Use mock data in development or when explicitly enabled
     if (USE_MOCK_DATA) {
       console.log('📦 Using mock data for profile')
@@ -87,10 +91,15 @@ export const apiClient: ApiClient = {
     }
 
     try {
-      const response = await fetchWithRetry(`${API_BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD(seniorId)}`)
+      const url = `${API_BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD(seniorId)}`
+      console.log('[API CLIENT] Fetching from:', url)
+      const response = await fetchWithRetry(url)
+      console.log('[API CLIENT] Response status:', response.status)
       const data = await response.json()
+      console.log('[API CLIENT] Response data:', data)
       return data
     } catch (error) {
+      console.error('[API CLIENT] Error:', error)
       console.log('⚠️ API failed, falling back to mock data')
       return getMrsChenProfile()
     }

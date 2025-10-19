@@ -11,6 +11,7 @@ import { Task511ActualVerification } from './tests/task511ActualVerification'
 import { Toaster } from 'react-hot-toast'
 import './utils/consoleErrorCheck' // Auto-start console error monitoring
 import './styles/design-system.css' // Design system styles
+import APIDebugPanel from './components/APIDebugPanel'
 
 // Lazy load all tab components for optimal performance
 const LiveCallViewEnhanced = lazy(() => import('./components/LiveCallViewEnhanced'))
@@ -202,6 +203,9 @@ function App() {
           </nav>
 
           <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-300">
+            {/* Debug Panel */}
+            <APIDebugPanel />
+
             <Tab.Panels>
               {/* Live Call Tab */}
               <Tab.Panel>
