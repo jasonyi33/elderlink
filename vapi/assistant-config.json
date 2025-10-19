@@ -2,7 +2,7 @@
   "name": "Sam - ElderLink Companion",
   "model": {
     "provider": "custom-llm",
-    "url": "https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook",
+    "url": "https://elderlink-dev.elderlinkhelper.workers.dev/chat/completions",
     "model": "custom",
     "temperature": 0.7,
     "maxTokens": 150
@@ -18,8 +18,8 @@
     "optimizeStreamingLatency": 3
   },
   "transcriber": {
-    "provider": "11labs",
-    "model": "scribe_v1",
+    "provider": "talkscriber",
+    "model": "whisper",
     "language": "en"
   },
   "firstMessage": "Hello! This is Sam. Who am I speaking with today?",

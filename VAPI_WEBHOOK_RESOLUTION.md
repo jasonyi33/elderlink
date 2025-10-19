@@ -218,3 +218,54 @@ If user reports Sam not responding again:
 **Debugging Time:** ~2 hours (12:33 AM - 07:40 UTC)
 
 **Outcome:** Success - no code changes needed, system working correctly
+
+---
+
+## 🔄 ADDITIONAL INVESTIGATION - 2025-10-19 07:45 UTC
+
+### User Report: "Sam never actually verbalizes the response"
+
+After the initial resolution, user reported that while responses are being generated (visible in logs), Sam is not actually SPEAKING them during the call.
+
+### Investigation Steps:
+
+1. **Checked Response Format** - Confirmed we're sending OpenAI-compatible format with `choices[].message.content` ✅
+2. **Researched Vapi Custom-LLM** - Confirmed OpenAI format is correct, some examples show simplified `"message": "text"` but nested format should also work
+3. **Checked Assistant Configuration** - FOUND MISMATCH:
+   - `vapi/assistant-config.json` had `transcriber.provider: "11labs"`
+   - But we migrated to ElevenLabs Scribe (`"talkscriber"` provider)
+
+4. **Updated Configuration**:
+   - Changed transcriber to `"talkscriber"` with `"whisper"` model
+   - Confirmed model URL points to `/chat/completions`
+   - Updated assistant via API successfully
+
+### Changes Made:
+
+1. **vapi/assistant-config.json:20-24** - Fixed transcriber configuration:
+```json
+"transcriber": {
+  "provider": "talkscriber",
+  "model": "whisper",
+  "language": "en"
+}
+```
+
+2. **Created vapi/update-assistant.js** - Script to update Vapi assistant via API
+
+### Hypothesis:
+
+The transcriber provider mismatch may have caused Vapi to not properly process the conversation flow. While logs showed responses being generated, the assistant configuration may not have been triggering the TTS properly.
+
+### Next Step:
+
+**User should make a test call** and verify:
+1. Sam speaks the first message ✅ (we know this works)
+2. User speaks and transcription works ✅ (we know this works from logs)
+3. **Sam actually SPEAKS the generated response** ⏳ (this is what we're testing)
+
+If Sam still doesn't speak, we may need to investigate:
+- Response streaming requirements
+- Additional fields in custom-LLM response
+- Voice provider configuration
+- Call flow timing issues
