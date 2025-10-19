@@ -12,6 +12,8 @@ export interface SeniorProfile {
   phone: string;
   languages: ('english' | 'mandarin')[];
   location: string;
+  demoMode?: boolean;  // Optional: enables exact script-following for demos
+  demoExchangeNumber?: number;  // Tracks which exchange in the demo script (1-5)
 
   memories: {
     family: Array<{

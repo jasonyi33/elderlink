@@ -109,7 +109,9 @@ function buildSamResponsePrompt(
 
 ${profile.name} just said: "${seniorMessage}"
 
-Respond in under 30 words by warmly acknowledging what they said, then ask about their health: ${med ? `Did they take their ${med.name}?` : condition ? `How is their ${condition.name}?` : 'How are they feeling?'}
+You know: ${condition ? `They have ${condition.name}.` : ''} ${med ? `They take ${med.name} ${med.frequency} for ${med.purpose}.` : ''}
+
+Respond in under 30 words by warmly acknowledging what they said, showing you recall their condition, then ask about their medication: ${med ? `Did they take their ${med.name} this morning?` : 'How are they feeling?'}
 
 Sound caring and natural, not clinical. ${currentLanguage === 'mandarin' ? 'Speak in Mandarin Chinese.' : 'Speak in English.'}
 
@@ -135,6 +137,42 @@ Respond in under 30 words by naturally referencing one specific detail you know 
 
 Begin your response now (speak naturally, no labels or formatting):
 `;
+}
+
+// DEMO MODE: Sequential scripted responses (no pattern matching)
+function getDemoScriptResponse(
+  profile: SeniorProfile,
+  seniorMessage: string,
+  currentLanguage: string
+): string {
+  // Get current exchange number (default to 1 if not set)
+  const exchangeNum = profile.demoExchangeNumber || 1;
+
+  console.log(`[DEMO] Exchange ${exchangeNum}:`, seniorMessage.substring(0, 50));
+
+  // Return response based on sequential exchange number
+  // Note: Vapi says firstMessage automatically, so we start from user's first response (exchange 1)
+  switch (exchangeNum) {
+    case 1:
+      // Exchange 1: Response to garden talk (Vapi already said the greeting)
+      return "I'm sorry to hear about your knee. I recall your arthritis bothers you sometimes. Did you take your Lisinopril this morning?";
+
+    case 2:
+      // Exchange 2: Medication confirmation
+      return "That's wonderful to hear! I'll note that down for Dr. Smith in MyChart. Your next appointment is on Tuesday at 10 a.m.";
+
+    case 3:
+      // Exchange 3: Chinese response (tired)
+      return "没关系，陈太太。记得多休息，多喝水。";
+
+    case 4:
+      // Exchange 4: Closing
+      return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
+
+    default:
+      // After the script (exchange 5+), repeat closing message to encourage hang up
+      return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
+  }
 }
 
 // Helper function to format conversation history for prompt
@@ -186,7 +224,7 @@ function getTimeAgo(timestamp: string): string {
  * Removes markdown, meta-instructions, JSON, and other artifacts
  */
 function sanitizeForSpeech(text: string): string {
-  return text
+  let cleaned = text
     // Remove markdown formatting
     .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold**
     .replace(/\*([^*]+)\*/g, '$1')      // *italic*
@@ -208,6 +246,31 @@ function sanitizeForSpeech(text: string): string {
     // Remove excessive whitespace
     .replace(/\s+/g, ' ')
     .trim();
+
+  // VALIDATION: Check for incomplete sentences (trailing comma)
+  if (cleaned.endsWith(',')) {
+    console.warn('[SAM] Detected trailing comma, replacing with period');
+    cleaned = cleaned.slice(0, -1) + '.';
+  }
+
+  // VALIDATION: Ensure ends with punctuation
+  if (!cleaned.match(/[.!?]$/)) {
+    cleaned += '.';
+  }
+
+  // VALIDATION: Remove duplicate sentences (hallucination detection)
+  const sentences = cleaned.split(/\.\s+/);
+  const unique = [...new Set(sentences)];
+  if (unique.length < sentences.length) {
+    console.warn('[SAM] Detected duplicate sentences:', { total: sentences.length, unique: unique.length });
+    cleaned = unique.join('. ');
+    // Ensure ends with punctuation after deduplication
+    if (!cleaned.endsWith('.') && !cleaned.endsWith('!') && !cleaned.endsWith('?')) {
+      cleaned += '.';
+    }
+  }
+
+  return cleaned;
 }
 
 /**
@@ -216,16 +279,36 @@ function sanitizeForSpeech(text: string): string {
  */
 function generateIntelligentFallback(
   profile: SeniorProfile,
+  seniorMessage: string,
   isEndingCall: boolean,
   shouldCheckHealth: boolean,
   finalLanguage: string
 ): string {
-  // Call ending - warm goodbye
+  // Check for health keywords in user message (English + Mandarin)
+  const healthKeywords = [
+    // English
+    'hurt', 'pain', 'ache', 'sore', 'tired', 'dizzy', 'nausea', 'chest', 'breath', 'fell', 'fall', 'broken', 'bruised', 'injured', 'bleeding', 'swollen', 'sick', 'ill',
+    // Mandarin Chinese
+    '痛', '疼', '累', '晕', '头晕', '恶心', '摔', '病', '伤', '不舒服', '难受'
+  ];
+  const hasHealthMention = healthKeywords.some(kw => seniorMessage.toLowerCase().includes(kw) || seniorMessage.includes(kw));
+
+  // Priority 1: Call ending - warm goodbye
   if (isEndingCall) {
     return `It was wonderful talking with you today, ${profile.name}. Take care, and I'll talk to you soon!`;
   }
 
-  // Health check-in time - ask about medication or condition
+  // Priority 2: Health mention detected in message
+  if (hasHealthMention) {
+    const med = profile.healthData.medications?.[0];
+    if (med) {
+      return `I'm sorry to hear that, ${profile.name}. Are you still taking your ${med.name}?`;
+    } else {
+      return `I'm sorry to hear that, ${profile.name}. How long has this been bothering you?`;
+    }
+  }
+
+  // Priority 3: Scheduled health check-in time
   if (shouldCheckHealth) {
     const med = profile.healthData.medications?.[0];
     if (med) {
@@ -235,18 +318,24 @@ function generateIntelligentFallback(
     }
   }
 
-  // Mandarin language preference
+  // Priority 4: Mandarin language preference
   if (finalLanguage === 'mandarin') {
     return `你好，${profile.name}！很高兴听到你的声音。你今天过得怎么样？`;
   }
 
-  // Use personal context from memories
+  // Priority 5: Use recent event (more specific than hobby)
+  const recentEvent = profile.memories?.recentEvents?.[0];
+  if (recentEvent) {
+    return `Hi ${profile.name}! I remember you mentioned ${recentEvent}. How did that go?`;
+  }
+
+  // Priority 6: Use personal context from hobbies
   const hobby = profile.memories?.hobbies?.[0];
   if (hobby) {
     return `Hi ${profile.name}! It's so good to hear from you. How's your ${hobby} going?`;
   }
 
-  // Generic but personalized fallback
+  // Final fallback - generic but personalized
   return `Hi ${profile.name}! It's wonderful to hear from you. How are you doing today?`;
 }
 
@@ -278,16 +367,40 @@ export async function generateSamResponse(
   // Detect mixed language input and determine primary language
   const hasChineseChars = /[\u4e00-\u9fff]/.test(message);
   const hasEnglishWords = /[a-zA-Z]/.test(message);
+  const culturalBg = profile.socialProfile?.culturalBackground || '';
   const detectedLanguage = hasChineseChars && hasEnglishWords
-    ? (profile.socialProfile.culturalBackground.toLowerCase().includes('mandarin') ? 'mandarin' : 'english')
+    ? (culturalBg.toLowerCase().includes('mandarin') ? 'mandarin' : 'english')
     : (hasChineseChars ? 'mandarin' : 'english');
 
   const finalLanguage = currentLanguage === 'mandarin' || detectedLanguage === 'mandarin' ? 'mandarin' : 'english';
 
-  // Determine if this should be a health check-in (every 3rd exchange)
-  const shouldCheckHealth = exchangeNumber ? (exchangeNumber % 3 === 0) : false;
+  // Check for explicit health keywords in user message (English + Mandarin)
+  const healthKeywords = [
+    // English
+    'hurt', 'pain', 'ache', 'sore', 'tired', 'dizzy', 'nausea', 'chest', 'breath', 'fell', 'fall', 'broken', 'bruised', 'injured', 'bleeding', 'swollen', 'sick', 'ill',
+    // Mandarin Chinese
+    '痛', '疼', '累', '晕', '头晕', '恶心', '摔', '病', '伤', '不舒服', '难受'
+  ];
+  const hasHealthMention = healthKeywords.some(kw => message.toLowerCase().includes(kw) || message.includes(kw));
+
+  // Health check-in if: explicit mention OR every 3rd exchange
+  const shouldCheckHealth = hasHealthMention || (exchangeNumber ? (exchangeNumber % 3 === 0) : false);
+
+  if (hasHealthMention) {
+    console.log('[SAM] Health keyword detected in message:', message.substring(0, 50));
+  }
 
   try {
+    // DEMO MODE: Return exact scripted responses without calling Gemini
+    // @ts-ignore - demoMode is optional field
+    const isDemoMode = profile.demoMode === true || (profile as any).demoMode === true;
+    if (isDemoMode) {
+      console.log('[SAM] DEMO MODE ACTIVATED - Returning exact script response');
+      const demoResponse = getDemoScriptResponse(profile, message, finalLanguage);
+      console.log('[SAM] Demo response:', demoResponse.substring(0, 100));
+      return demoResponse;
+    }
+
     // Format conversation history for context
     const recentExchanges = formatConversationHistory(profile.conversations);
 
@@ -317,7 +430,7 @@ export async function generateSamResponse(
       console.log('[SAM] Sanitized response:', response.substring(0, 100));
     } else {
       console.warn('[SAM] No env/API key provided, using intelligent fallback');
-      response = generateIntelligentFallback(profile, isEndingCall, shouldCheckHealth, finalLanguage);
+      response = generateIntelligentFallback(profile, message, isEndingCall, shouldCheckHealth, finalLanguage);
     }
 
     return response;
@@ -339,7 +452,7 @@ export async function generateSamResponse(
     });
 
     // Use intelligent fallback instead of generic therapy-speak
-    const fallbackResponse = generateIntelligentFallback(profile, isEndingCall, shouldCheckHealth, finalLanguage);
+    const fallbackResponse = generateIntelligentFallback(profile, message, isEndingCall, shouldCheckHealth, finalLanguage);
     console.log('[SAM] Using intelligent fallback due to error:', fallbackResponse.substring(0, 50));
 
     return fallbackResponse;

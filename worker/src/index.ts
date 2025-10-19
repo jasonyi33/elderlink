@@ -9,7 +9,7 @@ import { handleVapiWebhook } from './handlers/vapi-webhook';
 import { handleDashboardAPI } from './handlers/dashboard-api';
 import { handleGetHealthData, handleGetAppointments, handleUpdateHealthNotes } from './handlers/mychart-api';
 import { handleGetAlerts } from './handlers/alert-api';
-import { getProfile } from './services/kv-service';
+import { getProfile, saveProfile } from './services/kv-service';
 import { getAnalytics } from './services/analytics-service';
 import { corsHeaders, handleCorsPreflightRequest, addCorsHeaders } from './middleware/cors';
 
@@ -67,6 +67,51 @@ export default {
             'Content-Type': 'application/json',
             ...corsHeaders
           }
+        });
+      }
+
+      // Demo mode toggle endpoint
+      if (url.pathname === '/api/demo-mode' && request.method === 'POST') {
+        const body = await request.json() as { enabled: boolean };
+        const profile = await getProfile('mrs-chen', env);
+
+        if (!profile) {
+          return new Response(JSON.stringify({ error: 'Profile not found' }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        profile.demoMode = body.enabled;
+        // Reset exchange number when enabling demo mode
+        if (body.enabled) {
+          profile.demoExchangeNumber = 1;
+          console.log('[DEMO] Reset exchange number to 1');
+        }
+        await saveProfile(profile, env);
+
+        console.log('[DEMO] Demo mode', body.enabled ? 'ENABLED' : 'DISABLED', 'for mrs-chen');
+
+        return new Response(JSON.stringify({
+          success: true,
+          demoMode: profile.demoMode,
+          demoExchangeNumber: profile.demoExchangeNumber,
+          message: `Demo mode ${body.enabled ? 'enabled' : 'disabled'} for Mrs. Chen`
+        }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Check demo mode status
+      if (url.pathname === '/api/demo-mode' && request.method === 'GET') {
+        const profile = await getProfile('mrs-chen', env);
+
+        return new Response(JSON.stringify({
+          demoMode: profile?.demoMode || false,
+          demoExchangeNumber: profile?.demoExchangeNumber || 1,
+          profileExists: !!profile
+        }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
       }
 

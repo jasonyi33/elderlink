@@ -88,7 +88,7 @@ export default function CommunityView() {
         <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">
           Recommended Matches ({matches.length})
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-6">
           {matches.map((match: any) => (
             <MatchCard key={match.id} match={match} />
           ))}
@@ -141,7 +141,7 @@ function MatchCard({ match }: { match: any }) {
       {/* Gradient border effect on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-teal/20 to-purple/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
 
-      <div className="relative">
+      <div className="relative px-4">
         {/* Header */}
         <div className="text-center mb-4">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-teal rounded-full mx-auto mb-3 flex items-center justify-center text-2xl text-white font-bold shadow-lg">
@@ -184,9 +184,9 @@ function MatchCard({ match }: { match: any }) {
             <Icons.heart size={14} className="inline mr-1" />
             Shared Interests
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 overflow-hidden">
             {match.sharedInterests?.map((int: string, i: number) => (
-              <span key={i} className="interest-tag">
+              <span key={i} className="interest-tag text-xs break-words max-w-full">
                 {int}
               </span>
             ))}

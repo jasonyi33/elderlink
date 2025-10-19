@@ -3,6 +3,8 @@ import type { SeniorProfile, Analytics } from '../types'
 import { apiClient } from '../services/api-client'
 import WordCloud from './WordCloud'
 import Icons from './ui/Icons'
+import WellnessTrendChart from './WellnessTrendChart'
+import { generate30DayWellnessData, getWellnessAnnotations } from '../utils/wellness-data-generator'
 
 // Apple Watch-style Radial Wellness Chart Component
 function RadialWellnessChart({ mental, physical, social }: { mental: number; physical: number; social: number }) {
@@ -11,9 +13,9 @@ function RadialWellnessChart({ mental, physical, social }: { mental: number; phy
   return (
     <div className="medical-card">
       <div className="card-header">
-        <div className="flex items-center gap-3">
-          <Icons.heartPulse size={24} className="text-primary" />
-          <div>
+        <div className="flex items-start gap-3">
+          <Icons.heartPulse size={24} className="text-primary flex-shrink-0 mt-1" />
+          <div className="flex-1 min-w-0">
             <h3 className="card-title">Holistic Wellness Score</h3>
             <span className="card-subtitle">Multi-dimensional health tracking</span>
           </div>
@@ -22,7 +24,7 @@ function RadialWellnessChart({ mental, physical, social }: { mental: number; phy
 
       <div className="card-section flex flex-col items-center">
         {/* Radial Chart SVG */}
-        <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] mb-6 mt-4">
+        <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] mb-6 mt-8">
           {/* Background rings */}
           <circle cx="150" cy="150" r="120" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="24" />
           <circle cx="150" cy="150" r="90" fill="none" stroke="var(--clinical-gray-100)" strokeWidth="20" />
@@ -71,20 +73,11 @@ function RadialWellnessChart({ mental, physical, social }: { mental: number; phy
           />
 
           {/* Center text */}
-          <text x="150" y="135" textAnchor="middle" style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            fill: 'var(--text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}>
-            Holistic Score
-          </text>
-          <text x="150" y="175" textAnchor="middle" style={{
-            fontSize: '56px',
+          <text x="150" y="160" textAnchor="middle" dominantBaseline="middle" style={{
+            fontSize: '48px',
             fontWeight: 800,
             fill: 'var(--primary)',
-            letterSpacing: '-2px'
+            letterSpacing: '-1px'
           }}>
             {holistic}
           </text>
@@ -209,30 +202,12 @@ export default function AnalyticsView() {
         {/* 30-Day Trend Graph */}
         <div className="mt-8">
           <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">30-Day Wellness Trend</h4>
-          <div className="h-64 bg-neutral rounded-lg relative flex items-center justify-center">
-            {/* Recharts implementation would go here - using placeholder for now */}
-            <div className="text-center">
-              <p className="text-text-muted mb-4">[Recharts line chart with 3 lines: mental, physical, social]</p>
-              <div className="text-sm text-text-muted">
-                <p>Mental Health: 82/100 (↑ improving)</p>
-                <p>Physical Health: 75/100 (→ stable)</p>
-                <p>Social Health: 85/100 (↑ improving)</p>
-              </div>
-            </div>
-            
-            {/* Annotations for significant events */}
-            <div className="absolute top-4 left-4 bg-warning-light border border-warning rounded px-2 py-1 text-xs">
-              <div className="font-semibold text-warning-dark">Family visit</div>
-              <div className="text-warning-dark">Jan 10</div>
-            </div>
-            <div className="absolute top-4 right-4 bg-success-light border border-success rounded px-2 py-1 text-xs">
-              <div className="font-semibold text-gray-900">Started medication</div>
-              <div className="text-gray-900">Jan 15</div>
-            </div>
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary-light border border-primary rounded px-2 py-1 text-xs">
-              <div className="font-semibold text-primary-dark">Community match</div>
-              <div className="text-primary-dark">Jan 20</div>
-            </div>
+          <div className="bg-neutral rounded-lg p-4">
+            <WellnessTrendChart
+              data={generate30DayWellnessData(mentalScore, physicalScore, socialScore)}
+              annotations={getWellnessAnnotations()}
+              height={320}
+            />
           </div>
         </div>
       </div>

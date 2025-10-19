@@ -62,6 +62,7 @@ async function loadMrsChenSeedData(): Promise<SeniorProfile | null> {
       "phone": "+12248581016",
       "languages": ["english", "mandarin"],
       "location": "Seattle, WA",
+      "demoMode": true,
       "memories": {
         "family": [
           {
@@ -365,10 +366,19 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
   console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
 
-  // Handle end-of-call-report events - clear call state and return early
+  // Handle end-of-call-report events - clear call state and reset demo exchange counter
   if (messageType === 'end-of-call-report') {
-    console.log('[VAPI] End of call detected, clearing call state');
+    console.log('[VAPI] End of call detected, clearing call state and resetting demo mode');
     await env.KV.delete(`call-state-${seniorId}`);
+
+    // Reset demo exchange counter for next call
+    let profile = await getProfile(seniorId, env);
+    if (profile && profile.demoMode === true) {
+      profile.demoExchangeNumber = 1;
+      await saveProfile(profile, env);
+      console.log('[DEMO] Reset exchange number to 1 for next call');
+    }
+
     return {
       id: `chatcmpl-end-${Date.now()}`,
       choices: [{ index: 0, message: { role: 'assistant', content: '' } }]
@@ -414,9 +424,10 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
       // Load seed data from JSON file
       const seedData = await loadMrsChenSeedData();
       if (seedData) {
+        console.log('[VAPI] Seed data demoMode:', seedData.demoMode);
         await saveProfile(seedData, env);
         profile = seedData;
-        console.log('[VAPI] Seed data loaded and saved to KV');
+        console.log('[VAPI] Seed data loaded and saved to KV, demoMode:', profile.demoMode);
       } else {
         console.warn('[VAPI] Failed to load seed data, using empty default');
         profile = createDefaultProfile(seniorId);
@@ -472,6 +483,19 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const language = detectLanguage(seniorMessage);
   console.log('[VAPI] Language detection:', {message: seniorMessage.substring(0, 50), detected: language});
 
+  // Check if this is a new call starting (call state doesn't exist yet)
+  const existingCallState = await env.KV.get(`call-state-${seniorId}`);
+  const isNewCall = !existingCallState;
+
+  // Reset demo exchange counter for new calls
+  if (isNewCall && profile.demoMode === true) {
+    if (profile.demoExchangeNumber !== 1) {
+      console.log('[DEMO] New call detected, resetting exchange number from', profile.demoExchangeNumber, 'to 1');
+      profile.demoExchangeNumber = 1;
+      await saveProfile(profile, env);
+    }
+  }
+
   // Calculate exchange number for health check-in logic
   const exchangeNumber = profile.conversations.length + 1;
 
@@ -486,6 +510,21 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
       isEndingCall: false // Could detect from message keywords
     }
   );
+
+  // DEMO MODE: Increment exchange number for next response (cap at 4)
+  // @ts-ignore - demoMode is optional field
+  if (profile.demoMode === true) {
+    const currentExchange = profile.demoExchangeNumber || 1;
+    // Don't increment past 4 - keep repeating the closing message
+    if (currentExchange < 4) {
+      profile.demoExchangeNumber = currentExchange + 1;
+      console.log('[DEMO] Incremented exchange number to:', profile.demoExchangeNumber);
+      // Save immediately so next exchange uses updated number
+      await saveProfile(profile, env);
+    } else {
+      console.log('[DEMO] At final exchange (4), not incrementing further');
+    }
+  }
 
   // CRITICAL: Validate response before sending to Vapi
   const validation = validateResponse(samResponse);
