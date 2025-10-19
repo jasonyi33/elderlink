@@ -16,14 +16,8 @@ export default function CommunityView() {
       const data = await apiClient.fetchProfile('mrs-chen')
       setProfile(data.profile)
 
-      // Fetch match details
-      const matchDetails = await Promise.all(
-        data.profile.matches.map(async (m: any) => {
-          const matchData = await apiUtils.fetchSeniorProfile(m.seniorId)
-          return { ...matchData, matchInfo: m }
-        })
-      )
-      setMatches(matchDetails)
+      // Use match data directly - it already contains all needed info
+      setMatches(data.profile.matches || [])
     } catch (error) {
       console.error('Failed to fetch community data:', error)
     } finally {
@@ -131,9 +125,12 @@ export default function CommunityView() {
 }
 
 function MatchCard({ match }: { match: any }) {
-  const { matchInfo } = match
-  const stars = matchInfo.score >= 70 ? 5 : matchInfo.score >= 50 ? 4 : 3
-  const compatibilityColor = matchInfo.score >= 70 ? 'green' : matchInfo.score >= 50 ? 'yellow' : 'red'
+  const stars = match.score >= 70 ? 5 : match.score >= 50 ? 4 : 3
+  const compatibilityColor = match.score >= 70 ? 'green' : match.score >= 50 ? 'yellow' : 'red'
+  const compatibilityLabel = match.score >= 90 ? 'Excellent' : match.score >= 70 ? 'Very Good' : match.score >= 50 ? 'Good' : 'Fair'
+
+  // Create cultural background from languages
+  const culturalBackground = match.languages?.join(' | ') || 'English'
 
   return (
     <div className="card hover:shadow-lg transition-normal">
@@ -143,17 +140,17 @@ function MatchCard({ match }: { match: any }) {
           👤
         </div>
         <h4 className="text-lg font-semibold text-text">{match.name}, {match.age}</h4>
-        <p className="text-sm text-text-muted">{match.socialProfile.culturalBackground.replace(', ', ' | ')}</p>
+        <p className="text-sm text-text-muted">{culturalBackground}</p>
       </div>
 
       {/* Compatibility Score */}
       <div className="text-center mb-4 bg-primary-50 py-3 rounded-lg">
-        <div className="text-3xl projector-text-3xl font-bold text-primary-900">{matchInfo.score}%</div>
+        <div className="text-3xl projector-text-3xl font-bold text-primary-900">{match.score}%</div>
         <div className="text-warning text-xl projector-text-xl font-bold">
           {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
         </div>
         <p className="text-base projector-text-lg font-semibold text-text capitalize mt-2">
-          {matchInfo.compatibility} Compatibility
+          {compatibilityLabel} Compatibility
         </p>
       </div>
 
@@ -165,7 +162,7 @@ function MatchCard({ match }: { match: any }) {
               compatibilityColor === 'green' ? 'bg-success-dark' :
               compatibilityColor === 'yellow' ? 'bg-warning-dark' : 'bg-error'
             }`}
-            style={{ width: `${matchInfo.score}%` }}
+            style={{ width: `${match.score}%` }}
           />
         </div>
       </div>
@@ -174,7 +171,7 @@ function MatchCard({ match }: { match: any }) {
       <div className="mb-4">
         <label className="text-xs font-medium text-text-muted block mb-1">Shared Interests:</label>
         <div className="flex flex-wrap gap-1">
-          {matchInfo.sharedInterests.map((int: string, i: number) => (
+          {match.sharedInterests?.map((int: string, i: number) => (
             <span key={i} className="text-xs bg-primary-light text-primary-dark px-2 py-1 rounded">
               {int}
             </span>
@@ -182,16 +179,11 @@ function MatchCard({ match }: { match: any }) {
         </div>
       </div>
 
-      {/* Suggested Groups */}
+      {/* Location */}
       <div className="mb-4">
-        <label className="text-xs font-medium text-text-muted block mb-1">Suggested Groups:</label>
+        <label className="text-xs font-medium text-text-muted block mb-1">Location:</label>
         <p className="text-xs text-text">
-          {matchInfo.sharedInterests.includes('gardening') && matchInfo.sharedInterests.includes('Mandarin') 
-            ? 'Mandarin Gardening Circle' 
-            : matchInfo.sharedInterests.includes('piano') 
-            ? 'Piano & Music Appreciation'
-            : 'No groups suggested yet'
-          }
+          {match.location?.city} ({match.location?.distance} miles away)
         </p>
       </div>
 
@@ -200,7 +192,7 @@ function MatchCard({ match }: { match: any }) {
         <button className="px-3 py-2 bg-primary text-white text-sm rounded hover:bg-primary-dark transition-normal">
           View Profile
         </button>
-        <button 
+        <button
           className="px-3 py-2 bg-success text-white text-sm rounded hover:bg-success-dark transition-normal disabled:opacity-50 disabled:cursor-not-allowed"
           disabled
         >
