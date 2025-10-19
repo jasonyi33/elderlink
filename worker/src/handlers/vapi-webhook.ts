@@ -15,6 +15,7 @@ import { createHealthNote, appendHealthNote, extractVitals } from '../services/h
 import { recalculateMatches } from '../services/matching-service';
 import { detectAndCreateAlert, storeAlert } from '../services/alert-service';
 import { updateWellnessMetrics } from '../services/wellness-service';
+import { generateSummary, extractKeyTopics } from '../services/conversation-summary';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
 import { generateSamResponse } from '../../../prompts/sam-personality';
@@ -292,13 +293,23 @@ async function backgroundProcessing(
     }
 
     // 6. Update Conversation History
+    // Generate summary and extract topics for this conversation
+    const conversationTranscript = [
+      { role: 'senior' as const, content: message }
+      // Note: We don't have Sam's response here in background processing
+      // For fuller summary, could pass samResponse from main handler
+    ];
+    
+    const conversationSummary = generateSummary(conversationTranscript);
+    const conversationTopics = extractKeyTopics(conversationTranscript);
+    
     profile.conversations.push({
       timestamp: new Date().toISOString(),
       duration: 0,
-      keyTopics: [],
+      keyTopics: conversationTopics,
       sentiment: analysis.sentiment,
       language: language as 'english' | 'mandarin',
-      summary: '',
+      summary: conversationSummary,
       healthMentions: analysis.healthMentions?.map((h: any) => h.text)
     });
 
