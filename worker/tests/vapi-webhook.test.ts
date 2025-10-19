@@ -358,5 +358,21 @@ describe('Vapi Webhook Handler - Task 3.2', () => {
     expect(data1).toHaveProperty('content');
     expect(data2).toHaveProperty('content');
   });
+
+  // Test 14: Handles malformed JSON request gracefully
+  test('handles malformed JSON request gracefully', async () => {
+    const request = new Request('http://test/vapi-webhook', {
+      method: 'POST',
+      body: 'invalid json {'
+    });
+
+    const response = await handleVapiWebhook(request, mockEnv);
+
+    // Should return fallback response even with bad JSON
+    expect(response.status).toBe(200);
+    const data = await response.json() as any;
+    expect(data).toHaveProperty('content');
+    expect(data.content).toMatch(/tell me more|here with you|important|feel/i);
+  });
 });
 

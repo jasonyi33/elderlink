@@ -103,7 +103,7 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
  */
 async function processVapiCall(request: Request, env: Env): Promise<{content: string; voiceId: string}> {
   const start = Date.now();
-  const data = await request.json() as any;
+  const data = await request.json() as { message?: any };
   const { message } = data;
 
   // Get senior profile
