@@ -291,11 +291,12 @@
    - **Severity:** LOW (acceptable for demo/hackathon)
    - **Future Fix:** Use KV metadata for versioning
 
-2. **Input Mutation in saveProfile** (Line 60)
-   - **Impact:** Modifies input object's conversations array
-   - **Risk:** Caller's object is mutated
-   - **Severity:** LOW (works correctly, just not pure functional)
-   - **Recommendation:** Clone before modifying
+2. **Input Mutation in saveProfile** (Line 60) → **FIXED** ✅
+   - **Original Issue:** Modifies input object's conversations array
+   - **Fix Applied:** Now creates a copy using spread operator
+   - **Implementation:** `profileToSave = {...profile, conversations: profile.conversations.slice(-10)}`
+   - **Status:** ✅ RESOLVED
+   - **Commit:** `fix: Prevent input mutation in saveProfile`
 
 ### 💡 MINOR NOTES:
 
@@ -480,12 +481,12 @@
    - **Mitigation:** Acknowledged in test comment
    - **Impact:** Low for demo
 
-2. **Input Mutation** (-0.5 points)
-   - saveProfile mutates input object
-   - Should clone before modifying
-   - **Impact:** Minor - works correctly
+2. **Input Mutation** ~~(-0.5 points)~~ → **FIXED** ✅
+   - ✅ saveProfile now clones before modifying
+   - ✅ No longer mutates input object
+   - **Status:** RESOLVED
 
-3. **TTL Test Method** (-0.5 points)
+3. **TTL Test Method** (-1 point)
    - Uses mocking instead of time manipulation
    - Works but less realistic than jest.advanceTimersByTime
    - **Impact:** Minimal - test validates behavior
@@ -786,10 +787,12 @@ TOTAL: 40/40 tests passing (100%)
 - Excellent integration
 - Superior null handling
 
-**Minor Deductions:**
+**Deductions:**
 - Eventual consistency limitation (-5)
-- Input mutation (-2)
+- ~~Input mutation (-2)~~ → **FIXED** ✅
 - TTL test approach (-1)
+
+**Final Score: A (95/100)** after input mutation fix
 
 **Status:** ✅ **READY FOR TASK 3.4**
 
