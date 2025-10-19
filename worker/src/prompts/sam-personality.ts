@@ -213,6 +213,46 @@ function sanitizeForSpeech(text: string): string {
 }
 
 /**
+ * Generate intelligent fallback response based on context
+ * Used when Gemini API is unavailable or fails
+ */
+function generateIntelligentFallback(
+  profile: SeniorProfile,
+  isEndingCall: boolean,
+  shouldCheckHealth: boolean,
+  finalLanguage: string
+): string {
+  // Call ending - warm goodbye
+  if (isEndingCall) {
+    return `It was wonderful talking with you today, ${profile.name}. Take care, and I'll talk to you soon!`;
+  }
+
+  // Health check-in time - ask about medication or condition
+  if (shouldCheckHealth) {
+    const med = profile.healthData.medications?.[0];
+    if (med) {
+      return `Hi ${profile.name}! How are you feeling today? Did you take your ${med.name} this morning?`;
+    } else {
+      return `Hi ${profile.name}! How are you feeling today? How's your health been lately?`;
+    }
+  }
+
+  // Mandarin language preference
+  if (finalLanguage === 'mandarin') {
+    return `你好，${profile.name}！很高兴听到你的声音。你今天过得怎么样？`;
+  }
+
+  // Use personal context from memories
+  const hobby = profile.memories?.hobbies?.[0];
+  if (hobby) {
+    return `Hi ${profile.name}! It's so good to hear from you. How's your ${hobby} going?`;
+  }
+
+  // Generic but personalized fallback
+  return `Hi ${profile.name}! It's wonderful to hear from you. How are you doing today?`;
+}
+
+/**
  * Generate Sam's response to a senior's message
  * @param message - The senior's message
  * @param profile - The senior's profile with memories and health data
@@ -228,30 +268,30 @@ export async function generateSamResponse(
   env?: Env,
   options?: SamResponseOptions
 ): Promise<string> {
+  // Detect end-of-call keywords
+  const endingKeywords = ['goodbye', 'bye', 'talk later', 'need to go', 'see you later', 'gotta go', 'have to go'];
+  const isEndingCall = options?.isEndingCall || endingKeywords.some(keyword =>
+    message.toLowerCase().includes(keyword.toLowerCase())
+  );
+
+  // Determine language (default to English)
+  const currentLanguage = options?.language || 'english';
+
+  // Detect mixed language input and determine primary language
+  const hasChineseChars = /[\u4e00-\u9fff]/.test(message);
+  const hasEnglishWords = /[a-zA-Z]/.test(message);
+  const detectedLanguage = hasChineseChars && hasEnglishWords
+    ? (profile.socialProfile.culturalBackground.toLowerCase().includes('mandarin') ? 'mandarin' : 'english')
+    : (hasChineseChars ? 'mandarin' : 'english');
+
+  const finalLanguage = currentLanguage === 'mandarin' || detectedLanguage === 'mandarin' ? 'mandarin' : 'english';
+
+  // Determine if this should be a health check-in (every 3rd exchange)
+  const shouldCheckHealth = exchangeNumber ? (exchangeNumber % 3 === 0) : false;
+
   try {
-    // Detect end-of-call keywords
-    const endingKeywords = ['goodbye', 'bye', 'talk later', 'need to go', 'see you later', 'gotta go', 'have to go'];
-    const isEndingCall = options?.isEndingCall || endingKeywords.some(keyword =>
-      message.toLowerCase().includes(keyword.toLowerCase())
-    );
-
-    // Determine language (default to English)
-    const currentLanguage = options?.language || 'english';
-
-    // Detect mixed language input and determine primary language
-    const hasChineseChars = /[\u4e00-\u9fff]/.test(message);
-    const hasEnglishWords = /[a-zA-Z]/.test(message);
-    const detectedLanguage = hasChineseChars && hasEnglishWords
-      ? (profile.socialProfile.culturalBackground.toLowerCase().includes('mandarin') ? 'mandarin' : 'english')
-      : (hasChineseChars ? 'mandarin' : 'english');
-
-    const finalLanguage = currentLanguage === 'mandarin' || detectedLanguage === 'mandarin' ? 'mandarin' : 'english';
-
     // Format conversation history for context
     const recentExchanges = formatConversationHistory(profile.conversations);
-
-    // Determine if this should be a health check-in (every 3rd exchange)
-    const shouldCheckHealth = exchangeNumber ? (exchangeNumber % 3 === 0) : false;
 
     // Build the prompt with all variables (simplified, focused prompt)
     const prompt = buildSamResponsePrompt(profile, message, finalLanguage, recentExchanges, shouldCheckHealth);
@@ -267,61 +307,44 @@ export async function generateSamResponse(
         apiKeyLength: env.GEMINI_API_KEY.length,
         promptLength: prompt.length
       });
+
+      const startTime = Date.now();
       response = await callGeminiForResponse(prompt, env);
-      console.log('[SAM] Gemini raw response:', response.substring(0, 100));
+      const latency = Date.now() - startTime;
+
+      console.log('[SAM] Gemini raw response:', response.substring(0, 100), 'Latency:', latency, 'ms');
 
       // CRITICAL: Sanitize response before returning to remove meta-text
       response = sanitizeForSpeech(response);
       console.log('[SAM] Sanitized response:', response.substring(0, 100));
     } else {
-      console.warn('[SAM] No env/API key provided, using fallback response', {
-        hasEnv: !!env,
-        hasApiKey: !!(env && env.GEMINI_API_KEY)
-      });
-      // Intelligent fallback based on context
-      if (isEndingCall) {
-        response = `It was wonderful talking with you today, ${profile.name}. Take care, and I'll talk to you soon!`;
-      } else if (exchangeNumber && exchangeNumber % 3 === 0) {
-        // Health check-in
-        const med = profile.healthData.medications?.[0];
-        if (med) {
-          response = `Hi ${profile.name}! How are you feeling today? Did you take your ${med.name} this morning?`;
-        } else {
-          response = `Hi ${profile.name}! How are you feeling today? How's your health been lately?`;
-        }
-      } else if (finalLanguage === 'mandarin') {
-        response = `你好，${profile.name}！很高兴听到你的声音。你今天过得怎么样？`;
-      } else {
-        // Use memories for context
-        const hobby = profile.memories?.hobbies?.[0];
-        if (hobby) {
-          response = `Hi ${profile.name}! It's so good to hear from you. How's your ${hobby} going?`;
-        } else {
-          response = `Hi ${profile.name}! It's wonderful to hear from you. How are you doing today?`;
-        }
-      }
+      console.warn('[SAM] No env/API key provided, using intelligent fallback');
+      response = generateIntelligentFallback(profile, isEndingCall, shouldCheckHealth, finalLanguage);
     }
 
     return response;
 
   } catch (error: any) {
-    console.error('[SAM] Error generating response:', {
+    // Detailed error logging to differentiate error types
+    const errorType = error.message?.includes('timeout') ? 'TIMEOUT' :
+                      error.message?.includes('429') ? 'RATE_LIMIT' :
+                      error.message?.includes('API') ? 'API_ERROR' : 'UNKNOWN';
+
+    console.error(`[SAM] ${errorType} error generating response:`, {
       error: error.message || error,
-      stack: error.stack,
+      stack: error.stack?.substring(0, 200),
       hasEnv: !!env,
       hasApiKey: !!(env && env.GEMINI_API_KEY),
-      profileName: profile.name
+      profileName: profile.name,
+      exchangeNumber,
+      shouldCheckHealth
     });
 
-    // Context-aware fallback responses
-    const fallbacks = [
-      `Tell me more about that, ${profile.name}.`,
-      "I'm listening. Please continue.",
-      "That sounds important to you.",
-      "How does that make you feel?"
-    ];
+    // Use intelligent fallback instead of generic therapy-speak
+    const fallbackResponse = generateIntelligentFallback(profile, isEndingCall, shouldCheckHealth, finalLanguage);
+    console.log('[SAM] Using intelligent fallback due to error:', fallbackResponse.substring(0, 50));
 
-    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    return fallbackResponse;
   }
 }
 

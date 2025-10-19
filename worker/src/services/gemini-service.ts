@@ -134,16 +134,17 @@ export async function callGemini(
 /**
  * Call Gemini with specific configuration for response generation
  * Optimized for conversation responses (lower latency target)
+ * CRITICAL: timeout × maxRetries must be < 10s to stay within Vapi webhook limit
  */
 export async function callGeminiForResponse(
   prompt: string,
   env: Env
 ): Promise<string> {
   return callGemini(prompt, env, {
-    timeout: 7000,
-    maxTokens: 150, // Match Vapi config for consistent output
+    timeout: 5000,      // 5s timeout (down from 7s)
+    maxTokens: 150,     // Match Vapi config for consistent output
     temperature: 0.7,
-    maxRetries: 2 // Fewer retries for responses (need speed)
+    maxRetries: 1       // 1 retry max: 5s + 5s = 10s worst case (within Vapi limit)
   });
 }
 
