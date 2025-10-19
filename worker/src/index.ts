@@ -103,7 +103,7 @@ export default {
         }
       }
 
-      // Senior profile endpoint
+      // Senior profile endpoint - GET
       if (url.pathname === '/api/senior/mrs-chen' && request.method === 'GET') {
         const profile = await getProfile('mrs-chen', env);
         return new Response(JSON.stringify(profile), {
@@ -111,11 +111,30 @@ export default {
         });
       }
 
-      // Live sentiment endpoint
+      // Senior profile endpoint - PUT (for initialization)
+      if (url.pathname === '/api/senior/mrs-chen' && request.method === 'PUT') {
+        const profile = await request.json() as any;
+        await env.KV.put('senior-mrs-chen', JSON.stringify(profile));
+        return new Response(JSON.stringify({ success: true, profile }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Live sentiment endpoint - GET
       if (url.pathname === '/api/sentiment/live' && request.method === 'GET') {
         const sentiment = await env.KV.get('live-sentiment');
         const data = sentiment ? JSON.parse(sentiment) : { sentiment: 0, emotions: [], timestamp: new Date().toISOString() };
         return new Response(JSON.stringify(data), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Live sentiment endpoint - POST (for updates from phone calls)
+      if (url.pathname.startsWith('/api/sentiment/') && request.method === 'POST') {
+        const seniorId = url.pathname.split('/').pop();
+        const sentimentData = await request.json() as any;
+        await env.KV.put(`live-sentiment-${seniorId}`, JSON.stringify(sentimentData));
+        return new Response(JSON.stringify({ success: true }), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
       }

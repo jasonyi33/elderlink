@@ -5,8 +5,9 @@ import { getMrsChenProfile, getLiveSentiment, getAnalytics, getMatchProfiles } f
 
 export const API_BASE_URL = API_CONFIG.BASE_URL
 
-// Enable mock mode for development when API is not available
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_API === 'true' || import.meta.env.DEV
+// Enable mock mode ONLY when explicitly set via environment variable
+// Now connecting to real Worker API at https://elderlink-dev.elderlinkhelper.workers.dev
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_API === 'true'
 
 export interface ApiClient {
   fetchProfile: (seniorId: string) => Promise<any>

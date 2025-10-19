@@ -1,7 +1,7 @@
 // API Configuration for ElderLink Dashboard
 export const API_CONFIG = {
   // Production URL - Updated with actual Worker URL
-  PRODUCTION_URL: 'https://elderlink-dev.workers.dev',
+  PRODUCTION_URL: 'https://elderlink-dev.elderlinkhelper.workers.dev',
   
   // Development URL for local testing
   DEVELOPMENT_URL: 'http://localhost:8787',
