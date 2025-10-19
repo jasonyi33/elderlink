@@ -48,6 +48,10 @@ export default function SeniorProfileView() {
             <label className="text-sm text-gray-600">Languages</label>
             <p className="text-lg font-medium">{profile.languages.join(', ')}</p>
           </div>
+          <div>
+            <label className="text-sm text-gray-600">Phone</label>
+            <p className="text-lg font-medium">{profile.phone}</p>
+          </div>
         </div>
 
         <div className="mt-4">
@@ -95,6 +99,7 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
     medications: true,
     conditions: true,
     appointments: true,
+    vitals: true,
     notes: true
   })
 
@@ -169,6 +174,43 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
         )}
       </div>
 
+      {/* Latest Vitals */}
+      <div className="mb-4">
+        <button
+          onClick={() => setExpanded(e => ({...e, vitals: !e.vitals}))}
+          className="flex items-center justify-between w-full text-left"
+        >
+          <span className="font-medium text-gray-900">
+            {expanded.vitals ? '▼' : '▶'} Latest Vitals
+          </span>
+        </button>
+        {expanded.vitals && (
+          <div className="mt-2 ml-4 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+            <p className="text-sm text-green-800 mb-2">Last updated: {healthData.vitals.lastUpdated}</p>
+            <div className="grid grid-cols-2 gap-4">
+              {healthData.vitals.bloodPressure && (
+                <div>
+                  <p className="text-sm font-medium text-green-900">Blood Pressure</p>
+                  <p className="text-lg font-bold text-green-800">{healthData.vitals.bloodPressure}</p>
+                </div>
+              )}
+              {healthData.vitals.weight && (
+                <div>
+                  <p className="text-sm font-medium text-green-900">Weight</p>
+                  <p className="text-lg font-bold text-green-800">{healthData.vitals.weight}</p>
+                </div>
+              )}
+              {healthData.vitals.bloodSugar && (
+                <div>
+                  <p className="text-sm font-medium text-green-900">Blood Sugar</p>
+                  <p className="text-lg font-bold text-green-800">{healthData.vitals.bloodSugar}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Recent Health Notes */}
       <div>
         <button
@@ -199,15 +241,6 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
 function ConversationHistoryCard({ conversations }: { conversations: SeniorProfile['conversations'] }) {
   const [expanded, setExpanded] = useState(false)
 
-  // Calculate conversation stats
-  const totalCalls = conversations.length
-  const averageDuration = conversations.length > 0 
-    ? conversations.reduce((sum, conv) => sum + conv.duration, 0) / conversations.length 
-    : 0
-  const lastCallDate = conversations.length > 0 
-    ? new Date(conversations[conversations.length - 1].timestamp) 
-    : null
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <button
@@ -217,7 +250,7 @@ function ConversationHistoryCard({ conversations }: { conversations: SeniorProfi
         <h3 className="text-xl font-semibold text-gray-900">
           {expanded ? '▼' : '▶'} Conversation History
         </h3>
-        <span className="text-sm text-gray-600">{totalCalls} conversations</span>
+        <span className="text-sm text-gray-600">{conversations.length} conversations</span>
       </button>
 
       {expanded && (
@@ -253,26 +286,6 @@ function ConversationHistoryCard({ conversations }: { conversations: SeniorProfi
           ))}
         </div>
       )}
-
-      {/* Conversation Stats */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-blue-600">{totalCalls}</p>
-            <p className="text-sm text-gray-600">Total Calls</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-green-600">{averageDuration.toFixed(1)} min</p>
-            <p className="text-sm text-gray-600">Avg Duration</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-purple-600">
-              {lastCallDate ? lastCallDate.toLocaleDateString() : 'N/A'}
-            </p>
-            <p className="text-sm text-gray-600">Last Call</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

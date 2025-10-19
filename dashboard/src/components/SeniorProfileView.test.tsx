@@ -124,6 +124,7 @@ describe('SeniorProfileView', () => {
       expect(screen.getByText('72')).toBeInTheDocument()
       expect(screen.getByText('Seattle, WA')).toBeInTheDocument()
       expect(screen.getByText('english, mandarin')).toBeInTheDocument()
+      expect(screen.getByText('+1 (206) 555-0123')).toBeInTheDocument()
     })
   })
 
@@ -174,6 +175,7 @@ describe('SeniorProfileView', () => {
       expect(screen.getByText('Vitamin D 1000 IU')).toBeInTheDocument()
 
       // Vitals
+      expect(screen.getByText('Latest Vitals')).toBeInTheDocument()
       expect(screen.getByText('128/82')).toBeInTheDocument()
       expect(screen.getByText('145 lbs')).toBeInTheDocument()
       expect(screen.getByText('110 mg/dL fasting')).toBeInTheDocument()
@@ -197,7 +199,7 @@ describe('SeniorProfileView', () => {
     })
   })
 
-  it('last call date and frequency calculated', async () => {
+  it('conversation history displays correctly', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ profile: mockProfile })
@@ -206,15 +208,13 @@ describe('SeniorProfileView', () => {
     render(<SeniorProfileView />)
 
     await waitFor(() => {
-      // Conversation Stats section
+      // Conversation History section
       expect(screen.getByText('Conversation History')).toBeInTheDocument()
       expect(screen.getByText('2 conversations')).toBeInTheDocument()
       
-      // Should show last call date (formatted)
-      expect(screen.getByText(/Jan 18, 2025/)).toBeInTheDocument()
-      
-      // Should show average duration
-      expect(screen.getByText(/10.4 min/)).toBeInTheDocument() // (8.5 + 12.3) / 2
+      // Should show conversation summaries when expanded
+      expect(screen.getByText('Discussed tomato garden and Sarah\'s visit')).toBeInTheDocument()
+      expect(screen.getByText('Talked about teaching piano and Shanghai memories')).toBeInTheDocument()
     })
   })
 })
