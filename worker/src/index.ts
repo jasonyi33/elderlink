@@ -11,6 +11,7 @@ import { handleGetHealthData, handleGetAppointments, handleUpdateHealthNotes } f
 import { handleGetAlerts } from './handlers/alert-api';
 import { getProfile } from './services/kv-service';
 import { getAnalytics } from './services/analytics-service';
+import { corsHeaders, handleCorsPreflightRequest, addCorsHeaders } from './middleware/cors';
 
 export interface Env {
   KV: KVNamespace;
@@ -29,30 +30,10 @@ export default {
     
     const url = new URL(request.url);
 
-    // CORS headers for all responses
-    const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    };
-
-    // Handle CORS preflight
+    // Handle CORS preflight (using middleware)
     if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+      return handleCorsPreflightRequest();
     }
-
-    // Helper to add CORS headers
-    const addCors = (response: Response): Response => {
-      const newHeaders = new Headers(response.headers);
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        newHeaders.set(key, value);
-      });
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: newHeaders
-      });
-    };
 
     try {
       // Health check endpoint
@@ -91,14 +72,14 @@ export default {
 
       // Vapi webhook endpoint (CRITICAL PATH)
       if (url.pathname === '/vapi-webhook' && request.method === 'POST') {
-        return addCors(await handleVapiWebhook(request, env));
+        return addCorsHeaders(await handleVapiWebhook(request, env));
       }
 
       // Dashboard API - Single call gets everything
       if (url.pathname.startsWith('/api/dashboard/')) {
         const seniorId = url.pathname.split('/').pop();
         if (seniorId) {
-          return addCors(await handleDashboardAPI(seniorId, env));
+          return addCorsHeaders(await handleDashboardAPI(seniorId, env));
         }
       }
 
@@ -109,15 +90,15 @@ export default {
         const action = parts[4];
 
         if (request.method === 'GET' && !action) {
-          return addCors(await handleGetHealthData(seniorId, env));
+          return addCorsHeaders(await handleGetHealthData(seniorId, env));
         }
 
         if (request.method === 'GET' && action === 'appointments') {
-          return addCors(await handleGetAppointments(seniorId, env));
+          return addCorsHeaders(await handleGetAppointments(seniorId, env));
         }
 
         if (request.method === 'POST' && action === 'update') {
-          return addCors(await handleUpdateHealthNotes(seniorId, request, env));
+          return addCorsHeaders(await handleUpdateHealthNotes(seniorId, request, env));
         }
       }
 
@@ -184,7 +165,7 @@ export default {
       if (url.pathname.startsWith('/api/alerts/')) {
         const seniorId = url.pathname.split('/').pop();
         if (seniorId && request.method === 'GET') {
-          return addCors(await handleGetAlerts(seniorId, env));
+          return addCorsHeaders(await handleGetAlerts(seniorId, env));
         }
       }
 
