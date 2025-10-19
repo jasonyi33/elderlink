@@ -2,7 +2,7 @@
  * Task 3.1d: Vapi Webhook Handler
  * 
  * CRITICAL PATH - Must respond in <3 seconds
- * Full architecture implemented with stub AI functions
+ * Integrated with Developer 1's real AI functions
  * 
  * Reference: 
  * - PRD.md lines 1121-1289
@@ -12,46 +12,10 @@
 import { SeniorProfile } from '../types';
 import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-service';
 
-// TODO: Hour 5 - Replace with real function from Developer 1
-async function generateSamResponse(
-  _message: string,
-  _profile: SeniorProfile,
-  _language: string,
-  _history: any[],
-  _env: Env
-): Promise<string> {
-  console.log('[STUB] generateSamResponse called');
-  // STUB: Simple response until Developer 1 provides real implementation
-  return "Hello! I'm Sam. How can I help you today?";
-}
-
-// TODO: Hour 7 - Replace with real function from Developer 1
-async function analyzeSentimentAndHealth(
-  _message: string,
-  _context: string[],
-  _env: Env
-): Promise<any> {
-  console.log('[STUB] analyzeSentimentAndHealth called');
-  // STUB: Return neutral sentiment
-  return {
-    sentiment: 0,
-    emotions: [],
-    healthMentions: [],
-    concerns: [],
-    wellnessIndicators: { socialConnection: 0, mood: 0, engagement: 0 }
-  };
-}
-
-// TODO: Hour 7 - Replace with real function from Developer 1
-async function extractMemories(
-  _message: string,
-  _profile: SeniorProfile,
-  _env: Env
-): Promise<any> {
-  console.log('[STUB] extractMemories called');
-  // STUB: Return empty new facts
-  return { newFacts: { family: [], hobbies: [], interests: [], health: [], recentEvents: [] } };
-}
+// ✅ Hour 5 Integration: Real AI functions from Developer 1
+import { generateSamResponse } from '../../../prompts/sam-personality';
+import { extractMemories } from '../../../prompts/memory-extraction';
+import { analyzeSentimentAndHealth } from '../../../prompts/sentiment-health-analysis';
 
 /**
  * Create default profile structure for new seniors
@@ -200,13 +164,18 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
   // Language from Vapi (no Gemini call needed!)
   const language = message?.language || 'english';
 
-  // PRIORITY PATH: Generate Sam's response immediately
+  // Calculate exchange number for health check-in logic
+  const exchangeNumber = profile.conversations.length + 1;
+
+  // PRIORITY PATH: Generate Sam's response immediately (Developer 1's real function)
   const samResponse = await generateSamResponse(
     seniorMessage,
     profile,
-    language,
-    message?.conversationHistory || [],
-    env
+    exchangeNumber,
+    {
+      language: language,
+      isEndingCall: false // Could detect from message keywords
+    }
   );
 
   // Select voice based on language
@@ -241,15 +210,49 @@ async function backgroundProcessing(
   console.log('[ASYNC] Background processing started');
   
   try {
-    // 1. Sentiment + Health Analysis
+    // 1. Sentiment + Health Analysis (Developer 1's real function)
     const analysis = await analyzeSentimentAndHealth(
       message,
       profile.conversations.slice(-3).map(c => c.transcript?.find(t => t.role === 'senior')?.content || ''),
-      env
+      profile
     );
 
-    // 2. Memory Extraction
-    await extractMemories(message, profile, env);
+    // 2. Memory Extraction (Developer 1's real function)
+    const newMemories = await extractMemories(message, profile);
+
+    // 2.5 Update profile with new memories
+    if (newMemories && newMemories.newFacts) {
+      // Merge new family members
+      if (newMemories.newFacts.family && newMemories.newFacts.family.length > 0) {
+        profile.memories.family.push(...newMemories.newFacts.family);
+      }
+      // Merge new hobbies
+      if (newMemories.newFacts.hobbies && newMemories.newFacts.hobbies.length > 0) {
+        profile.memories.hobbies.push(...newMemories.newFacts.hobbies);
+        profile.socialProfile.interests.push(...newMemories.newFacts.hobbies);
+        // Deduplicate
+        profile.socialProfile.interests = [...new Set(profile.socialProfile.interests)];
+      }
+      // Merge new interests
+      if (newMemories.newFacts.interests && newMemories.newFacts.interests.length > 0) {
+        profile.socialProfile.interests.push(...newMemories.newFacts.interests);
+        profile.socialProfile.interests = [...new Set(profile.socialProfile.interests)];
+      }
+      // Merge recent events (keep last 5)
+      if (newMemories.newFacts.recentEvents && newMemories.newFacts.recentEvents.length > 0) {
+        profile.memories.recentEvents = profile.memories.recentEvents || [];
+        // ExtractedMemories.recentEvents are objects with {event, timeframe}
+        const eventStrings = newMemories.newFacts.recentEvents.map(e => 
+          typeof e === 'string' ? e : `${e.event} (${e.timeframe})`
+        );
+        profile.memories.recentEvents.push(...eventStrings);
+        profile.memories.recentEvents = profile.memories.recentEvents.slice(-5);
+      }
+      // Merge preferences
+      if (newMemories.newFacts.preferences && newMemories.newFacts.preferences.length > 0) {
+        profile.memories.preferences.topicsEnjoys.push(...newMemories.newFacts.preferences);
+      }
+    }
 
     // 3. Store Live Sentiment (for dashboard)
     await saveLiveSentiment('mrs-chen', {

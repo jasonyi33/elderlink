@@ -18,6 +18,13 @@ export async function handleGetHealthData(seniorId: string, env: Env): Promise<R
   try {
     const profile = await getProfile(seniorId, env);
     
+    if (!profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(JSON.stringify(profile.healthData), {
       headers: { 'Content-Type': 'application/json' }
     });
@@ -39,6 +46,13 @@ export async function handleGetAppointments(seniorId: string, env: Env): Promise
   
   try {
     const profile = await getProfile(seniorId, env);
+    
+    if (!profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
     return new Response(JSON.stringify(profile.healthData.appointments), {
       headers: { 'Content-Type': 'application/json' }
@@ -66,6 +80,13 @@ export async function handleUpdateHealthNotes(
   try {
     const body = await request.json() as any;
     const profile = await getProfile(seniorId, env);
+    
+    if (!profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
     // Append new notes
     if (body.notes && Array.isArray(body.notes)) {

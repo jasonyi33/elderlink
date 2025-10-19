@@ -151,6 +151,12 @@ export default {
         const seniorId = url.pathname.split('/').pop();
         if (seniorId && request.method === 'GET') {
           const profile = await getProfile(seniorId, env);
+          if (!profile) {
+            return new Response(JSON.stringify({ error: 'Profile not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
           return new Response(JSON.stringify(profile.matches), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
@@ -162,6 +168,12 @@ export default {
         const seniorId = url.pathname.split('/').pop();
         if (seniorId && request.method === 'GET') {
           const profile = await getProfile(seniorId, env);
+          if (!profile) {
+            return new Response(JSON.stringify({ error: 'Profile not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
           return new Response(JSON.stringify(profile.groups), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
