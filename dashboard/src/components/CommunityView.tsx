@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import type { SeniorProfile } from '../types'
-
-const API_BASE = process.env.REACT_APP_API_BASE || ''
+import { apiClient, apiUtils } from '../services/api-client'
 
 export default function CommunityView() {
   const [profile, setProfile] = useState<SeniorProfile | null>(null)
@@ -14,15 +13,13 @@ export default function CommunityView() {
 
   async function fetchData() {
     try {
-      const res = await fetch(`${API_BASE}/api/dashboard/mrs-chen`)
-      const data = await res.json()
+      const data = await apiClient.fetchProfile('mrs-chen')
       setProfile(data.profile)
 
       // Fetch match details
       const matchDetails = await Promise.all(
         data.profile.matches.map(async (m: any) => {
-          const matchRes = await fetch(`${API_BASE}/api/senior/${m.seniorId}`)
-          const matchData = await matchRes.json()
+          const matchData = await apiUtils.fetchSeniorProfile(m.seniorId)
           return { ...matchData, matchInfo: m }
         })
       )

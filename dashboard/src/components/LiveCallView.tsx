@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-
-const API_BASE = process.env.REACT_APP_API_BASE || ''
+import { apiClient } from '../services/api-client'
 
 export default function LiveCallView() {
   const [sentiment, setSentiment] = useState(0)
@@ -9,11 +8,14 @@ export default function LiveCallView() {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const res = await fetch(`${API_BASE}/api/sentiment/live`)
-      const data = await res.json()
-      setSentiment(data.sentiment || 0)
-      setEmotions(data.emotions || [])
-      setLanguage(data.language || 'english')
+      try {
+        const data = await apiClient.fetchLiveSentiment()
+        setSentiment(data.sentiment || 0)
+        setEmotions(data.emotions || [])
+        setLanguage(data.language || 'english')
+      } catch (error) {
+        console.error('Failed to fetch live sentiment:', error)
+      }
     }, 2000)
 
     return () => clearInterval(interval)

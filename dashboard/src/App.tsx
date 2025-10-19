@@ -1,11 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Tab } from '@headlessui/react'
 import LiveCallView from './components/LiveCallView'
 import SeniorProfileView from './components/SeniorProfileView'
 import CommunityView from './components/CommunityView'
 import AnalyticsView from './components/AnalyticsView'
+import ErrorBoundary from './components/ErrorBoundary'
+import { setupGlobalErrorHandling } from './utils/errorMonitoring'
+import { Task511Verification } from './utils/task511Verification'
+import './utils/consoleErrorCheck' // Auto-start console error monitoring
 
 function App() {
+  useEffect(() => {
+    // Initialize global error handling
+    setupGlobalErrorHandling()
+    
+    // Verify Task 5.11 requirements
+    Task511Verification.verifyAllRequirements()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Tab.Group>
@@ -55,10 +67,26 @@ function App() {
 
         <main className="max-w-7xl mx-auto px-4 py-6 transition-all duration-300">
           <Tab.Panels>
-            <Tab.Panel><LiveCallView /></Tab.Panel>
-            <Tab.Panel><SeniorProfileView /></Tab.Panel>
-            <Tab.Panel><CommunityView /></Tab.Panel>
-            <Tab.Panel><AnalyticsView /></Tab.Panel>
+            <Tab.Panel>
+              <ErrorBoundary componentName="LiveCallView">
+                <LiveCallView />
+              </ErrorBoundary>
+            </Tab.Panel>
+            <Tab.Panel>
+              <ErrorBoundary componentName="SeniorProfileView">
+                <SeniorProfileView />
+              </ErrorBoundary>
+            </Tab.Panel>
+            <Tab.Panel>
+              <ErrorBoundary componentName="CommunityView">
+                <CommunityView />
+              </ErrorBoundary>
+            </Tab.Panel>
+            <Tab.Panel>
+              <ErrorBoundary componentName="AnalyticsView">
+                <AnalyticsView />
+              </ErrorBoundary>
+            </Tab.Panel>
           </Tab.Panels>
         </main>
       </Tab.Group>

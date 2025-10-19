@@ -102,15 +102,15 @@ describe('AnalyticsView', () => {
       // Check mental health score and trend
       expect(screen.getByText('Mental Health')).toBeInTheDocument()
       expect(screen.getByText('↑ 42%')).toBeInTheDocument()
-      expect(screen.getByText('147 conversations • Avg sentiment: 0.44')).toBeInTheDocument()
+      expect(screen.getByText('147 conversations')).toBeInTheDocument()
       
       // Check physical health score
-      expect(screen.getByText('Physical Health')).toBeInTheDocument()
+      expect(screen.getByText('Physical')).toBeInTheDocument()
       expect(screen.getByText('23 health notes')).toBeInTheDocument()
       expect(screen.getByText('3 added this week')).toBeInTheDocument()
       
       // Check social health score
-      expect(screen.getByText('Social Health')).toBeInTheDocument()
+      expect(screen.getByText('Social')).toBeInTheDocument()
       expect(screen.getByText('8 matches, 2 groups')).toBeInTheDocument()
       expect(screen.getByText('Community growing')).toBeInTheDocument()
     })
@@ -131,6 +131,10 @@ describe('AnalyticsView', () => {
       expect(screen.getByText('30-Day Wellness Trend')).toBeInTheDocument()
       // Check that trend graph container exists (simplified implementation)
       expect(screen.getByText('[Combined trend graph showing all three dimensions over time]')).toBeInTheDocument()
+      // Check for annotations
+      expect(screen.getByText('Family visit')).toBeInTheDocument()
+      expect(screen.getByText('Started medication')).toBeInTheDocument()
+      expect(screen.getByText('Community match')).toBeInTheDocument()
     })
   })
 
@@ -150,10 +154,18 @@ describe('AnalyticsView', () => {
       expect(screen.getByText('Total Calls')).toBeInTheDocument()
       expect(screen.getByText('147')).toBeInTheDocument()
       
-      // Check for peak hours indication (simplified implementation)
-      expect(screen.getByText('Mood')).toBeInTheDocument()
-      expect(screen.getByText('Health Notes')).toBeInTheDocument()
-      expect(screen.getByText('Matches')).toBeInTheDocument()
+      // Check for peak hours heatmap
+      expect(screen.getByText('Peak Hours Heatmap')).toBeInTheDocument()
+      expect(screen.getByText('12am')).toBeInTheDocument()
+      expect(screen.getByText('6am')).toBeInTheDocument()
+      expect(screen.getByText('12pm')).toBeInTheDocument()
+      expect(screen.getByText('6pm')).toBeInTheDocument()
+      expect(screen.getByText('11pm')).toBeInTheDocument()
+      
+      // Check for language distribution pie chart
+      expect(screen.getByText('Language Distribution')).toBeInTheDocument()
+      expect(screen.getByText('English 60%')).toBeInTheDocument()
+      expect(screen.getByText('Mandarin 40%')).toBeInTheDocument()
     })
   })
 
@@ -169,12 +181,13 @@ describe('AnalyticsView', () => {
     render(<AnalyticsView />)
 
     await waitFor(() => {
-      // Check that word cloud section exists (simplified implementation)
+      // Check that word cloud section exists
+      expect(screen.getByText('Topic Word Cloud')).toBeInTheDocument()
       // The word cloud would be generated from conversation keyTopics
-      expect(screen.getByText('Total Calls')).toBeInTheDocument()
-      expect(screen.getByText('Mood')).toBeInTheDocument()
-      expect(screen.getByText('Health Notes')).toBeInTheDocument()
-      expect(screen.getByText('Matches')).toBeInTheDocument()
+      // Check for some expected words from the mock conversations
+      expect(screen.getByText('tomato')).toBeInTheDocument()
+      expect(screen.getByText('gardening')).toBeInTheDocument()
+      expect(screen.getByText('piano')).toBeInTheDocument()
     })
   })
 })

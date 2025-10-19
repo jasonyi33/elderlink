@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { SeniorProfile } from '../types'
-
-const API_BASE = process.env.REACT_APP_API_BASE || ''
+import HealthTimeline from './HealthTimeline'
+import { apiClient } from '../services/api-client'
 
 export default function SeniorProfileView() {
   const [profile, setProfile] = useState<SeniorProfile | null>(null)
@@ -13,8 +13,7 @@ export default function SeniorProfileView() {
 
   async function fetchProfile() {
     try {
-      const res = await fetch(`${API_BASE}/api/dashboard/mrs-chen`)
-      const data = await res.json()
+      const data = await apiClient.fetchProfile('mrs-chen')
       setProfile(data.profile)
     } catch (error) {
       console.error('Failed to fetch profile:', error)
@@ -88,11 +87,14 @@ export default function SeniorProfileView() {
         </div>
       </div>
 
-      {/* Conversation History */}
-      <ConversationHistoryCard conversations={profile.conversations} />
-    </div>
-  )
-}
+          {/* Health Timeline */}
+          <HealthTimeline healthNotes={profile.healthData.notes} />
+
+          {/* Conversation History */}
+          <ConversationHistoryCard conversations={profile.conversations} />
+        </div>
+      )
+    }
 
 function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthData'] }) {
   const [expanded, setExpanded] = useState({

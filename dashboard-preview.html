@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElderLink Dashboard Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active {
+            border-bottom-color: #3b82f6;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gray-50">
+        <!-- Navigation Tabs -->
+        <nav class="bg-white border-b sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex space-x-8">
+                    <button onclick="showTab('live')" id="tab-live" class="tab-button py-3 px-1 border-b-2 border-blue-500 text-blue-600">
+                        📞 Live Call 🔴
+                    </button>
+                    <button onclick="showTab('profile')" id="tab-profile" class="tab-button py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                        👤 Senior Profile
+                    </button>
+                    <button onclick="showTab('community')" id="tab-community" class="tab-button py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                        👥 Community
+                    </button>
+                    <button onclick="showTab('analytics')" id="tab-analytics" class="tab-button py-3 px-1 border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                        📊 Analytics
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 py-6 transition-all duration-300">
+            <!-- Live Call Tab -->
+            <div id="content-live" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-900">Live Call - Mrs. Chen</h2>
+                        <span class="flex items-center text-red-600 font-medium">
+                            <span class="w-3 h-3 bg-red-600 rounded-full mr-2 animate-pulse"></span>
+                            LIVE
+                        </span>
+                    </div>
+
+                    <!-- Sentiment Meter -->
+                    <div class="mb-6">
+                        <label class="text-sm font-medium text-gray-600 mb-2 block">
+                            Real-time Sentiment
+                        </label>
+                        <div class="relative h-10 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="absolute h-full bg-green-500 transition-all duration-500" style="width: 60%; left: 50%; right: 0;"></div>
+                            <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900">
+                                😊 0.2
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Detected Emotions -->
+                    <div class="mb-6">
+                        <label class="text-sm font-medium text-gray-600 mb-2 block">
+                            Detected Emotions
+                        </label>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium animate-fade-in">
+                                content
+                            </span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium animate-fade-in">
+                                nostalgic
+                            </span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium animate-fade-in">
+                                hopeful
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Language Indicator -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-600">Language:</span>
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                            English
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Senior Profile Tab -->
+            <div id="content-profile" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Personal Info Card -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Personal Information</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600">Name</label>
+                                <p class="text-lg font-medium">Mrs. Chen</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">Age</label>
+                                <p class="text-lg font-medium">72</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">Location</label>
+                                <p class="text-lg font-medium">Seattle, WA</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">Phone</label>
+                                <p class="text-lg font-medium">+1-206-555-0123</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">Languages</label>
+                                <p class="text-lg font-medium">english, mandarin</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="text-sm text-gray-600 block mb-2">Family</label>
+                            <div class="space-y-2">
+                                <div class="flex items-start">
+                                    <span class="text-2xl mr-2">👤</span>
+                                    <div>
+                                        <p class="font-medium">Sarah (daughter)</p>
+                                        <p class="text-sm text-gray-600">lives in Seattle, visits weekly</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-2xl mr-2">👤</span>
+                                    <div>
+                                        <p class="font-medium">David (son)</p>
+                                        <p class="text-sm text-gray-600">lives in California, calls monthly</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Overview Card -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Health Overview</h3>
+
+                        <!-- Medications -->
+                        <div class="mb-4">
+                            <button onclick="toggleSection('medications')" class="flex items-center justify-between w-full text-left">
+                                <span class="font-medium text-gray-900">
+                                    <span id="medications-arrow">▼</span> Medications (3)
+                                </span>
+                            </button>
+                            <div id="medications-content" class="mt-2 space-y-2 ml-4">
+                                <div class="border-l-2 border-blue-500 pl-3">
+                                    <p class="font-medium">Lisinopril 10mg</p>
+                                    <p class="text-sm text-gray-600">daily morning - blood pressure</p>
+                                </div>
+                                <div class="border-l-2 border-blue-500 pl-3">
+                                    <p class="font-medium">Metformin 500mg</p>
+                                    <p class="text-sm text-gray-600">with meals - diabetes</p>
+                                </div>
+                                <div class="border-l-2 border-blue-500 pl-3">
+                                    <p class="font-medium">Vitamin D 1000 IU</p>
+                                    <p class="text-sm text-gray-600">daily - bone health</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conditions -->
+                        <div class="mb-4">
+                            <button onclick="toggleSection('conditions')" class="flex items-center justify-between w-full text-left">
+                                <span class="font-medium text-gray-900">
+                                    <span id="conditions-arrow">▼</span> Conditions (3)
+                                </span>
+                            </button>
+                            <div id="conditions-content" class="mt-2 space-y-2 ml-4">
+                                <div class="border-l-2 border-green-500 pl-3">
+                                    <p class="font-medium">Hypertension</p>
+                                    <p class="text-sm text-gray-600">Since 2018 - controlled</p>
+                                </div>
+                                <div class="border-l-2 border-green-500 pl-3">
+                                    <p class="font-medium">Type 2 Diabetes</p>
+                                    <p class="text-sm text-gray-600">Since 2020 - A1C: 6.5%</p>
+                                </div>
+                                <div class="border-l-2 border-green-500 pl-3">
+                                    <p class="font-medium">Osteoarthritis</p>
+                                    <p class="text-sm text-gray-600">Since 2019 - managed (knees, back)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latest Vitals -->
+                        <div class="mb-4">
+                            <button onclick="toggleSection('vitals')" class="flex items-center justify-between w-full text-left">
+                                <span class="font-medium text-gray-900">
+                                    <span id="vitals-arrow">▼</span> Latest Vitals
+                                </span>
+                            </button>
+                            <div id="vitals-content" class="mt-2 ml-4 p-3 bg-gray-50 rounded">
+                                <p class="text-sm text-gray-600">Last updated: 2025-01-10</p>
+                                <p class="font-medium">Blood Pressure: 128/82</p>
+                                <p class="font-medium">Weight: 145 lbs</p>
+                                <p class="font-medium">Blood Sugar: 110 mg/dL fasting</p>
+                            </div>
+                        </div>
+
+                        <!-- Next Appointment -->
+                        <div class="mb-4">
+                            <button onclick="toggleSection('appointments')" class="flex items-center justify-between w-full text-left">
+                                <span class="font-medium text-gray-900">
+                                    <span id="appointments-arrow">▼</span> Next Appointment
+                                </span>
+                            </button>
+                            <div id="appointments-content" class="mt-2 ml-4 p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded">
+                                <p class="font-medium text-yellow-900">Primary care checkup</p>
+                                <p class="text-sm text-yellow-800">2025-01-25 at 10:00am</p>
+                                <p class="text-sm text-yellow-800">with Dr. Smith</p>
+                            </div>
+                        </div>
+
+                        <!-- Recent Health Notes -->
+                        <div>
+                            <button onclick="toggleSection('notes')" class="flex items-center justify-between w-full text-left">
+                                <span class="font-medium text-gray-900">
+                                    <span id="notes-arrow">▼</span> Recent Health Notes (2)
+                                </span>
+                            </button>
+                            <div id="notes-content" class="mt-2 space-y-3 ml-4">
+                                <div class="p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-xs text-blue-600 mb-1">1/18/2025, 2:32:00 PM - Sam AI Conversation</p>
+                                    <p class="text-sm text-blue-900">Patient reports: back pain when gardening (mild severity). Medication adherence: took morning Lisinopril.</p>
+                                    <div class="flex flex-wrap gap-1 mt-2">
+                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">back pain</span>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">took morning pills</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-xs text-blue-600 mb-1">1/17/2025, 9:15:00 AM - Sam AI Conversation</p>
+                                    <p class="text-sm text-blue-900">Patient reports: feeling lonely, mentioned wanting to meet other seniors who garden.</p>
+                                    <div class="flex flex-wrap gap-1 mt-2">
+                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">feeling lonely</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interests Card -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Interests & Hobbies</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full font-medium">
+                                gardening
+                            </span>
+                            <span class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full font-medium">
+                                piano
+                            </span>
+                            <span class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full font-medium">
+                                cooking
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Conversation History -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Conversation History</h3>
+                        <div class="space-y-3">
+                            <div class="border-l-4 border-purple-500 pl-4 py-2">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-sm font-medium text-gray-900">1/18/2025</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-800">Sentiment: 0.20</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">Discussed tomato gardening and mentioned back pain when bending</p>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">gardening</span>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">back pain</span>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">medication</span>
+                                </div>
+                                <div class="mt-2 text-xs text-blue-600">🩺 Health: back pain, medication adherence</div>
+                            </div>
+                            <div class="border-l-4 border-purple-500 pl-4 py-2">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-sm font-medium text-gray-900">1/17/2025</span>
+                                    <span class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">Sentiment: -0.10</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">Expressed feeling lonely and interest in meeting other gardeners</p>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">loneliness</span>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">community</span>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded">gardening</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Tab -->
+            <div id="content-community" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Social Profile Summary -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Mrs. Chen's Social Profile</h3>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">Interests</label>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">gardening</span>
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">piano</span>
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">cooking</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">Cultural Background</label>
+                                <p class="text-sm font-medium">Shanghai, Mandarin</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">Location</label>
+                                <p class="text-sm font-medium">Seattle, WA</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">Open to connecting</label>
+                                <p class="text-sm font-medium text-green-600">Yes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Matches -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Recommended Matches (3)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Match Card 1 -->
+                            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                                <div class="text-center mb-4">
+                                    <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-2 flex items-center justify-center text-3xl">👤</div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Mrs. Lee, 69</h4>
+                                    <p class="text-sm text-gray-600">Taiwan | Mandarin speaker</p>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <div class="text-2xl font-bold text-blue-600">90%</div>
+                                    <div class="text-yellow-500">★★★★★</div>
+                                    <p class="text-sm font-medium text-gray-700">High Compatibility</p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Shared Interests:</label>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Mandarin</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">gardening</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">cooking</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">piano</span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Suggested Groups:</label>
+                                    <p class="text-xs text-gray-700">🀄 Mandarin Gardening Circle</p>
+                                </div>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <button class="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition" disabled>
+                                        Facilitate Connection
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Match Card 2 -->
+                            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                                <div class="text-center mb-4">
+                                    <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-2 flex items-center justify-center text-3xl">👤</div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Mr. Wang, 73</h4>
+                                    <p class="text-sm text-gray-600">Beijing | Mandarin speaker</p>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <div class="text-2xl font-bold text-blue-600">85%</div>
+                                    <div class="text-yellow-500">★★★★★</div>
+                                    <p class="text-sm font-medium text-gray-700">High Compatibility</p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Shared Interests:</label>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Mandarin</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">gardening</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">traditional music</span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Suggested Groups:</label>
+                                    <p class="text-xs text-gray-700">🀄 Mandarin Gardening Circle</p>
+                                </div>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <button class="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition" disabled>
+                                        Facilitate Connection
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Match Card 3 -->
+                            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                                <div class="text-center mb-4">
+                                    <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-2 flex items-center justify-center text-3xl">👤</div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Mrs. Kim, 71</h4>
+                                    <p class="text-sm text-gray-600">Seoul | Korean/English speaker</p>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <div class="text-2xl font-bold text-blue-600">65%</div>
+                                    <div class="text-yellow-500">★★★★☆</div>
+                                    <p class="text-sm font-medium text-gray-700">Good Match</p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Shared Interests:</label>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">gardening</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">music/arts</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Asian cultural values</span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xs font-medium text-gray-600 block mb-1">Suggested Groups:</label>
+                                    <p class="text-xs text-gray-700">🇺🇸 English Gardening Circle</p>
+                                </div>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <button class="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition" disabled>
+                                        Facilitate Connection
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Groups -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Suggested Groups</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div>
+                                    <p class="font-medium text-green-900">Mandarin Gardening Circle</p>
+                                    <p class="text-sm text-green-700">3 members • Mandarin • Weekly Thursdays 2pm</p>
+                                </div>
+                                <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    View Details
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div>
+                                    <p class="font-medium text-green-900">Piano & Music Appreciation</p>
+                                    <p class="text-sm text-green-700">2 members • English • Bi-weekly Saturdays 3pm</p>
+                                </div>
+                                <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Health Metrics -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Social Health Metrics</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600">3</div>
+                                <div class="text-sm text-gray-600">Matches Made</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600">75%</div>
+                                <div class="text-sm text-gray-600">Community Engagement</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600">2</div>
+                                <div class="text-sm text-gray-600">Groups Joined</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="content-analytics" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Holistic Wellness Score -->
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h3 class="text-2xl font-semibold mb-6 text-center text-gray-900">
+                            Holistic Wellness Score
+                        </h3>
+
+                        <!-- Big Score Display -->
+                        <div class="text-center mb-8">
+                            <div class="text-6xl font-bold text-blue-600 mb-2">78/100</div>
+                            <div class="w-64 h-64 mx-auto">
+                                <div class="relative pt-1">
+                                    <div class="overflow-hidden h-4 mb-4 text-xs flex rounded bg-gray-200">
+                                        <div style="width: 78%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-green-500"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown -->
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">Breakdown:</h4>
+
+                            <!-- Mental Health -->
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-900">Mental Health</span>
+                                    <span class="text-blue-600 font-bold">↑ 42%</span>
+                                </div>
+                                <p class="text-sm text-gray-600">147 conversations • Avg sentiment: 0.23</p>
+                            </div>
+
+                            <!-- Physical Health -->
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-900">Physical</span>
+                                    <span class="text-green-600 font-bold">23 health notes</span>
+                                </div>
+                                <p class="text-sm text-gray-600">5 added this week</p>
+                            </div>
+
+                            <!-- Social Health -->
+                            <div class="border-l-4 border-purple-500 pl-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-900">Social</span>
+                                    <span class="text-purple-600 font-bold">8 matches, 2 groups</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Community growing</p>
+                            </div>
+                        </div>
+
+                        <!-- 30-Day Trend Graph -->
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">30-Day Wellness Trend</h4>
+                            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-gray-500 mb-2">[Recharts Line Chart - 3 lines: Mental, Physical, Social]</p>
+                                    <p class="text-sm text-gray-400">Mental: 82% ↑ | Physical: 75% → | Social: 85% ↑</p>
+                                    <div class="mt-4 space-y-1 text-xs text-gray-600">
+                                        <p>📅 Family visit (Jan 15)</p>
+                                        <p>💊 Started medication (Jan 10)</p>
+                                        <p>👥 Community match (Jan 18)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Metrics -->
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="bg-blue-50 text-blue-900 border-blue-200 rounded-lg border p-4 text-center">
+                            <div class="text-3xl mb-2">📞</div>
+                            <div class="text-2xl font-bold">147</div>
+                            <div class="text-sm">Total Calls</div>
+                        </div>
+                        <div class="bg-green-50 text-green-900 border-green-200 rounded-lg border p-4 text-center">
+                            <div class="text-3xl mb-2">😊</div>
+                            <div class="text-2xl font-bold">+82%</div>
+                            <div class="text-sm">Mood</div>
+                        </div>
+                        <div class="bg-red-50 text-red-900 border-red-200 rounded-lg border p-4 text-center">
+                            <div class="text-3xl mb-2">🩺</div>
+                            <div class="text-2xl font-bold">23</div>
+                            <div class="text-sm">Health Notes</div>
+                        </div>
+                        <div class="bg-purple-50 text-purple-900 border-purple-200 rounded-lg border p-4 text-center">
+                            <div class="text-3xl mb-2">👥</div>
+                            <div class="text-2xl font-bold">8</div>
+                            <div class="text-sm">Matches</div>
+                        </div>
+                    </div>
+
+                    <!-- Call Analytics -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900">Call Analytics</h3>
+                        
+                        <!-- Peak Hours Heatmap -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-3">Peak Hours Heatmap</h4>
+                            <div class="grid grid-cols-12 gap-1">
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">0</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">1</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">2</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">3</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">4</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">5</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">6</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">7</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">8</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">9</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">10</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">11</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">12</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">13</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-red-500 text-white">14</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-red-500 text-white">15</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-red-500 text-white">16</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-orange-400 text-white">17</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-yellow-400 text-black">18</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">19</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">20</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">21</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">22</div>
+                                <div class="h-8 rounded text-xs flex items-center justify-center bg-gray-200 text-gray-600">23</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Peak: 2-4pm (Most active)</p>
+                        </div>
+
+                        <!-- Language Distribution -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-3">Language Distribution</h4>
+                            <div class="flex items-center space-x-4">
+                                <div class="relative w-32 h-32">
+                                    <div class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-green-500" style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="text-center text-white font-bold">
+                                            <div>60%</div>
+                                            <div class="text-xs">English</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-sm">
+                                    <p class="font-medium">60% English</p>
+                                    <p class="text-gray-600">40% Mandarin</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Word Cloud -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3">Most Discussed Topics</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 18px;">family</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 16px;">gardening</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 14px;">health</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 12px;">music</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 10px;">cooking</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 15px;">Sarah</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 13px;">tomatoes</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 11px;">piano</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 9px;">community</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" style="font-size: 8px;">friends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                button.classList.add('border-transparent', 'text-gray-600');
+                button.classList.remove('border-blue-500', 'text-blue-600');
+            });
+            
+            // Show selected tab content
+            document.getElementById('content-' + tabName).classList.add('active');
+            
+            // Add active class to selected tab button
+            const activeButton = document.getElementById('tab-' + tabName);
+            activeButton.classList.add('active');
+            activeButton.classList.add('border-blue-500', 'text-blue-600');
+            activeButton.classList.remove('border-transparent', 'text-gray-600');
+        }
+
+        // Collapsible sections functionality
+        function toggleSection(sectionName) {
+            const content = document.getElementById(sectionName + '-content');
+            const arrow = document.getElementById(sectionName + '-arrow');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '▶';
+            }
+        }
+
+        // Initialize with Live Call tab active
+        document.addEventListener('DOMContentLoaded', function() {
+            showTab('live');
+        });
+    </script>
+</body>
+</html>
