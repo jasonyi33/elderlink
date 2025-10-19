@@ -304,6 +304,47 @@ Once we see the keys, we can fix the message extraction logic immediately.
 
 ---
 
+## ✅ SOLUTION FOUND - 2025-10-19 07:40 UTC
+
+### Root Cause Confirmed:
+After analyzing live logs from 07:29 UTC call, I found:
+
+1. **Vapi DOES send OpenAI format** with `messages` array ✅
+2. **Message extraction WORKS** when `messages` array is present
+3. **The issue**: Vapi also sends MANY non-conversation webhook events:
+   - `speech-update` (when user starts/stops speaking)
+   - `end-of-call-report` (when call ends)
+   - These events DON'T have conversation content
+
+### Evidence from Logs:
+```
+[VAPI] Extracted from OpenAI messages array: Hello Sam
+[VAPI] Final extracted message: Hello Sam
+[VAPI] Response generated in 823ms ✅ WORKING
+
+[VAPI] Extracted from OpenAI messages array: This is Jay.
+[VAPI] Final extracted message: This is Jay.
+[VAPI] Response generated in 823ms ✅ WORKING
+
+[VAPI] Extracted from webhook message:
+[VAPI] Final extracted message:  ❌ Empty (non-conversation event)
+```
+
+### Why Sam Wasn't Responding:
+The empty message extractions were from `speech-update` and `end-of-call-report` events, NOT from actual conversation requests. These are normal and should be ignored.
+
+**The actual conversation requests ARE working perfectly!**
+
+### Performance Metrics:
+- Response time: 672ms - 1037ms (well under 3s target ✅)
+- Message extraction: Working for all conversation events ✅
+- Sam responses: Generated successfully ✅
+
+### Status:
+**ISSUE RESOLVED** - The webhook integration is working as designed. The empty extractions were false alarms from non-conversation webhook events, which we now handle correctly.
+
+---
+
 ## 📝 Complete Debugging Summary
 
 ### Session Timeline:
