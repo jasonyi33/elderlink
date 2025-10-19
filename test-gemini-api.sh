@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test Gemini API directly
-API_KEY="AIzaSyCpBNjwUMmeK1Dyf1tdUC9pvn557TokZ8g"
+API_KEY=""
 
 curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}" \
   -H 'Content-Type: application/json' \
