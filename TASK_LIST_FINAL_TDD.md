@@ -435,16 +435,29 @@ Every task follows this **7-step TDD process**:
 - [ ] **Reference**: TDD_TEST_CASES.md Section 2.1
 
 **3.1b: CONFIRM TESTS FAIL**
-- [ ] Run `npx jest src/index.test.ts`
-- [ ] Verify 12 failing tests
+- [ ] Run `npm test -- worker/tests/index.test.ts --verbose`
+- [ ] Verify 11 new endpoint tests fail (GET /api/health passes as pre-existing)
+- [ ] Save test output to log file for documentation
 
 **3.1c: COMMIT FAILING TESTS**
-- [ ] `git commit -m "Add API endpoint tests (12 tests, all failing)"`
+- [ ] `git add worker/tests/index.test.ts`
+- [ ] `git commit -m "test: Add API endpoint tests (12 tests, 11 new endpoints failing)"`
+- [ ] Note: 1 test passes (health check pre-exists), 11 fail (endpoints not implemented)
 
 **3.1d: IMPLEMENT API ROUTES**
-- [ ] Create `src/index.ts` with Cloudflare Worker entry point
-- [ ] Implement route handling for all 12 endpoints
-- [ ] Use modular handlers (create separate files for each route group)
+- [ ] Update `worker/src/index.ts` Env interface: Add `context: ExecutionContext` for async processing
+- [ ] Create modular handler files in `worker/src/handlers/`:
+  - `vapi-webhook.ts` - Full webhook architecture with stub `generateSamResponse()` returning "Hello! I'm Sam."
+  - `dashboard-api.ts` - Handles GET /api/dashboard/:seniorId
+  - `mychart-api.ts` - Handles GET/POST /api/mychart/* routes (3 endpoints)
+  - `alert-api.ts` - Handles GET /api/alerts/:seniorId
+- [ ] Update `worker/src/index.ts` to import handlers and route requests
+- [ ] Create STUB service functions in `worker/src/services/` (TEMPORARY - return mock data):
+  - `kv-service.ts`: getProfile() returns MOCK_MRS_CHEN, saveProfile() no-op (Task 3.3 replaces with real KV)
+  - `analytics-service.ts`: getAnalytics() returns mock stats (Task 3.7 replaces with real calculation)
+  - `alert-service.ts`: getAlerts() returns [] (Task 3.6 replaces with real alerts)
+- [ ] Add TODO comments: "// TODO: Task 3.X - Replace stub with real implementation"
+- [ ] Implement all 11 missing endpoint routes with proper response structures
 - [ ] **DO NOT modify tests**
 
 **3.1e: ITERATE UNTIL TESTS PASS**
@@ -452,10 +465,12 @@ Every task follows this **7-step TDD process**:
 - [ ] Fix routing and response formats
 - [ ] Ensure all 12 tests pass
 
-**3.1f: VERIFY WITH INDEPENDENT SUBAGENT**
-- [ ] Create Postman collection with all endpoints
-- [ ] Test each endpoint with 5 different inputs
-- [ ] Verify response schemas match PRD
+**3.1f: VERIFY WITH INDEPENDENT TESTING**
+- [ ] Create Postman collection: `postman/elderlink-api.json` 
+- [ ] Include 17 requests total (5 vapi-webhook variations, 2 mychart update variations, 2 init-demo variations)
+- [ ] Test POST endpoints with different inputs, GET endpoints for consistency
+- [ ] Manually compare all response schemas to PRD Section 7
+- [ ] Document verification in TASK_3.1F_SCHEMA_VERIFICATION.md
 
 **3.1g: COMMIT IMPLEMENTATION**
 - [ ] `git commit -m "Implement API routes (12/12 tests passing)"`

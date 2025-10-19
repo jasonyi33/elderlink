@@ -92,6 +92,12 @@ describe('API Endpoints - Task 3.1', () => {
     list: jest.fn()
   };
 
+  // Mock ExecutionContext
+  const mockCtx = {
+    waitUntil: jest.fn(),
+    passThroughOnException: jest.fn()
+  } as any;
+
   // Mock environment
   const mockEnv = {
     KV: mockKV as any,
@@ -99,7 +105,8 @@ describe('API Endpoints - Task 3.1', () => {
     GEMINI_API_KEY: 'test-gemini-key',
     VAPI_API_KEY: 'test-vapi-key',
     ELEVENLABS_ENGLISH_VOICE: 'test-english-voice',
-    ELEVENLABS_MANDARIN_VOICE: 'test-mandarin-voice'
+    ELEVENLABS_MANDARIN_VOICE: 'test-mandarin-voice',
+    context: mockCtx
   };
 
   beforeEach(() => {
@@ -112,7 +119,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -137,7 +144,7 @@ describe('API Endpoints - Task 3.1', () => {
       })
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -155,7 +162,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -185,7 +192,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -204,7 +211,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -226,7 +233,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -249,7 +256,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -286,7 +293,7 @@ describe('API Endpoints - Task 3.1', () => {
       body: JSON.stringify({ notes: healthNotes })
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -309,7 +316,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -347,7 +354,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -373,7 +380,7 @@ describe('API Endpoints - Task 3.1', () => {
       body: JSON.stringify(MOCK_MRS_CHEN)
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;
@@ -405,7 +412,7 @@ describe('API Endpoints - Task 3.1', () => {
       method: 'GET'
     });
 
-    const response = await worker.fetch(request, mockEnv);
+    const response = await worker.fetch(request, mockEnv, mockCtx);
 
     expect(response.status).toBe(200);
     const data = await response.json() as any;

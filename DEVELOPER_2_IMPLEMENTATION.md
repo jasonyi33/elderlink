@@ -157,13 +157,23 @@ You are the **Backend API & Services** developer responsible for:
 - [ ] Screenshot or log output
 
 **3.1c: COMMIT FAILING TESTS**
-- [ ] `git add src/index.test.ts`
-- [ ] `git commit -m "test: Add API endpoint tests (12 tests, all failing)"`
+- [ ] `git add worker/tests/index.test.ts`
+- [ ] `git commit -m "test: Add API endpoint tests (12 tests, 11 new endpoints failing)"`
+- **Note:** 1 test (GET /api/health) passes because endpoint pre-exists; 11 new endpoint tests fail as expected
 
 **3.1d: IMPLEMENT API ROUTES**
-- [ ] Create `src/index.ts` with Cloudflare Worker entry point
-- [ ] Implement route handling for all 12 endpoints
-- [ ] Use modular handlers (create separate files for each route group)
+- [ ] Update `worker/src/index.ts` Env interface to include `context: ExecutionContext`
+- [ ] Create modular handler files in `worker/src/handlers/`:
+  - `vapi-webhook.ts` - Full webhook logic with stub `generateSamResponse()` (Developer 1 provides real function at Hour 5)
+  - `dashboard-api.ts` - GET /api/dashboard/:seniorId handler  
+  - `mychart-api.ts` - GET/POST /api/mychart/* handlers
+  - `alert-api.ts` - GET /api/alerts/:seniorId handler
+- [ ] Update `worker/src/index.ts` to route to these handlers
+- [ ] Create stub service functions in `worker/src/services/` (TEMPORARY - return mock data):
+  - `kv-service.ts`: getProfile(), saveProfile() - Return MOCK_MRS_CHEN (replace with real KV in Task 3.3)
+  - `analytics-service.ts`: getAnalytics() - Return mock analytics (replace in Task 3.7)
+  - `alert-service.ts`: getAlerts() - Return empty array (replace in Task 3.6)
+- [ ] Add TODO comments in stubs: "// TODO: Task 3.X - Replace with real implementation"
 - [ ] **DO NOT modify tests during implementation**
 
 **3.1e: ITERATE UNTIL TESTS PASS**
@@ -171,10 +181,13 @@ You are the **Backend API & Services** developer responsible for:
 - [ ] Fix routing and response formats
 - [ ] Ensure all 12 tests pass
 
-**3.1f: VERIFY WITH INDEPENDENT SUBAGENT**
-- [ ] Create Postman collection with all endpoints
-- [ ] Test each endpoint with 5 different inputs
-- [ ] Verify response schemas match PRD Section 7
+**3.1f: VERIFY WITH INDEPENDENT TESTING**
+- [ ] Create Postman collection: `postman/elderlink-api.json` with all 12 endpoints
+- [ ] Test POST endpoints with 5 different inputs (vapi-webhook: English, Mandarin, empty, health, with history)
+- [ ] Test POST /api/mychart/:seniorId/update with 2 variations (single note, multiple notes)
+- [ ] Test POST /api/init-demo with 2 variations (different senior profiles)
+- [ ] Verify all response schemas match PRD Section 7 (document in TASK_3.1F_SCHEMA_VERIFICATION.md)
+- [ ] Confirm all 12 endpoints return correct structure
 
 **3.1g: COMMIT IMPLEMENTATION**
 - [ ] `git add src/index.ts`
