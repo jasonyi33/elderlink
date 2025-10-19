@@ -139,39 +139,41 @@ Begin your response now (speak naturally, no labels or formatting):
 `;
 }
 
-// DEMO MODE: Sequential scripted responses (no pattern matching)
+// DEMO MODE: Time-based scripted responses
+// Each response has an estimated speaking time + 1 second buffer
 function getDemoScriptResponse(
   profile: SeniorProfile,
   seniorMessage: string,
   currentLanguage: string
 ): string {
-  // Get current exchange number (default to 1 if not set)
-  const exchangeNum = profile.demoExchangeNumber || 1;
+  // Calculate elapsed time since call started
+  const callStartTime = profile.demoCallStartTime || Date.now();
+  const elapsedSeconds = (Date.now() - callStartTime) / 1000;
 
-  console.log(`[DEMO] Exchange ${exchangeNum}:`, seniorMessage.substring(0, 50));
+  console.log(`[DEMO] Elapsed time: ${elapsedSeconds.toFixed(1)}s, Message:`, seniorMessage.substring(0, 50));
 
-  // Return response based on sequential exchange number
-  // Note: Vapi says firstMessage automatically, so we start from user's first response (exchange 1)
-  switch (exchangeNum) {
-    case 1:
-      // Exchange 1: Response to garden talk (Vapi already said the greeting)
-      return "I'm sorry to hear about your knee. I recall your arthritis bothers you sometimes. Did you take your Lisinopril this morning?";
+  // Time windows for each response (approximate speaking time + 1s buffer):
+  // Response 1: ~7s to say + 1s = available after 0s, until 8s
+  // Response 2: ~8s to say + 1s = available after 8s, until 17s
+  // Response 3: ~4s to say + 1s = available after 17s, until 22s
+  // Response 4: ~4s to say + 1s = available after 22s, until end
 
-    case 2:
-      // Exchange 2: Medication confirmation
-      return "That's wonderful to hear! I'll note that down for Dr. Smith in MyChart. Your next appointment is on Tuesday at 10 a.m.";
-
-    case 3:
-      // Exchange 3: Chinese response (tired)
-      return "没关系，陈太太。记得多休息，多喝水。";
-
-    case 4:
-      // Exchange 4: Closing
-      return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
-
-    default:
-      // After the script (exchange 5+), repeat closing message to encourage hang up
-      return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
+  if (elapsedSeconds < 8) {
+    // Response 1: Garden/knee response (0-8s)
+    console.log('[DEMO] Using response 1 (0-8s)');
+    return "I'm sorry to hear about your knee. I recall your arthritis bothers you sometimes. Did you take your Lisinopril this morning?";
+  } else if (elapsedSeconds < 17) {
+    // Response 2: Medication confirmation (8-17s)
+    console.log('[DEMO] Using response 2 (8-17s)');
+    return "That's wonderful to hear! I'll note that down for Dr. Smith in MyChart. Your next appointment is on Tuesday at 10 a.m.";
+  } else if (elapsedSeconds < 22) {
+    // Response 3: Chinese response (17-22s)
+    console.log('[DEMO] Using response 3 (17-22s)');
+    return "没关系，陈太太。记得多休息，多喝水。";
+  } else {
+    // Response 4: Closing (22s+)
+    console.log('[DEMO] Using response 4 (22s+)');
+    return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
   }
 }
 

@@ -13,7 +13,7 @@ export interface SeniorProfile {
   languages: ('english' | 'mandarin')[];
   location: string;
   demoMode?: boolean;  // Optional: enables exact script-following for demos
-  demoExchangeNumber?: number;  // Tracks which exchange in the demo script (1-5)
+  demoCallStartTime?: number;  // Timestamp (ms) when demo call started
 
   memories: {
     family: Array<{

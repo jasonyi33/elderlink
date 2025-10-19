@@ -366,17 +366,17 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
   console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
 
-  // Handle end-of-call-report events - clear call state and reset demo exchange counter
+  // Handle end-of-call-report events - clear call state and reset demo timestamp
   if (messageType === 'end-of-call-report') {
     console.log('[VAPI] End of call detected, clearing call state and resetting demo mode');
     await env.KV.delete(`call-state-${seniorId}`);
 
-    // Reset demo exchange counter for next call
+    // Clear demo call start time for next call
     let profile = await getProfile(seniorId, env);
     if (profile && profile.demoMode === true) {
-      profile.demoExchangeNumber = 1;
+      delete profile.demoCallStartTime;
       await saveProfile(profile, env);
-      console.log('[DEMO] Reset exchange number to 1 for next call');
+      console.log('[DEMO] Cleared call start time for next call');
     }
 
     return {
@@ -487,12 +487,12 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const existingCallState = await env.KV.get(`call-state-${seniorId}`);
   const isNewCall = !existingCallState;
 
-  // Reset demo exchange counter for new calls
+  // Set demo call start time for new calls (time-based responses)
   if (isNewCall && profile.demoMode === true) {
-    if (profile.demoExchangeNumber !== 1) {
-      console.log('[DEMO] New call detected, resetting exchange number from', profile.demoExchangeNumber, 'to 1');
-      profile.demoExchangeNumber = 1;
+    if (!profile.demoCallStartTime) {
+      profile.demoCallStartTime = Date.now();
       await saveProfile(profile, env);
+      console.log('[DEMO] New call detected, set start time:', new Date(profile.demoCallStartTime).toISOString());
     }
   }
 
@@ -511,20 +511,8 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
     }
   );
 
-  // DEMO MODE: Increment exchange number for next response (cap at 4)
-  // @ts-ignore - demoMode is optional field
-  if (profile.demoMode === true) {
-    const currentExchange = profile.demoExchangeNumber || 1;
-    // Don't increment past 4 - keep repeating the closing message
-    if (currentExchange < 4) {
-      profile.demoExchangeNumber = currentExchange + 1;
-      console.log('[DEMO] Incremented exchange number to:', profile.demoExchangeNumber);
-      // Save immediately so next exchange uses updated number
-      await saveProfile(profile, env);
-    } else {
-      console.log('[DEMO] At final exchange (4), not incrementing further');
-    }
-  }
+  // DEMO MODE: Time-based responses - no need to increment counters
+  // Responses are selected based on elapsed time since demoCallStartTime
 
   // CRITICAL: Validate response before sending to Vapi
   const validation = validateResponse(samResponse);

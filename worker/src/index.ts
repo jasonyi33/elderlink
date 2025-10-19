@@ -83,10 +83,10 @@ export default {
         }
 
         profile.demoMode = body.enabled;
-        // Reset exchange number when enabling demo mode
+        // Clear call start time when toggling demo mode
         if (body.enabled) {
-          profile.demoExchangeNumber = 1;
-          console.log('[DEMO] Reset exchange number to 1');
+          delete profile.demoCallStartTime;
+          console.log('[DEMO] Cleared call start time');
         }
         await saveProfile(profile, env);
 
@@ -95,7 +95,7 @@ export default {
         return new Response(JSON.stringify({
           success: true,
           demoMode: profile.demoMode,
-          demoExchangeNumber: profile.demoExchangeNumber,
+          callStartTime: profile.demoCallStartTime || null,
           message: `Demo mode ${body.enabled ? 'enabled' : 'disabled'} for Mrs. Chen`
         }), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -108,7 +108,7 @@ export default {
 
         return new Response(JSON.stringify({
           demoMode: profile?.demoMode || false,
-          demoExchangeNumber: profile?.demoExchangeNumber || 1,
+          callStartTime: profile?.demoCallStartTime || null,
           profileExists: !!profile
         }), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
