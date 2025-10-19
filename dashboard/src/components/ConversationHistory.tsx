@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { SeniorProfile } from '../types'
+import WordCloud from './WordCloud'
 
 interface ConversationHistoryProps {
   conversations: SeniorProfile['conversations']
@@ -20,9 +21,9 @@ export default function ConversationHistory({ conversations }: ConversationHisto
   const wellnessData = generateWellnessData(conversations)
 
   const getSentimentColor = (sentiment: number) => {
-    if (sentiment > 0.3) return 'bg-green-100 text-green-800'
-    if (sentiment < 0) return 'bg-red-100 text-red-800'
-    return 'bg-yellow-100 text-yellow-800'
+    if (sentiment > 0.3) return 'bg-success-light text-success-dark'
+    if (sentiment < 0) return 'bg-secondary-light text-secondary-dark'
+    return 'bg-warning-light text-warning-dark'
   }
 
   const getHealthMentionBadge = (mention: string) => {
@@ -40,19 +41,19 @@ export default function ConversationHistory({ conversations }: ConversationHisto
   }
 
   return (
-    <div data-testid="conversation-history" className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-6 text-gray-900">Conversation History</h3>
+    <div data-testid="conversation-history" className="card">
+      <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Conversation History</h3>
 
       {/* 30-Day Wellness Graph */}
       <div className="mb-8">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">30-Day Wellness Trend</h4>
+        <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">30-Day Wellness Trend</h4>
         <div 
           data-testid="wellness-graph"
-          className="h-48 bg-gray-50 rounded-lg flex items-center justify-center"
+          className="h-48 bg-neutral rounded-lg flex items-center justify-center"
         >
           <div className="text-center">
-            <p className="text-gray-500 mb-2">[Wellness trend graph showing sentiment over 30 days]</p>
-            <div className="text-sm text-gray-400">
+            <p className="text-text-muted mb-2">[Wellness trend graph showing sentiment over 30 days]</p>
+            <div className="text-sm text-text-muted">
               <p>Average Sentiment: {wellnessData.averageSentiment.toFixed(2)}</p>
               <p>Trend: {wellnessData.trend}</p>
             </div>
@@ -62,36 +63,23 @@ export default function ConversationHistory({ conversations }: ConversationHisto
 
       {/* Word Cloud */}
       <div className="mb-8">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Topic Word Cloud</h4>
-        <div className="flex flex-wrap gap-2">
-          {wordCloudData.slice(0, 20).map((word, i) => (
-            <span
-              key={i}
-              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-              style={{ 
-                fontSize: `${Math.max(12, Math.pow(word.frequency, 0.7) * 3)}px`,
-                opacity: Math.min(1, word.frequency / 3)
-              }}
-            >
-              {word.text}
-            </span>
-          ))}
-        </div>
+        <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Topic Word Cloud</h4>
+        <WordCloud words={wordCloudData} maxWords={20} />
       </div>
 
       {/* Conversation Timeline */}
       <div className="space-y-4">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Recent Conversations</h4>
+        <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Recent Conversations</h4>
         {sortedConversations.map((conv, index) => (
           <div 
             key={index} 
             data-testid="conversation-item"
-            className="border-l-4 border-purple-500 pl-4 py-3 cursor-pointer hover:bg-gray-50 rounded-r-lg transition-colors"
+            className="border-l-4 border-primary pl-4 py-3 cursor-pointer hover:bg-neutral-dark rounded-r-lg transition-normal"
             onClick={() => toggleConversation(index)}
           >
             {/* Conversation Header */}
             <div className="flex justify-between items-start mb-2">
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-primary">
                 {new Date(conv.timestamp).toLocaleDateString('en-US', { 
                   year: 'numeric', 
                   month: 'short', 
@@ -104,12 +92,12 @@ export default function ConversationHistory({ conversations }: ConversationHisto
             </div>
 
             {/* Summary */}
-            <p className="text-sm text-gray-700 mb-2">{conv.summary}</p>
+            <p className="text-sm text-text-muted mb-2">{conv.summary}</p>
 
             {/* Key Topics */}
             <div className="flex flex-wrap gap-1 mb-2">
               {conv.keyTopics?.map((topic, j) => (
-                <span key={j} className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                <span key={j} className="badge-primary text-xs">
                   {topic}
                 </span>
               ))}
@@ -119,7 +107,7 @@ export default function ConversationHistory({ conversations }: ConversationHisto
             {conv.healthMentions && conv.healthMentions.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
                 {conv.healthMentions.map((mention, k) => (
-                  <span key={k} className="text-xs bg-red-50 text-red-800 px-2 py-1 rounded">
+                  <span key={k} className="text-xs bg-secondary-light text-secondary-dark px-2 py-1 rounded">
                     {getHealthMentionBadge(mention)} {mention}
                   </span>
                 ))}
@@ -128,17 +116,17 @@ export default function ConversationHistory({ conversations }: ConversationHisto
 
             {/* Expandable Transcript */}
             {expandedConversation === index && conv.transcript && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <h5 className="text-sm font-semibold text-gray-900 mb-2">Full Transcript:</h5>
+              <div className="mt-3 p-3 bg-neutral rounded-lg">
+                <h5 className="text-sm font-semibold text-primary mb-2">Full Transcript:</h5>
                 <div className="space-y-2">
                   {conv.transcript.map((exchange, l) => (
                     <div key={l} className="text-xs">
                       <span className={`font-medium ${
-                        exchange.role === 'senior' ? 'text-blue-600' : 'text-green-600'
+                        exchange.role === 'senior' ? 'text-primary' : 'text-success'
                       }`}>
                         {exchange.role === 'senior' ? 'Mrs. Chen' : 'Sam'}:
                       </span>
-                      <span className="ml-2 text-gray-700">{exchange.content}</span>
+                      <span className="ml-2 text-text-muted">{exchange.content}</span>
                     </div>
                   ))}
                 </div>
@@ -146,7 +134,7 @@ export default function ConversationHistory({ conversations }: ConversationHisto
             )}
 
             {/* Click indicator */}
-            <div className="text-xs text-gray-400 mt-1">
+            <div className="text-xs text-text-muted mt-1">
               {expandedConversation === index ? 'Click to collapse' : 'Click to expand transcript'}
             </div>
           </div>

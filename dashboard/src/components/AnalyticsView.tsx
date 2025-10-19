@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { SeniorProfile, Analytics } from '../types'
 import { apiClient } from '../services/api-client'
+import WordCloud from './WordCloud'
 
 export default function AnalyticsView() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -36,25 +37,25 @@ export default function AnalyticsView() {
   const wordCloudData = generateWordCloud(profile.conversations)
 
   return (
-    <div data-testid="analytics-view" className="space-y-6">
+    <div data-testid="analytics-view" className="space-y-6 projector-optimized">
       {/* Holistic Wellness Score */}
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h3 className="text-2xl font-semibold mb-6 text-center text-gray-900">
+      <div className="card projector-spacing">
+        <h3 className="text-2xl projector-text-2xl font-semibold card-section text-center text-primary">
           Holistic Wellness Score
         </h3>
 
         {/* Big Score Display */}
-        <div className="text-center mb-8">
-          <div className="text-6xl font-bold text-blue-600 mb-2">
+        <div className="text-center card-section">
+          <div className="text-6xl projector-text-3xl font-bold text-primary mb-2">
             {holisticScore}/100
           </div>
           <div className="w-64 h-64 mx-auto">
             {/* Radial progress indicator - simplified as percentage bar */}
             <div className="relative pt-1">
-              <div className="overflow-hidden h-4 mb-4 text-xs flex rounded bg-gray-200">
+              <div className="overflow-hidden h-4 mb-4 text-xs flex rounded bg-neutral-dark">
                 <div
                   style={{ width: `${holisticScore}%` }}
-                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-green-500"
+                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-primary to-success transition-all duration-500"
                 />
               </div>
             </div>
@@ -63,26 +64,26 @@ export default function AnalyticsView() {
 
         {/* Breakdown */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">Breakdown:</h4>
+          <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Breakdown:</h4>
 
           {/* Mental Health */}
-          <div className="border-l-4 border-blue-500 pl-4">
+          <div className="border-l-4 border-primary pl-4">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-900">Mental Health</span>
-              <span className="text-blue-600 font-bold">↑ 42%</span>
+              <span className="font-medium text-primary">Mental Health</span>
+              <span className="text-primary font-bold">↑ 42%</span>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-text-muted">
               {analytics.totalConversations} conversations
             </p>
           </div>
 
           {/* Physical Health */}
-          <div className="border-l-4 border-green-500 pl-4">
+          <div className="border-l-4 border-success pl-4">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-900">Physical</span>
-              <span className="text-green-600 font-bold">{analytics.totalHealthNotes} health notes</span>
+              <span className="font-medium text-primary">Physical</span>
+              <span className="text-success font-bold">{analytics.totalHealthNotes} health notes</span>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-text-muted">
               {profile.healthData.notes.filter((n: any) => {
                 const weekAgo = new Date()
                 weekAgo.setDate(weekAgo.getDate() - 7)
@@ -92,25 +93,25 @@ export default function AnalyticsView() {
           </div>
 
           {/* Social Health */}
-          <div className="border-l-4 border-purple-500 pl-4">
+          <div className="border-l-4 border-secondary pl-4">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-900">Social</span>
-              <span className="text-purple-600 font-bold">
+              <span className="font-medium text-primary">Social</span>
+              <span className="text-secondary font-bold">
                 {analytics.totalMatches} matches, {profile.groups.length} groups
               </span>
             </div>
-            <p className="text-sm text-gray-600">Community growing</p>
+            <p className="text-sm text-text-muted">Community growing</p>
           </div>
         </div>
 
         {/* 30-Day Trend Graph */}
         <div className="mt-8">
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">30-Day Wellness Trend</h4>
-          <div className="h-64 bg-gray-50 rounded-lg relative flex items-center justify-center">
+          <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">30-Day Wellness Trend</h4>
+          <div className="h-64 bg-neutral rounded-lg relative flex items-center justify-center">
             {/* Recharts implementation would go here - using placeholder for now */}
             <div className="text-center">
-              <p className="text-gray-500 mb-4">[Recharts line chart with 3 lines: mental, physical, social]</p>
-              <div className="text-sm text-gray-400">
+              <p className="text-text-muted mb-4">[Recharts line chart with 3 lines: mental, physical, social]</p>
+              <div className="text-sm text-text-muted">
                 <p>Mental Health: 82/100 (↑ improving)</p>
                 <p>Physical Health: 75/100 (→ stable)</p>
                 <p>Social Health: 85/100 (↑ improving)</p>
@@ -118,57 +119,57 @@ export default function AnalyticsView() {
             </div>
             
             {/* Annotations for significant events */}
-            <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-300 rounded px-2 py-1 text-xs">
-              <div className="font-semibold">Family visit</div>
-              <div className="text-gray-600">Jan 10</div>
+            <div className="absolute top-4 left-4 bg-warning-light border border-warning rounded px-2 py-1 text-xs">
+              <div className="font-semibold text-warning-dark">Family visit</div>
+              <div className="text-warning-dark">Jan 10</div>
             </div>
-            <div className="absolute top-4 right-4 bg-green-100 border border-green-300 rounded px-2 py-1 text-xs">
-              <div className="font-semibold">Started medication</div>
-              <div className="text-gray-600">Jan 15</div>
+            <div className="absolute top-4 right-4 bg-success-light border border-success rounded px-2 py-1 text-xs">
+              <div className="font-semibold text-success-dark">Started medication</div>
+              <div className="text-success-dark">Jan 15</div>
             </div>
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-100 border border-blue-300 rounded px-2 py-1 text-xs">
-              <div className="font-semibold">Community match</div>
-              <div className="text-gray-600">Jan 20</div>
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary-light border border-primary rounded px-2 py-1 text-xs">
+              <div className="font-semibold text-primary-dark">Community match</div>
+              <div className="text-primary-dark">Jan 20</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Call Analytics */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">Call Analytics</h3>
+      <div className="card">
+        <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Call Analytics</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{analytics.totalConversations}</div>
-            <div className="text-sm text-gray-600">Total Conversations</div>
+            <div className="text-2xl projector-text-2xl font-bold text-primary">{analytics.totalConversations}</div>
+            <div className="text-sm text-text-muted">Total Conversations</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">8.5 min</div>
-            <div className="text-sm text-gray-600">Average Duration</div>
+            <div className="text-2xl projector-text-2xl font-bold text-success">8.5 min</div>
+            <div className="text-sm text-text-muted">Average Duration</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">2-4pm</div>
-            <div className="text-sm text-gray-600">Peak Hours</div>
+            <div className="text-2xl projector-text-2xl font-bold text-secondary">2-4pm</div>
+            <div className="text-sm text-text-muted">Peak Hours</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">60/40</div>
-            <div className="text-sm text-gray-600">English/Mandarin</div>
+            <div className="text-2xl projector-text-2xl font-bold text-warning">60/40</div>
+            <div className="text-sm text-text-muted">English/Mandarin</div>
           </div>
         </div>
         
         {/* Peak Hours Heatmap */}
         <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">Peak Hours Heatmap</h4>
+          <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Peak Hours Heatmap</h4>
           <div className="grid grid-cols-12 gap-1">
             {Array.from({ length: 24 }, (_, hour) => (
               <div
                 key={hour}
-                className={`h-8 rounded text-xs flex items-center justify-center ${
+                className={`h-8 rounded text-xs flex items-center justify-center transition-all duration-300 ${
                   hour >= 14 && hour <= 16 
-                    ? 'bg-red-500 text-white' 
+                    ? 'bg-secondary text-white' 
                     : hour >= 10 && hour <= 18 
-                    ? 'bg-yellow-400 text-gray-800' 
-                    : 'bg-gray-200 text-gray-600'
+                    ? 'bg-warning text-text' 
+                    : 'bg-neutral-dark text-text-muted'
                 }`}
                 title={`${hour}:00`}
               >
@@ -176,7 +177,7 @@ export default function AnalyticsView() {
               </div>
             ))}
           </div>
-          <div className="flex justify-between text-xs text-gray-600 mt-2">
+          <div className="flex justify-between text-xs text-text-muted mt-2">
             <span>12am</span>
             <span>6am</span>
             <span>12pm</span>
@@ -187,73 +188,63 @@ export default function AnalyticsView() {
 
         {/* Language Distribution Pie Chart */}
         <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">Language Distribution</h4>
+          <h4 className="text-lg projector-text-lg font-semibold text-primary card-section">Language Distribution</h4>
           <div className="flex items-center justify-center">
             <div className="relative w-32 h-32">
-              <div className="absolute inset-0 rounded-full border-8 border-blue-500" style={{ clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)' }}></div>
-              <div className="absolute inset-0 rounded-full border-8 border-green-500" style={{ clipPath: 'polygon(50% 50%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)' }}></div>
-              <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-8 border-primary" style={{ clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)' }}></div>
+              <div className="absolute inset-0 rounded-full border-8 border-success" style={{ clipPath: 'polygon(50% 50%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)' }}></div>
+              <div className="absolute inset-4 bg-background rounded-full flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-lg font-bold">60/40</div>
-                  <div className="text-xs text-gray-600">EN/MN</div>
+                  <div className="text-lg font-bold text-primary">60/40</div>
+                  <div className="text-xs text-text-muted">EN/MN</div>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex justify-center gap-4 mt-2">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span className="text-sm">English 60%</span>
+              <div className="w-3 h-3 bg-primary rounded"></div>
+              <span className="text-sm text-text-muted">English 60%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span className="text-sm">Mandarin 40%</span>
+              <div className="w-3 h-3 bg-success rounded"></div>
+              <span className="text-sm text-text-muted">Mandarin 40%</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Topic Word Cloud */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">Topic Word Cloud</h3>
-        <div className="flex flex-wrap gap-2">
-          {wordCloudData.map((word, i) => (
-            <span
-              key={i}
-              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-              style={{ fontSize: `${Math.max(12, Math.pow(word.frequency, 0.7) * 3)}px` }}
-            >
-              {word.text}
-            </span>
-          ))}
-        </div>
+      <div className="card">
+        <h3 className="text-xl projector-text-xl font-semibold card-section text-primary">Topic Word Cloud</h3>
+        <WordCloud words={wordCloudData} maxWords={50} />
       </div>
 
       {/* Additional Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           value={analytics.totalConversations}
           label="Total Calls"
           icon="📞"
-          color="blue"
+          color="primary"
         />
         <MetricCard
           value={`+${Math.round(mentalScore)}%`}
           label="Mood"
           icon="😊"
-          color="green"
+          color="success"
         />
         <MetricCard
           value={analytics.totalHealthNotes}
           label="Health Notes"
           icon="🩺"
-          color="red"
+          color="secondary"
         />
         <MetricCard
           value={analytics.totalMatches}
           label="Matches"
           icon="👥"
-          color="purple"
+          color="warning"
         />
       </div>
     </div>
@@ -262,17 +253,17 @@ export default function AnalyticsView() {
 
 function MetricCard({ value, label, icon, color }: any) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-900 border-blue-200',
-    green: 'bg-green-50 text-green-900 border-green-200',
-    red: 'bg-red-50 text-red-900 border-red-200',
-    purple: 'bg-purple-50 text-purple-900 border-purple-200'
+    primary: 'bg-primary-light text-primary-dark border-primary',
+    success: 'bg-success-light text-success-dark border-success',
+    secondary: 'bg-secondary-light text-secondary-dark border-secondary',
+    warning: 'bg-warning-light text-warning-dark border-warning'
   }
 
   return (
-    <div className={`${colorClasses[color]} rounded-lg border p-4 text-center`}>
+    <div className={`${colorClasses[color]} rounded-lg border p-4 text-center transition-all duration-300 hover:scale-105`}>
       <div className="text-3xl mb-2">{icon}</div>
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-sm">{label}</div>
+      <div className="text-2xl projector-text-2xl font-bold">{value}</div>
+      <div className="text-sm text-text-muted">{label}</div>
     </div>
   )
 }
