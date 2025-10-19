@@ -23,8 +23,8 @@ import {
 // Mock environment for testing
 const mockEnv = {
   KV: {
-    get: async (key: string) => null,
-    put: async (key: string, value: string) => {},
+    get: async (_key: string) => null,
+    put: async (_key: string, _value: string) => {},
   }
 } as any;
 
