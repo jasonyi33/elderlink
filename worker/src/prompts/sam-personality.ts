@@ -103,44 +103,38 @@ function buildSamResponsePrompt(
   const condition = profile.healthData.conditions?.[0];
 
   // HEALTH CHECK PROMPT (separate, focused)
+  // Prose format reduces numbered list hallucinations
   if (shouldCheckHealth && (med || condition)) {
-    return `
-You are Sam, a warm AI companion checking on ${profile.name}'s health.
+    return `You are Sam, a warm AI companion for ${profile.name}.
 
 ${profile.name} just said: "${seniorMessage}"
 
-Instructions:
-1. Acknowledge what they said briefly
-2. Ask about ONE health topic: ${med ? `Did they take their ${med.name}?` : condition ? `How is their ${condition.name}?` : 'How are they feeling?'}
-3. Under 30 words total
-4. Sound caring, not clinical
-5. ${currentLanguage === 'mandarin' ? 'Respond in Mandarin Chinese' : 'Respond in English'}
+Respond in under 30 words by warmly acknowledging what they said, then ask about their health: ${med ? `Did they take their ${med.name}?` : condition ? `How is their ${condition.name}?` : 'How are they feeling?'}
 
-Your response:`;
+Sound caring and natural, not clinical. ${currentLanguage === 'mandarin' ? 'Speak in Mandarin Chinese.' : 'Speak in English.'}
+
+Begin your response now (speak naturally, no labels or formatting):
+`;
   }
 
   // REGULAR CONVERSATION PROMPT (simplified, focused)
-  return `
-You are Sam, a warm AI companion talking to ${profile.name} (age ${profile.age}).
+  // Direct instructions reduce meta-text generation
+  return `You are Sam, a warm AI companion for ${profile.name} (age ${profile.age}).
 
-What you know about ${profile.name}:
-- Family: ${profile.memories.family.map((f: any) => `${f.name} (${f.relationship})`).join(', ') || 'none yet'}
-- Enjoys: ${profile.memories.hobbies.join(', ') || 'learning about them'}
-- Recent: ${profile.memories.recentEvents?.[0] || 'just getting to know them'}
+What you know:
+Family: ${profile.memories.family.map((f: any) => `${f.name} (${f.relationship})`).join(', ') || 'none yet'}
+Enjoys: ${profile.memories.hobbies.join(', ') || 'learning about them'}
+Recent: ${profile.memories.recentEvents?.[0] || 'just getting to know them'}
 
 Previous conversations:
 ${recentExchanges}
 
 ${profile.name} just said: "${seniorMessage}"
 
-Instructions:
-1. Reference ONE specific detail you know about them naturally
-2. Respond warmly to what they said
-3. Ask ONE follow-up question
-4. Under 30 words total
-5. ${currentLanguage === 'mandarin' ? 'Respond in Mandarin Chinese' : 'Respond in English'}
+Respond in under 30 words by naturally referencing one specific detail you know about them, warmly responding to what they said, and asking one follow-up question. ${currentLanguage === 'mandarin' ? 'Speak in Mandarin Chinese.' : 'Speak in English.'}
 
-Your warm response:`;
+Begin your response now (speak naturally, no labels or formatting):
+`;
 }
 
 // Helper function to format conversation history for prompt
@@ -198,14 +192,18 @@ function sanitizeForSpeech(text: string): string {
     .replace(/\*([^*]+)\*/g, '$1')      // *italic*
     .replace(/`([^`]+)`/g, '$1')        // `code`
     .replace(/~~([^~]+)~~/g, '$1')      // ~~strikethrough~~
+    // Remove numbered lists and bullet points
+    .replace(/^\d+\.\s+/gm, '')         // 1. 2. 3.
+    .replace(/^[•\-\*]\s+/gm, '')       // • - *
     // Remove meta-instructions (common patterns from LLMs)
     .replace(/^\[.*?\]:\s*/gm, '')      // [In Mandarin]:
     .replace(/^(Here's|Here is|Response|Note|This is):\s*/gmi, '')
     .replace(/\(.*?sentences?\)/gi, '') // (2 sentences)
     .replace(/^(Sam says?|Sam responds?|Sam replies?):\s*/gmi, '') // Sam says:
+    .replace(/^(Begin|Starting|Now):\s*/gmi, '') // Begin: Now:
     // Remove code blocks
     .replace(/```[\s\S]*?```/g, '')
-    // Remove JSON objects
+    // Remove JSON objects (aggressive but safe - Sam doesn't use curly braces in natural speech)
     .replace(/\{[\s\S]*?\}/g, '')
     // Remove excessive whitespace
     .replace(/\s+/g, ' ')
