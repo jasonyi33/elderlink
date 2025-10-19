@@ -2,7 +2,7 @@
   "name": "Sam - ElderLink AI Companion",
   "model": {
     "provider": "custom-llm",
-    "url": "https://elderlink.workers.dev/vapi-webhook",
+    "url": "https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook",
     "temperature": 0.7,
     "messages": [
       {

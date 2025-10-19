@@ -233,7 +233,7 @@ Call Flow with Custom LLM:
        │ Sends transcript to:
        ▼
 ┌─────────────────────────────┐
-│  Custom LLM Webhook         │  elderlink.workers.dev/vapi-webhook
+│  Custom LLM Webhook         │  elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
 │  (Your Cloudflare Worker)   │  Generates Sam's response
 └──────┬──────────────────────┘
        │ Returns response to:
@@ -289,14 +289,14 @@ Call Flow with Custom LLM:
 
    **Server URL:**
    ```
-   https://elderlink.workers.dev/vapi-webhook
+   https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
    ```
 
    **⚠️ CRITICAL:**
-   - Replace `elderlink.workers.dev` with YOUR actual Worker URL
-   - Developer 2 should provide this URL by Hour 2
+   - This is the actual Worker URL for ElderLink
    - URL must be HTTPS (not HTTP)
    - URL must be publicly accessible
+   - Verify this URL is working before configuring assistant
 
    **Model Name:** (Optional, can be anything)
    ```
@@ -408,7 +408,7 @@ Call Flow with Custom LLM:
 
    **For ElderLink, set BOTH to:**
    ```
-   https://elderlink.workers.dev/vapi-webhook
+   https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
    ```
 
 3. **Server Messages** (What events to send to your webhook)
@@ -549,7 +549,7 @@ Call Flow with Custom LLM:
 
 ```bash
 # Test webhook is reachable
-curl -X POST https://elderlink.workers.dev/vapi-webhook \
+curl -X POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook \
   -H "Content-Type: application/json" \
   -d '{
     "message": {
@@ -575,7 +575,7 @@ curl -X POST https://elderlink.workers.dev/vapi-webhook \
 
 ```bash
 # Measure response time (should be <3 seconds)
-time curl -X POST https://elderlink.workers.dev/vapi-webhook \
+time curl -X POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook \
   -H "Content-Type: application/json" \
   -d '{"message":{"role":"user","content":"Hello"}}'
 
@@ -684,13 +684,13 @@ time curl -X POST https://elderlink.workers.dev/vapi-webhook \
 1. **Check Webhook URL**
    ```bash
    # In Vapi dashboard, verify:
-   # Model → Server URL = https://elderlink.workers.dev/vapi-webhook
-   # Advanced → Server URL = https://elderlink.workers.dev/vapi-webhook
+   # Model → Server URL = https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
+   # Advanced → Server URL = https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
    ```
 
 2. **Test Webhook Directly**
    ```bash
-   curl -v -X POST https://elderlink.workers.dev/vapi-webhook \
+   curl -v -X POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook \
      -H "Content-Type: application/json" \
      -d '{"message":{"role":"user","content":"test"}}'
 
@@ -728,7 +728,7 @@ time curl -X POST https://elderlink.workers.dev/vapi-webhook \
    ```bash
    npm run test:latency
    # OR
-   time curl -X POST https://elderlink.workers.dev/vapi-webhook ...
+   time curl -X POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook ...
    ```
 
 2. **Check Gemini API Performance**
@@ -852,7 +852,7 @@ time curl -X POST https://elderlink.workers.dev/vapi-webhook \
 
 1. **Verify Profile Exists**
    ```bash
-   curl https://elderlink.workers.dev/api/profiles/mrs-chen
+   curl https://elderlink-dev.elderlinkhelper.workers.dev/api/profiles/mrs-chen
 
    # Should return:
    # {
@@ -910,7 +910,7 @@ Before proceeding to next tasks, verify ALL of these:
 
 ### Assistant Configuration
 - [ ] Assistant "Sam - ElderLink AI Companion" created
-- [ ] Custom LLM webhook URL set: `https://elderlink.workers.dev/vapi-webhook`
+- [ ] Custom LLM webhook URL set: `https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook`
 - [ ] ElevenLabs voice configured (multilingual model)
 - [ ] Deepgram transcriber configured with keywords
 - [ ] Advanced settings: timeouts, end-call phrases, recording enabled

@@ -25,7 +25,7 @@ Phone Call Flow:
          ▼
 ┌──────────────────────────┐
 │  Cloudflare Worker       │
-│  elderlink.workers.dev   │
+│  elderlink-dev.elderlinkhelper.workers.dev   │
 │                          │
 │  - Sam Response Gen      │ 5. Generate response (<3s)
 │  - Memory Extraction     │ 6. Extract memories (async)
@@ -50,7 +50,7 @@ Phone Call Flow:
 
 ### URL
 ```
-POST https://elderlink.workers.dev/vapi-webhook
+POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook
 ```
 
 ### Request Format (from Vapi)
@@ -125,7 +125,7 @@ Ensure your worker is deployed and accessible:
 npm run deploy:prod
 
 # Verify deployment
-curl https://elderlink.workers.dev/health
+curl https://elderlink-dev.elderlinkhelper.workers.dev/health
 # Should return: {"status":"healthy"}
 ```
 
@@ -141,7 +141,7 @@ curl https://elderlink.workers.dev/health
 
 3. **Configure Custom LLM**
    - Model Provider: "Custom LLM"
-   - Webhook URL: `https://elderlink.workers.dev/vapi-webhook`
+   - Webhook URL: `https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook`
    - Method: POST
    - Authentication: None (Worker uses VAPI_API_KEY for verification)
 
@@ -190,7 +190,7 @@ curl https://elderlink.workers.dev/health
 
 ```http
 POST /vapi-webhook HTTP/1.1
-Host: elderlink.workers.dev
+Host: elderlink-dev.elderlinkhelper.workers.dev
 Content-Type: application/json
 X-Vapi-Call-ID: call_abc123
 X-Vapi-Assistant-ID: asst_abc123xyz
@@ -244,7 +244,7 @@ if (elapsedTime > SAFETY_TIMEOUT) {
 
 ## Testing Checklist
 
-- [ ] Worker deployed and accessible at `https://elderlink.workers.dev`
+- [ ] Worker deployed and accessible at `https://elderlink-dev.elderlinkhelper.workers.dev`
 - [ ] `/health` endpoint returns `{"status":"healthy"}`
 - [ ] `/vapi-webhook` endpoint exists (returns 400 on GET)
 - [ ] Vapi assistant created with correct config
@@ -288,7 +288,7 @@ wrangler tail --env production | grep VAPI
 ```bash
 # Check response times
 curl -w "\nTime: %{time_total}s\n" \
-  -X POST https://elderlink.workers.dev/vapi-webhook \
+  -X POST https://elderlink-dev.elderlinkhelper.workers.dev/vapi-webhook \
   -H "Content-Type: application/json" \
   -d '{"message":{"content":"Hello","role":"user"}}'
 
@@ -366,7 +366,7 @@ if (vapiAssistantId !== env.VAPI_ASSISTANT_ID) {
 ### Issue: No response from Sam
 
 **Check:**
-1. Worker is deployed: `curl https://elderlink.workers.dev/health`
+1. Worker is deployed: `curl https://elderlink-dev.elderlinkhelper.workers.dev/health`
 2. Webhook URL is correct in Vapi dashboard
 3. Assistant is assigned to phone number
 4. Worker logs for errors: `wrangler tail`
