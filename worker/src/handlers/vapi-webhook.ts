@@ -13,6 +13,7 @@ import { SeniorProfile } from '../types';
 import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-service';
 import { createHealthNote, appendHealthNote, extractVitals } from '../services/health-service';
 import { recalculateMatches } from '../services/matching-service';
+import { detectAndCreateAlert, storeAlert } from '../services/alert-service';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
 import { generateSamResponse } from '../../../prompts/sam-personality';
@@ -279,6 +280,14 @@ async function backgroundProcessing(
         lastUpdated: new Date().toISOString()
       };
       console.log('[HEALTH] Updated vitals:', vitals);
+    }
+
+    // 5b. Detect Crisis and Create Alerts - PRD lines 580-584
+    // Check for medical emergencies, suicide ideation, severe depression
+    const alert = await detectAndCreateAlert(message, profile, env);
+    if (alert) {
+      console.log('[ALERT] Crisis detected:', alert.type, 'severity:', alert.severity);
+      await storeAlert(profile.id, alert, env);
     }
 
     // 6. Update Conversation History
