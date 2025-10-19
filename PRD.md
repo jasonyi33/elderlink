@@ -688,7 +688,7 @@ const FALLBACK_TOPICS = [
 ┌──────────────────────────────────────┐
 │         VAPI.AI PLATFORM             │
 │  • Phone connection                  │
-│  • Speech-to-text (Deepgram)         │
+│  • Speech-to-text (ElevenLabs)       │
 │  • Text-to-speech (ElevenLabs)       │
 │  • NATIVE language detection         │
 └──────────────────────────────────────┘
@@ -2749,7 +2749,7 @@ wrangler kv:namespace create "ELDERLINK_KV" --preview
    Name: Sam Companion
    Voice Provider: ElevenLabs
    Voice ID: [your selected voice]
-   Transcriber: Deepgram Nova-2
+   Transcriber: ElevenLabs (Whisper)
 
    CRITICAL - Custom LLM:
    Provider: Custom

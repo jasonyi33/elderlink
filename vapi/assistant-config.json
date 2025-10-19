@@ -18,11 +18,9 @@
     "optimizeStreamingLatency": 3
   },
   "transcriber": {
-    "provider": "deepgram",
-    "model": "nova-2",
-    "language": "en-US",
-    "smartFormat": true,
-    "keywords": ["Chen:2", "Sarah:2", "Tommy:2", "gardening", "piano", "Lisinopril:2", "Metformin:2", "arthritis"]
+    "provider": "talkscriber",
+    "model": "whisper",
+    "language": "en"
   },
   "firstMessage": "Hello! This is Sam. Who am I speaking with today?",
   "endCallMessage": "It was wonderful talking with you. Take care!",
