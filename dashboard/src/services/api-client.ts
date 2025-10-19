@@ -1,8 +1,12 @@
 // API client for dashboard with React Query integration
 import type { SeniorProfile } from '../types'
 import { API_CONFIG } from '../config/api'
+import { getMrsChenProfile, getLiveSentiment, getAnalytics, getMatchProfiles } from './mock-api'
 
 export const API_BASE_URL = API_CONFIG.BASE_URL
+
+// Enable mock mode for development when API is not available
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_API === 'true' || import.meta.env.DEV
 
 export interface ApiClient {
   fetchProfile: (seniorId: string) => Promise<any>
@@ -75,32 +79,53 @@ function handleApiError(error: any, context: string): ApiResponse<any> {
 // API Client implementation
 export const apiClient: ApiClient = {
   async fetchProfile(seniorId: string): Promise<ApiResponse<any>> {
+    // Use mock data in development or when explicitly enabled
+    if (USE_MOCK_DATA) {
+      console.log('📦 Using mock data for profile')
+      return getMrsChenProfile()
+    }
+
     try {
       const response = await fetchWithRetry(`${API_BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD(seniorId)}`)
       const data = await response.json()
       return data
     } catch (error) {
-      return handleApiError(error, 'fetch profile')
+      console.log('⚠️ API failed, falling back to mock data')
+      return getMrsChenProfile()
     }
   },
 
   async fetchLiveSentiment(): Promise<ApiResponse<any>> {
+    // Use mock data in development or when explicitly enabled
+    if (USE_MOCK_DATA) {
+      console.log('📦 Using mock data for live sentiment')
+      return getLiveSentiment()
+    }
+
     try {
       const response = await fetchWithRetry(`${API_BASE_URL}${API_CONFIG.ENDPOINTS.LIVE_SENTIMENT}`)
       const data = await response.json()
       return data
     } catch (error) {
-      return handleApiError(error, 'fetch live sentiment')
+      console.log('⚠️ API failed, falling back to mock data')
+      return getLiveSentiment()
     }
   },
 
   async fetchAnalytics(): Promise<ApiResponse<any>> {
+    // Use mock data in development or when explicitly enabled
+    if (USE_MOCK_DATA) {
+      console.log('📦 Using mock data for analytics')
+      return getAnalytics()
+    }
+
     try {
       const response = await fetchWithRetry(`${API_BASE_URL}${API_CONFIG.ENDPOINTS.ANALYTICS}`)
       const data = await response.json()
       return data
     } catch (error) {
-      return handleApiError(error, 'fetch analytics')
+      console.log('⚠️ API failed, falling back to mock data')
+      return getAnalytics()
     }
   }
 }

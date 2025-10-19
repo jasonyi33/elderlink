@@ -8,7 +8,7 @@ export const API_CONFIG = {
   
   // Current environment
   get BASE_URL() {
-    return process.env.VITE_API_BASE_URL || this.PRODUCTION_URL
+    return import.meta.env.VITE_API_BASE_URL || this.PRODUCTION_URL
   },
   
   // API Endpoints
