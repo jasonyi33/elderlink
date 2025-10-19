@@ -9,49 +9,22 @@
  */
 
 import { MOCK_MRS_CHEN } from './fixtures';
-import { SeniorProfile } from '../src/types';
-
-// Functions to be implemented in src/services/health-service.ts
-declare function createHealthNote(
-  healthMentions: any[],
-  profile: SeniorProfile
-): {
-  timestamp: string;
-  source: string;
-  note: string;
-  mentions: any[];
-};
-
-declare function appendHealthNote(
-  profile: SeniorProfile,
-  note: any
-): SeniorProfile;
-
-declare function generateHealthCheckIn(
-  profile: SeniorProfile,
-  type: 'medication' | 'condition' | 'appointment'
-): string;
-
-declare function getNextAppointment(
-  profile: SeniorProfile
-): { date: string; time: string; type: string; doctor: string } | null;
-
-declare function extractVitals(
-  message: string
-): {
-  bloodPressure?: string;
-  weight?: string;
-  bloodSugar?: string;
-} | null;
+import {
+  createHealthNote,
+  appendHealthNote,
+  generateHealthCheckIn,
+  getNextAppointment,
+  extractVitals
+} from '../src/services/health-service';
 
 describe('Health Service', () => {
   describe('Create Health Note', () => {
     test('creates note from symptom mention', () => {
       const healthMentions = [{
-        type: 'symptom',
+        type: 'symptom' as const,
         text: 'back pain',
         context: 'gardening',
-        severity: 'mild'
+        severity: 'mild' as const
       }];
 
       const note = createHealthNote(healthMentions, MOCK_MRS_CHEN);
@@ -66,9 +39,9 @@ describe('Health Service', () => {
 
     test('creates note from medication non-adherence', () => {
       const healthMentions = [{
-        type: 'medication',
+        type: 'medication' as const,
         text: 'forgot morning pills',
-        status: 'non-adherent'
+        status: 'non-adherent' as const
       }];
 
       const note = createHealthNote(healthMentions, MOCK_MRS_CHEN);
@@ -79,8 +52,8 @@ describe('Health Service', () => {
 
     test('multiple health mentions in single note', () => {
       const healthMentions = [
-        { type: 'symptom', text: 'back pain', severity: 'mild' },
-        { type: 'medication', text: 'took Lisinopril', status: 'adherent' }
+        { type: 'symptom' as const, text: 'back pain', severity: 'mild' as const },
+        { type: 'medication' as const, text: 'took Lisinopril', status: 'adherent' as const }
       ];
 
       const note = createHealthNote(healthMentions, MOCK_MRS_CHEN);
@@ -102,9 +75,9 @@ describe('Health Service', () => {
       };
 
       const newNote = createHealthNote([{
-        type: 'symptom',
+        type: 'symptom' as const,
         text: 'headache',
-        severity: 'mild'
+        severity: 'mild' as const
       }], profile);
 
       const updated = appendHealthNote(profile, newNote);
@@ -122,7 +95,7 @@ describe('Health Service', () => {
         }
       };
 
-      const newNote = createHealthNote([{ type: 'symptom', text: 'test' }], profile);
+      const newNote = createHealthNote([{ type: 'symptom' as const, text: 'test' }], profile);
       const updated = appendHealthNote(profile, newNote);
 
       expect(updated.healthData.notes.length).toBe(10);
