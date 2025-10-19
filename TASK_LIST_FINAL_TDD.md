@@ -742,38 +742,45 @@ Every task follows this **7-step TDD process**:
 
 ---
 
-#### 3.7 Wellness Metrics Service (TDD)
+#### 3.7 Wellness Metrics Service (TDD) ✅ **COMPLETED**
 
 **3.7a: WRITE TESTS**
-- [ ] Create `src/services/wellness-service.test.ts`
-- [ ] Write test: "converts sentiment -1 to +1 into 0 to 100" (5 test cases for -1, -0.5, 0, 0.5, 1)
-- [ ] Write test: "calculates average from recent conversations"
-- [ ] Write test: "matches contribute 10 points each to social score"
-- [ ] Write test: "groups contribute 20 points each to social score"
-- [ ] Write test: "combined: matches*10 + groups*20"
-- [ ] Write test: "social score capped at 100"
-- [ ] Write test: "holistic weighted average: mental*40% + physical*30% + social*30%"
-- [ ] Write test: "all metrics at 100 gives 100"
-- [ ] Write test: "all metrics at 0 gives 0"
-- [ ] Write test: "improving trend (first half < second half)"
-- [ ] Write test: "declining trend (first half > second half)"
-- [ ] Write test: "stable trend (difference < threshold)"
-- [ ] Write test: "handles empty conversation history"
-- [ ] Write test: "handles single conversation"
-- [ ] **Reference**: TDD_TEST_CASES.md Section 5.1
+- [x] Create `src/services/wellness-service.test.ts`
+- [x] Write test: "converts sentiment -1 to +1 into 0 to 100" (5 test cases for -1, -0.5, 0, 0.5, 1)
+- [x] Write test: "calculates average from recent conversations"
+- [x] Write test: "matches contribute 10 points each to social score"
+- [x] Write test: "groups contribute 20 points each to social score"
+- [x] Write test: "combined: matches*10 + groups*20"
+- [x] Write test: "social score capped at 100"
+- [x] Write test: "holistic weighted average: mental*40% + physical*30% + social*30%"
+- [x] Write test: "all metrics at 100 gives 100"
+- [x] Write test: "all metrics at 0 gives 0"
+- [x] Write test: "improving trend (first half < second half)"
+- [x] Write test: "declining trend (first half > second half)"
+- [x] Write test: "stable trend (difference < threshold)"
+- [x] Write test: "handles empty conversation history"
+- [x] Write test: "handles single conversation"
+- [x] **Reference**: TDD_TEST_CASES.md Section 5.1
 
 **3.7b-g: FOLLOW TDD WORKFLOW**
-- [ ] Confirm 14 tests fail
-- [ ] Commit failing tests: `git commit -m "Add wellness metrics tests (14 tests, all failing)"`
-- [ ] Implement `src/services/wellness-service.ts`:
-  - `calculateMentalScore(sentiment)`: (sentiment + 1) * 50
-  - `calculateSocialScore({matchesMade, groupsJoined})`: min(100, matches*10 + groups*20)
-  - `calculateHolisticScore(wellnessMetrics)`: weighted average
-  - `calculateTrend(conversations)`: "improving" | "declining" | "stable" | "insufficient_data"
-  - `updateWellnessMetrics(profile)`: Updates all metrics in profile object
-- [ ] Iterate until all 14 tests pass
-- [ ] Verify with subagent: test with 10 different wellness scenarios
-- [ ] Commit implementation: `git commit -m "Implement wellness metrics (14/14 tests passing)"`
+- [x] Confirm 14 tests fail (19 tests total)
+- [x] Commit failing tests: `git commit -m "Add wellness metrics tests (14 tests, all failing)"` ✅
+- [x] Implement `src/services/wellness-service.ts` (200 lines):
+  - `calculateMentalScore(sentiment)`: (sentiment + 1) * 50 ✅
+  - `calculateSocialScore({matchesMade, groupsJoined})`: min(100, matches*10 + groups*20) ✅
+  - `calculateHolisticScore(wellnessMetrics)`: weighted average ✅
+  - `calculateTrend(conversations)`: "improving" | "declining" | "stable" | "insufficient_data" ✅
+  - `updateWellnessMetrics(profile)`: Updates all metrics in profile object ✅
+- [x] Iterate until all 19 tests pass ✅ 100%
+- [x] Verify with 10 verification tests ✅ 100%
+- [x] Commit implementation: `git commit -m "Implement wellness metrics (19/19 tests passing)"` ✅
+
+**3.7h: INTEGRATE WITH WEBHOOK** ✅
+- [x] Import in vapi-webhook.ts
+- [x] Call updateWellnessMetrics() in backgroundProcessing()
+- [x] Deploy to production ✅
+
+**Status:** ✅ COMPLETE (100%)
 
 ---
 

@@ -501,55 +501,69 @@ You are the **Backend API & Services** developer responsible for:
 
 ---
 
-### 3.7 Wellness Metrics Service (TDD)
+### 3.7 Wellness Metrics Service (TDD) ✅ **COMPLETED**
 
 **3.7a: WRITE TESTS**
-- [ ] Create `src/services/wellness-service.test.ts`
-- [ ] Write test: "converts sentiment -1 to +1 into 0 to 100" (5 test cases for -1, -0.5, 0, 0.5, 1)
-- [ ] Write test: "calculates average from recent conversations"
-- [ ] Write test: "matches contribute 10 points each to social score"
-- [ ] Write test: "groups contribute 20 points each to social score"
-- [ ] Write test: "combined: matches*10 + groups*20"
-- [ ] Write test: "social score capped at 100"
-- [ ] Write test: "holistic weighted average: mental*40% + physical*30% + social*30%"
-- [ ] Write test: "all metrics at 100 gives 100"
-- [ ] Write test: "all metrics at 0 gives 0"
-- [ ] Write test: "improving trend (first half < second half)"
-- [ ] Write test: "declining trend (first half > second half)"
-- [ ] Write test: "stable trend (difference < threshold)"
-- [ ] Write test: "handles empty conversation history"
-- [ ] Write test: "handles single conversation"
-- [ ] **Reference**: TDD_TEST_CASES.md Section 5.1, PRD lines 1445-1484
+- [x] Create `src/services/wellness-service.test.ts`
+- [x] Write test: "converts sentiment -1 to +1 into 0 to 100" (5 test cases for -1, -0.5, 0, 0.5, 1)
+- [x] Write test: "calculates average from recent conversations"
+- [x] Write test: "matches contribute 10 points each to social score"
+- [x] Write test: "groups contribute 20 points each to social score"
+- [x] Write test: "combined: matches*10 + groups*20"
+- [x] Write test: "social score capped at 100"
+- [x] Write test: "holistic weighted average: mental*40% + physical*30% + social*30%"
+- [x] Write test: "all metrics at 100 gives 100"
+- [x] Write test: "all metrics at 0 gives 0"
+- [x] Write test: "improving trend (first half < second half)"
+- [x] Write test: "declining trend (first half > second half)"
+- [x] Write test: "stable trend (difference < threshold)"
+- [x] Write test: "handles empty conversation history"
+- [x] Write test: "handles single conversation"
+- [x] **BONUS:** updateWellnessMetrics integration test
+- [x] **Reference**: TDD_TEST_CASES.md Section 5.1, PRD lines 1445-1484
 
 **3.7b: CONFIRM TESTS FAIL**
-- [ ] Run `npx jest src/services/wellness-service.test.ts`
-- [ ] Verify 14 failing tests
+- [x] Run `npx jest src/services/wellness-service.test.ts`
+- [x] Verify 14 failing tests ✅ (actually 19 tests, all failing with module not found)
 
 **3.7c: COMMIT FAILING TESTS**
-- [ ] `git commit -m "test: Add wellness metrics tests (14 tests, all failing)"`
+- [x] `git commit -m "test: Add wellness metrics tests (14 tests, all failing)"` (commit b4dc8e5)
 
 **3.7d: IMPLEMENT WELLNESS SERVICE**
-- [ ] Create `src/services/wellness-service.ts`
-- [ ] Implement functions:
-  - `calculateMentalScore(sentiment)`: (sentiment + 1) * 50
-  - `calculateSocialScore({matchesMade, groupsJoined})`: min(100, matches*10 + groups*20)
-  - `calculateHolisticScore(wellnessMetrics)`: weighted average
-  - `calculateTrend(conversations)`: "improving" | "declining" | "stable" | "insufficient_data"
-  - `updateWellnessMetrics(profile)`: Updates all metrics in profile object
-- [ ] **DO NOT modify tests**
+- [x] Create `src/services/wellness-service.ts` (200 lines)
+- [x] Implement functions:
+  - `calculateMentalScore(sentiment)`: (sentiment + 1) * 50 ✅
+  - `calculateSocialScore({matchesMade, groupsJoined})`: min(100, matches*10 + groups*20) ✅
+  - `calculateHolisticScore(wellnessMetrics)`: weighted average ✅
+  - `calculateTrend(conversations)`: "improving" | "declining" | "stable" | "insufficient_data" ✅
+  - `updateWellnessMetrics(profile)`: Updates all metrics in profile object ✅
+- [x] Defensive coding for missing fields (healthData, matches, groups)
+- [x] **DO NOT modify tests** ✅
 
 **3.7e: ITERATE UNTIL TESTS PASS**
-- [ ] Run `npx jest src/services/wellness-service.test.ts --watch`
-- [ ] Fix calculation logic
-- [ ] Verify all 14 tests pass
+- [x] Run `npx jest src/services/wellness-service.test.ts --watch`
+- [x] All calculations correct on first try
+- [x] Verify all 19 tests pass ✅ 100%
 
 **3.7f: VERIFY WITH INDEPENDENT TESTING**
-- [ ] Test with 10 different wellness scenarios
-- [ ] Verify calculations are accurate
-- [ ] Check edge cases (empty data, single conversation)
+- [x] Test with 10 verification tests (wellness-service-verification.test.ts)
+- [x] Verify calculations are accurate ✅ 100%
+- [x] Check edge cases (empty data, single conversation) ✅
 
 **3.7g: COMMIT IMPLEMENTATION**
-- [ ] `git commit -m "feat: Implement wellness metrics (14/14 tests passing)"`
+- [x] `git commit -m "feat: Implement wellness metrics (19/19 tests passing)"` (commit 3211e0e)
+
+**3.7h: INTEGRATE WITH WEBHOOK** ✅ **CRITICAL INTEGRATION**
+- [x] Import updateWellnessMetrics in vapi-webhook.ts (line 17)
+- [x] Add call in backgroundProcessing() step 7 (lines 310-316)
+- [x] Wrapped in try-catch for non-blocking behavior
+- [x] Runs after conversation history updated (per PRD order)
+- [x] Verified webhook tests pass ✅ 14/14
+- [x] Verified wellness tests pass ✅ 29/29
+- [x] Deployed to production ✅ https://elderlink-dev.elderlinkhelper.workers.dev
+- [x] Commit integration (commit 3abdf67)
+
+**Status:** ✅ COMPLETE (100%) - All requirements met, tests passing, integrated, deployed
 
 ---
 
