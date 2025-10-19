@@ -22,14 +22,11 @@
     "model": "nova-2",
     "language": "en-US",
     "smartFormat": true,
-    "punctuate": true,
-    "profanityFilter": false,
-    "keywords": ["Mrs. Chen", "Sarah", "Tommy", "gardening", "piano", "Lisinopril", "Metformin", "arthritis"]
+    "keywords": ["Chen:2", "Sarah:2", "Tommy:2", "gardening", "piano", "Lisinopril:2", "Metformin:2", "arthritis"]
   },
   "firstMessage": "Hello! This is Sam. Who am I speaking with today?",
   "endCallMessage": "It was wonderful talking with you. Take care!",
   "endCallPhrases": ["goodbye", "bye", "talk to you later", "gotta go", "need to go"],
-  "requestTimeoutSeconds": 10,
   "silenceTimeoutSeconds": 30,
   "maxDurationSeconds": 900,
   "backgroundSound": "off",
