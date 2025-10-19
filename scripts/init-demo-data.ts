@@ -164,11 +164,11 @@ const COMPATIBLE_MATCHES = [
 ];
 
 async function initializeDemo() {
-  console.log('=€ Initializing ElderLink demo data...\n');
+  console.log('=ï¿½ Initializing ElderLink demo data...\n');
 
   try {
     // 1. Save Mrs. Chen's profile
-    console.log('=Ý Creating Mrs. Chen profile...');
+    console.log('=ï¿½ Creating Mrs. Chen profile...');
     const profileResponse = await fetch(`${WORKER_URL}/api/senior/mrs-chen`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -208,7 +208,7 @@ async function initializeDemo() {
     }
 
     // 3. Add group suggestions
-    console.log('\n<¯ Creating group suggestions...');
+    console.log('\n<ï¿½ Creating group suggestions...');
     const groups = [
       {
         id: 'gardening-club',
@@ -228,7 +228,7 @@ async function initializeDemo() {
       }
     ];
 
-    const finalProfile = await fetch(`${WORKER_URL}/api/senior/mrs-chen`).then(r => r.json());
+    const finalProfile: any = await fetch(`${WORKER_URL}/api/senior/mrs-chen`).then(r => r.json());
     finalProfile.groups = groups;
 
     await fetch(`${WORKER_URL}/api/senior/mrs-chen`, {
@@ -240,7 +240,7 @@ async function initializeDemo() {
     console.log(' Group suggestions added');
 
     // 4. Create initial sentiment data for live display
-    console.log('\n=Ê Creating live sentiment data...');
+    console.log('\n=ï¿½ Creating live sentiment data...');
     const sentimentData = {
       seniorId: 'mrs-chen',
       sentiment: 0.7,
@@ -269,8 +269,8 @@ async function initializeDemo() {
     console.log(' Profile has', verifyProfile.groups?.length || 0, 'group suggestions');
     console.log(' Current sentiment:', verifySentiment.sentiment || 'N/A');
 
-    console.log('\n<‰ Demo data initialization complete!');
-    console.log('\n=ñ Ready for demo:');
+    console.log('\nâœ… Demo data initialization complete!');
+    console.log('\nðŸŽ¯ Ready for demo:');
     console.log('   - Phone: +1 (224) 858-1016');
     console.log('   - Profile: Mrs. Chen');
     console.log('   - Dashboard: http://localhost:5175');

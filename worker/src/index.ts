@@ -103,21 +103,30 @@ export default {
         }
       }
 
-      // Senior profile endpoint - GET
-      if (url.pathname === '/api/senior/mrs-chen' && request.method === 'GET') {
-        const profile = await getProfile('mrs-chen', env);
-        return new Response(JSON.stringify(profile), {
-          headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        });
-      }
+      // Senior profile endpoints - GET and PUT for any senior ID
+      if (url.pathname.startsWith('/api/senior/')) {
+        const seniorId = url.pathname.split('/').pop();
 
-      // Senior profile endpoint - PUT (for initialization)
-      if (url.pathname === '/api/senior/mrs-chen' && request.method === 'PUT') {
-        const profile = await request.json() as any;
-        await env.KV.put('senior-mrs-chen', JSON.stringify(profile));
-        return new Response(JSON.stringify({ success: true, profile }), {
-          headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        });
+        if (seniorId && request.method === 'GET') {
+          const profile = await getProfile(seniorId, env);
+          if (!profile) {
+            return new Response(JSON.stringify({ error: 'Profile not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          return new Response(JSON.stringify(profile), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        if (seniorId && request.method === 'PUT') {
+          const profile = await request.json() as any;
+          await env.KV.put(`senior-${seniorId}`, JSON.stringify(profile));
+          return new Response(JSON.stringify({ success: true, profile }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
       }
 
       // Live sentiment endpoint - GET
