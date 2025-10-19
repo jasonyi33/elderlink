@@ -11,6 +11,7 @@
 
 import { SeniorProfile } from '../types';
 import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-service';
+import { createHealthNote, appendHealthNote, extractVitals } from '../services/health-service';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
 import { generateSamResponse } from '../../../prompts/sam-personality';
@@ -261,7 +262,25 @@ async function backgroundProcessing(
       timestamp: new Date().toISOString()
     }, env);
 
-    // 4. Update Conversation History
+    // 4. Create Health Notes (if health mentions found)
+    if (analysis.healthMentions && analysis.healthMentions.length > 0) {
+      const healthNote = createHealthNote(analysis.healthMentions, profile);
+      profile = appendHealthNote(profile, healthNote);
+      console.log('[HEALTH] Created health note with', analysis.healthMentions.length, 'mentions');
+    }
+
+    // 5. Extract and Store Vitals (if mentioned in message)
+    const vitals = extractVitals(message);
+    if (vitals) {
+      profile.healthData.vitals = {
+        ...profile.healthData.vitals,
+        ...vitals,
+        lastUpdated: new Date().toISOString()
+      };
+      console.log('[HEALTH] Updated vitals:', vitals);
+    }
+
+    // 6. Update Conversation History
     profile.conversations.push({
       timestamp: new Date().toISOString(),
       duration: 0,
@@ -277,7 +296,7 @@ async function backgroundProcessing(
       profile.conversations = profile.conversations.slice(-10);
     }
 
-    // 5. Save Updated Profile
+    // 7. Save Updated Profile
     await saveProfile(profile, env);
 
     console.log('[ASYNC] Background processing completed');
