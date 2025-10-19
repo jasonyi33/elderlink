@@ -139,17 +139,25 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
           className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
         >
           <span className="font-medium text-primary">
-            {expanded.conditions ? '▼' : '▶'} Conditions ({healthData.conditions.length})
+            {expanded.conditions ? '▼' : '▶'} Conditions ({healthData.conditions?.length || 0})
           </span>
         </button>
-        {expanded.conditions && (
+        {expanded.conditions && healthData.conditions && (
           <div className="mt-2 space-y-2 ml-4">
-            {healthData.conditions.map((cond, i) => (
+            {healthData.conditions.map((cond: any, i: number) => (
               <div key={i} className="border-l-4 border-success-dark pl-3 bg-success-light">
-                <p className="font-medium text-success-dark">{cond.name}</p>
-                <p className="text-sm text-text-muted-dark">Since {cond.since} - {cond.status}</p>
-                {cond.a1c && <p className="text-sm text-text-muted-dark">A1C: {cond.a1c}</p>}
-                {cond.locations && <p className="text-sm text-text-muted-dark">Locations: {cond.locations.join(', ')}</p>}
+                <p className="font-medium text-success-dark">
+                  {typeof cond === 'string' ? cond : cond.name}
+                </p>
+                {typeof cond === 'object' && cond.since && (
+                  <p className="text-sm text-text-muted-dark">Since {cond.since} - {cond.status}</p>
+                )}
+                {typeof cond === 'object' && cond.a1c && (
+                  <p className="text-sm text-text-muted-dark">A1C: {cond.a1c}</p>
+                )}
+                {typeof cond === 'object' && cond.locations && (
+                  <p className="text-sm text-text-muted-dark">Locations: {cond.locations.join(', ')}</p>
+                )}
               </div>
             ))}
           </div>
@@ -171,10 +179,16 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
             <div className="mt-2 ml-4 p-3 bg-warning-light border-l-4 border-warning rounded">
               <p className="font-medium text-warning-dark">{healthData.upcomingAppointments[0].type || 'Appointment'}</p>
               <p className="text-sm text-warning-dark">
-                {healthData.upcomingAppointments[0].date} {healthData.upcomingAppointments[0].time ? `at ${healthData.upcomingAppointments[0].time}` : ''}
+                {new Date(healthData.upcomingAppointments[0].date).toLocaleDateString()}
+                {healthData.upcomingAppointments[0].time ? ` at ${healthData.upcomingAppointments[0].time}` : ''}
               </p>
-              {healthData.upcomingAppointments[0].doctor && (
-                <p className="text-sm text-warning-dark">with {healthData.upcomingAppointments[0].doctor}</p>
+              {(healthData.upcomingAppointments[0].provider || healthData.upcomingAppointments[0].doctor) && (
+                <p className="text-sm text-warning-dark">
+                  with {healthData.upcomingAppointments[0].provider || healthData.upcomingAppointments[0].doctor}
+                </p>
+              )}
+              {healthData.upcomingAppointments[0].location && (
+                <p className="text-sm text-warning-dark">📍 {healthData.upcomingAppointments[0].location}</p>
               )}
             </div>
           )}
