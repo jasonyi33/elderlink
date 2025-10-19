@@ -134,12 +134,35 @@ export function calculateTrend(
 export function updateWellnessMetrics(profile: SeniorProfile): void {
   console.log('[WELLNESS] Updating wellness metrics for:', profile.id);
 
+  // Defensive: Ensure required structures exist
+  if (!profile.conversations) {
+    console.log('[WELLNESS] No conversations array, skipping update');
+    return;
+  }
+
   const recentConversations = profile.conversations.slice(-10);
 
   // Skip if no conversations
   if (recentConversations.length === 0) {
     console.log('[WELLNESS] No conversations, skipping update');
     return;
+  }
+
+  // Defensive: Ensure wellnessMetrics structure exists
+  if (!profile.wellnessMetrics) {
+    console.log('[WELLNESS] No wellnessMetrics structure, skipping update');
+    return;
+  }
+
+  // Ensure sub-structures exist
+  if (!profile.wellnessMetrics.mentalHealth) {
+    profile.wellnessMetrics.mentalHealth = { averageSentiment: 0, trend: 'stable' as const, lonelinessScore: 0 };
+  }
+  if (!profile.wellnessMetrics.physicalHealth) {
+    profile.wellnessMetrics.physicalHealth = { symptomMentions: 0, medicationAdherence: 0, appointmentReminders: 0 };
+  }
+  if (!profile.wellnessMetrics.socialHealth) {
+    profile.wellnessMetrics.socialHealth = { matchesMade: 0, groupsJoined: 0, communityEngagement: 0 };
   }
 
   // === MENTAL HEALTH === (PRD lines 1458-1472)
@@ -153,16 +176,18 @@ export function updateWellnessMetrics(profile: SeniorProfile): void {
 
   // === PHYSICAL HEALTH === (PRD lines 1474-1477)
   
-  // Count symptom mentions from health notes
-  profile.wellnessMetrics.physicalHealth.symptomMentions = profile.healthData.notes.filter(
-    n => n.mentions.some((m: any) => m.type === 'symptom')
-  ).length;
+  // Count symptom mentions from health notes (defensive: check if exists)
+  if (profile.healthData && profile.healthData.notes) {
+    profile.wellnessMetrics.physicalHealth.symptomMentions = profile.healthData.notes.filter(
+      n => n.mentions && n.mentions.some((m: any) => m.type === 'symptom')
+    ).length;
+  }
 
   // === SOCIAL HEALTH === (PRD lines 1479-1481)
   
-  // Count matches and groups
-  profile.wellnessMetrics.socialHealth.matchesMade = profile.matches.length;
-  profile.wellnessMetrics.socialHealth.groupsJoined = profile.groups.length;
+  // Count matches and groups (defensive: check if exists)
+  profile.wellnessMetrics.socialHealth.matchesMade = profile.matches ? profile.matches.length : 0;
+  profile.wellnessMetrics.socialHealth.groupsJoined = profile.groups ? profile.groups.length : 0;
 
   // === HOLISTIC SCORE === (PRD lines 1483-1490)
   

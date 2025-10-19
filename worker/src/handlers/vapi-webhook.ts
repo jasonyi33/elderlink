@@ -14,6 +14,7 @@ import { Env, getProfile, saveProfile, saveLiveSentiment } from '../services/kv-
 import { createHealthNote, appendHealthNote, extractVitals } from '../services/health-service';
 import { recalculateMatches } from '../services/matching-service';
 import { detectAndCreateAlert, storeAlert } from '../services/alert-service';
+import { updateWellnessMetrics } from '../services/wellness-service';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
 import { generateSamResponse } from '../../../prompts/sam-personality';
@@ -306,18 +307,31 @@ async function backgroundProcessing(
       profile.conversations = profile.conversations.slice(-10);
     }
 
-    // 7. Recalculate Matches (if interests changed) - PRD lines 1284-1287
+    // 7. Recalculate Wellness Metrics - PRD line 1283-1284
+    try {
+      updateWellnessMetrics(profile);
+    } catch (error) {
+      console.error('[WELLNESS] Error updating wellness metrics (non-blocking):', error);
+      // Don't fail the entire async processing
+    }
+    
+    // 8. Recalculate Matches (if interests changed) - PRD lines 1284-1287
     if (newMemories && newMemories.newFacts) {
       const hasNewInterests = (newMemories.newFacts.hobbies && newMemories.newFacts.hobbies.length > 0) ||
                               (newMemories.newFacts.interests && newMemories.newFacts.interests.length > 0);
       
       if (hasNewInterests) {
-        console.log('[MATCHING] New interests detected, recalculating matches');
-        await recalculateMatches(profile, env);
+        try {
+          console.log('[MATCHING] New interests detected, recalculating matches');
+          await recalculateMatches(profile, env);
+        } catch (error) {
+          console.error('[MATCHING] Error recalculating matches (non-blocking):', error);
+          // Don't fail the entire async processing
+        }
       }
     }
 
-    // 8. Save Updated Profile
+    // 9. Save Updated Profile
     await saveProfile(profile, env);
 
     console.log('[ASYNC] Background processing completed');
