@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VAPI_API_KEY="a0a0d259-804e-4079-8a99-524a6a792cec"
-ASSISTANT_ID="5af660dd-dada-4863-af15-383c693873f7"
+VAPI_API_KEY=""
+ASSISTANT_ID=""
 
 echo "🔧 Switching transcriber to ElevenLabs..."
 echo ""
