@@ -154,6 +154,10 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const start = Date.now();
   const data = await request.json() as any;
 
+  // DEBUG: First, log top-level keys to understand structure
+  console.log('[VAPI] PAYLOAD KEYS:', Object.keys(data));
+  console.log('[VAPI] PAYLOAD TYPE:', typeof data);
+
   // DEBUG: Log ENTIRE raw payload to understand Vapi's custom-LLM format
   console.log('[VAPI] RAW PAYLOAD:', JSON.stringify(data, null, 2));
 
