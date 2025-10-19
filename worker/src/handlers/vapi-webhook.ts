@@ -18,9 +18,9 @@ import { updateWellnessMetrics } from '../services/wellness-service';
 import { generateSummary, extractKeyTopics } from '../services/conversation-summary';
 
 // ✅ Hour 5 Integration: Real AI functions from Developer 1
-import { generateSamResponse } from '../../../prompts/sam-personality';
-import { extractMemories } from '../../../prompts/memory-extraction';
-import { analyzeSentimentAndHealth } from '../../../prompts/sentiment-health-analysis';
+import { generateSamResponse } from '../prompts/sam-personality';
+import { extractMemories } from '../prompts/memory-extraction';
+import { analyzeSentimentAndHealth } from '../prompts/sentiment-health-analysis';
 
 /**
  * Create default profile structure for new seniors
@@ -94,11 +94,20 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
   
   try {
     // Set up 7-second timeout for Vapi's 10-second limit
-    const timeoutPromise = new Promise<{content: string; voiceId?: string}>(resolve =>
+    const timeoutPromise = new Promise<any>(resolve =>
       setTimeout(() => {
         console.log('[VAPI] Timeout triggered at 7s');
         resolve({
-          content: "I'm listening. Please continue."
+          id: `chatcmpl-timeout-${Date.now()}`,
+          choices: [
+            {
+              index: 0,
+              message: {
+                role: 'assistant',
+                content: "I'm listening. Please continue."
+              }
+            }
+          ]
         });
       }, 7000)
     );
@@ -114,7 +123,7 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
 
   } catch (error) {
     console.error('[VAPI] Webhook error:', error);
-    // Generic fallback
+    // Generic fallback in Vapi custom-LLM format
     const fallbacks = [
       "Tell me more about that.",
       "I'm here with you. Please go on.",
@@ -122,7 +131,16 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
       "How does that make you feel?"
     ];
     return new Response(JSON.stringify({
-      content: fallbacks[Math.floor(Math.random() * fallbacks.length)]
+      id: `chatcmpl-error-${Date.now()}`,
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: fallbacks[Math.floor(Math.random() * fallbacks.length)]
+          }
+        }
+      ]
     }), {
       headers: { 'Content-Type': 'application/json' }
     });
@@ -132,10 +150,22 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
 /**
  * Process Vapi call with priority and async paths
  */
-async function processVapiCall(request: Request, env: Env): Promise<{content: string; voiceId: string}> {
+async function processVapiCall(request: Request, env: Env): Promise<any> {
   const start = Date.now();
   const data = await request.json() as { message?: any; call?: any };
   const { message, call } = data;
+
+  // DEBUG: Log complete incoming payload to understand Vapi's format
+  console.log('[VAPI] INCOMING PAYLOAD:', JSON.stringify({
+    messageType: message?.type,
+    messageRole: message?.role,
+    messageStatus: message?.status,
+    messageContent: message?.content,
+    messageTranscript: message?.transcript,
+    callId: call?.id,
+    callPhoneNumber: call?.phoneNumber,
+    fullMessage: message
+  }, null, 2));
 
   // Map phone number to senior ID
   const phoneNumber = call?.phoneNumber;
@@ -143,31 +173,40 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
     '+12248581016': 'mrs-chen',
     '+12065551234': 'mrs-chen', // Backup number
   };
-  
+
   const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
   console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
 
   // Get senior profile
   let profile = await getProfile(seniorId, env);
-  
+
   // Handle missing profile (create default for demo)
   if (!profile) {
     console.log('[VAPI] Profile not found, using default');
     profile = createDefaultProfile('mrs-chen');
   }
 
-  // Extract senior's message
-  const seniorMessage = message?.transcript?.content || '';
+  // Extract senior's message (check both formats for compatibility)
+  const seniorMessage = message?.content || message?.transcript?.content || '';
+  console.log('[VAPI] Extracted message:', seniorMessage);
 
   if (!seniorMessage || seniorMessage.trim() === '') {
-    return { 
-      content: "I'm here. Take your time.",
-      voiceId: env.ELEVENLABS_ENGLISH_VOICE
+    return {
+      id: `chatcmpl-empty-${Date.now()}`,
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: "I'm here. Take your time."
+          }
+        }
+      ]
     };
   }
 
-  // Language from Vapi (no Gemini call needed!)
-  const language = message?.language || 'english';
+  // Language from Vapi - check multiple possible locations
+  const language = message?.language || call?.language || 'english';
 
   // Calculate exchange number for health check-in logic
   const exchangeNumber = profile.conversations.length + 1;
@@ -177,6 +216,7 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
     seniorMessage,
     profile,
     exchangeNumber,
+    env, // Pass env to enable real Gemini API calls
     {
       language: language,
       isEndingCall: false // Could detect from message keywords
@@ -192,14 +232,33 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
 
   // ASYNC PATH: Queue background processing (runs after response sent)
   env.context.waitUntil(
-    backgroundProcessing(seniorMessage, profile, language, env)
+    backgroundProcessing(seniorMessage, samResponse, profile, language, env)
   );
 
-  // Return response immediately (target: <2 seconds)
-  return {
-    content: samResponse,
-    voiceId
+  // Return response in Vapi's expected custom-LLM format
+  // Reference: https://support.vapi.ai/t/23460916/response-body-structure-for-custom-llm
+  const response = {
+    id: `chatcmpl-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: 'assistant',
+          content: samResponse
+        }
+      }
+    ]
   };
+
+  console.log('[VAPI] OUTGOING RESPONSE:', JSON.stringify({
+    contentLength: samResponse.length,
+    contentPreview: samResponse.substring(0, 100),
+    language: language === 'mandarin' ? 'zh-CN' : 'en-US',
+    voiceId: voiceId,
+    fullResponse: response
+  }, null, 2));
+
+  return response;
 }
 
 /**
@@ -208,6 +267,7 @@ async function processVapiCall(request: Request, env: Env): Promise<{content: st
  */
 async function backgroundProcessing(
   message: string,
+  samResponse: string,
   profile: SeniorProfile,
   language: string,
   env: Env
@@ -295,14 +355,13 @@ async function backgroundProcessing(
     // 6. Update Conversation History
     // Generate summary and extract topics for this conversation
     const conversationTranscript = [
-      { role: 'senior' as const, content: message }
-      // Note: We don't have Sam's response here in background processing
-      // For fuller summary, could pass samResponse from main handler
+      { role: 'senior' as const, content: message },
+      { role: 'assistant' as const, content: samResponse }
     ];
-    
+
     const conversationSummary = generateSummary(conversationTranscript);
     const conversationTopics = extractKeyTopics(conversationTranscript);
-    
+
     profile.conversations.push({
       timestamp: new Date().toISOString(),
       duration: 0,
@@ -310,6 +369,7 @@ async function backgroundProcessing(
       sentiment: analysis.sentiment,
       language: language as 'english' | 'mandarin',
       summary: conversationSummary,
+      transcript: conversationTranscript, // Store full transcript for context
       healthMentions: analysis.healthMentions?.map((h: any) => h.text)
     });
 
