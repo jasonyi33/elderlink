@@ -3,7 +3,10 @@
 
 import { callGeminiForResponse } from '../services/gemini-service';
 import { Env } from '../services/kv-service';
+import { SeniorProfile } from '../types';
 
+// Remove duplicate SeniorProfile interface - use shared type from types/index.ts
+/*
 export interface SeniorProfile {
   id: string;
   name: string;
@@ -11,6 +14,8 @@ export interface SeniorProfile {
   phone: string;
   languages: string[];
   location: string;
+  demoMode?: boolean;  // Optional: enables exact script-following for demos
+  demoCallStartTime?: number;  // Timestamp (ms) when demo call started
   memories: {
     family: Array<{
       name: string;
@@ -81,6 +86,7 @@ export interface SeniorProfile {
     callFrequency: number;
   };
 }
+*/
 
 export interface SamResponseOptions {
   isEndingCall?: boolean;
@@ -146,33 +152,48 @@ function getDemoScriptResponse(
   seniorMessage: string,
   currentLanguage: string
 ): string {
+  console.log('[DEMO] ===== ENTERED getDemoScriptResponse ===== [VERSION:NEW-DEPLOY-e6d71d28]');
+  console.log('[DEMO] Input params:', {
+    profileId: profile.id,
+    demoCallStartTime: profile.demoCallStartTime,
+    currentTime: Date.now(),
+    seniorMessage: seniorMessage.substring(0, 50),
+    currentLanguage
+  });
+
   // Calculate elapsed time since call started
   const callStartTime = profile.demoCallStartTime || Date.now();
   const elapsedSeconds = (Date.now() - callStartTime) / 1000;
 
-  console.log(`[DEMO] Elapsed time: ${elapsedSeconds.toFixed(1)}s, Message:`, seniorMessage.substring(0, 50));
+  console.log(`[DEMO] Elapsed time: ${elapsedSeconds.toFixed(1)}s (callStartTime: ${callStartTime}, now: ${Date.now()})`);
+  console.log(`[DEMO] Senior message:`, seniorMessage.substring(0, 50));
 
   // Time windows for each response (approximate speaking time + 1s buffer):
   // Response 1: ~7s to say + 1s = available after 0s, until 8s
   // Response 2: ~8s to say + 1s = available after 8s, until 17s
   // Response 3: ~4s to say + 1s = available after 17s, until 22s
-  // Response 4: ~4s to say + 1s = available after 22s, until end
+  // Response 4: ~3s to say + 1s = available after 22s, until 26s
+  // Response 5: ~4s to say + 1s = available after 26s, until end
 
   if (elapsedSeconds < 8) {
-    // Response 1: Garden/knee response (0-8s)
+    // Response 1: Knee/Lisinopril question (0-8s)
     console.log('[DEMO] Using response 1 (0-8s)');
     return "I'm sorry to hear about your knee. I recall your arthritis bothers you sometimes. Did you take your Lisinopril this morning?";
   } else if (elapsedSeconds < 17) {
-    // Response 2: Medication confirmation (8-17s)
+    // Response 2: MyChart appointment note (8-17s)
     console.log('[DEMO] Using response 2 (8-17s)');
     return "That's wonderful to hear! I'll note that down for Dr. Smith in MyChart. Your next appointment is on Tuesday at 10 a.m.";
   } else if (elapsedSeconds < 22) {
-    // Response 3: Chinese response (17-22s)
+    // Response 3: Mandarin tired/rest (17-22s)
     console.log('[DEMO] Using response 3 (17-22s)');
     return "没关系，陈太太。记得多休息，多喝水。";
+  } else if (elapsedSeconds < 26) {
+    // Response 4: Mandarin acknowledgment (22-26s)
+    console.log('[DEMO] Using response 4 (22-26s)');
+    return "好的。照顾好自己，陈太太。";
   } else {
-    // Response 4: Closing (22s+)
-    console.log('[DEMO] Using response 4 (22s+)');
+    // Response 5: English closing (26s+)
+    console.log('[DEMO] Using response 5 (26s+)');
     return "Take care, Mrs. Chen. I'll check in on you tomorrow!";
   }
 }
@@ -393,14 +414,40 @@ export async function generateSamResponse(
   }
 
   try {
-    // DEMO MODE: Return exact scripted responses without calling Gemini
+    // SIMPLE DEMO MODE: Just return responses in order based on exchange number
+    console.log('[DEMO] Checking demo mode:', {
+      profileId: profile.id,
+      demoMode: profile.demoMode,
+      exchangeNumber: exchangeNumber
+    });
+
     // @ts-ignore - demoMode is optional field
-    const isDemoMode = profile.demoMode === true || (profile as any).demoMode === true;
-    if (isDemoMode) {
-      console.log('[SAM] DEMO MODE ACTIVATED - Returning exact script response');
-      const demoResponse = getDemoScriptResponse(profile, message, finalLanguage);
-      console.log('[SAM] Demo response:', demoResponse.substring(0, 100));
-      return demoResponse;
+    const isDemo = profile.demoMode === true || (profile as any).demoMode === true;
+
+    if (profile.id === 'mrs-chen' && isDemo) {
+      // Use exchange number from call-state (tracks progression within a call)
+      const responseIndex = exchangeNumber || 1;
+
+      console.log('[DEMO] Simple demo mode ACTIVATED - Response index:', responseIndex);
+
+      // Return specific responses in order
+      if (responseIndex === 1) {
+        console.log('[DEMO] Response 1: Knee/Lisinopril');
+        return "Oh, I'm sorry to hear about your knee. I recall your arthritis bothers you sometimes... did you take your Lisinopril this morning?";
+      } else if (responseIndex === 2) {
+        console.log('[DEMO] Response 2: MyChart appointment');
+        return "That's wonderful to hear! I'll note that down for Dr. Smith in MyChart. Your next appointment is on Tuesday at 10 a.m.";
+      } else if (responseIndex === 3) {
+        console.log('[DEMO] Response 3: Mandarin - rest and water');
+        return "没关系，陈太太... 记得多休息，多喝水。";
+      } else if (responseIndex === 4) {
+        console.log('[DEMO] Response 4: English closing');
+        return "Take care, Mrs. Chen... I'll check in on you tomorrow!";
+      } else {
+        // Fallback for any additional exchanges
+        console.log('[DEMO] Response 5+: Fallback');
+        return "It's always wonderful talking with you, Mrs. Chen.";
+      }
     }
 
     // Format conversation history for context

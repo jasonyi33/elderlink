@@ -90,7 +90,7 @@ export default function CommunityView() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-6">
           {matches.map((match: any) => (
-            <MatchCard key={match.id} match={match} />
+            <MatchCard key={match.seniorId || match.id} match={match} />
           ))}
         </div>
       </div>

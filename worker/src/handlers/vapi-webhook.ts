@@ -305,13 +305,10 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
 
   } catch (error) {
     console.error('[VAPI] Webhook error:', error);
-    // Generic fallback in Vapi custom-LLM format
-    const fallbacks = [
-      "Tell me more about that.",
-      "I'm here with you. Please go on.",
-      "That sounds important to you.",
-      "How does that make you feel?"
-    ];
+    console.error('[VAPI] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('[VAPI] Error message:', error instanceof Error ? error.message : String(error));
+
+    // Return error details in response for debugging
     return new Response(JSON.stringify({
       id: `chatcmpl-error-${Date.now()}`,
       choices: [
@@ -319,7 +316,7 @@ export async function handleVapiWebhook(request: Request, env: Env): Promise<Res
           index: 0,
           message: {
             role: 'assistant',
-            content: fallbacks[Math.floor(Math.random() * fallbacks.length)]
+            content: `ERROR: ${error instanceof Error ? error.message : String(error)}`
           }
         }
       ]
@@ -366,17 +363,22 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   const seniorId = (phoneNumber && phoneToSeniorId[phoneNumber]) || 'mrs-chen';
   console.log(`[VAPI] Phone: ${phoneNumber} → Senior ID: ${seniorId}`);
 
-  // Handle end-of-call-report events - clear call state and reset demo timestamp
-  if (messageType === 'end-of-call-report') {
-    console.log('[VAPI] End of call detected, clearing call state and resetting demo mode');
-    await env.KV.delete(`call-state-${seniorId}`);
+  // Extract Vapi call ID for tracking exchanges within a specific call
+  const vapiCallId = call?.id || message?.call?.id || 'unknown-call';
+  console.log('[VAPI] Call ID:', vapiCallId);
 
-    // Clear demo call start time for next call
+  // Handle end-of-call-report events - clear call state AND reset demo
+  if (messageType === 'end-of-call-report') {
+    console.log('[VAPI] End of call detected, clearing call state for call:', vapiCallId);
+    await env.KV.delete(`call-state-${vapiCallId}`);
+
+    // CRITICAL: Reset demo mode for next call
     let profile = await getProfile(seniorId, env);
     if (profile && profile.demoMode === true) {
-      delete profile.demoCallStartTime;
+      profile.conversations = []; // Clear conversations so demo starts from Response 1
+      delete profile.demoCallStartTime; // Clear any timestamps
       await saveProfile(profile, env);
-      console.log('[DEMO] Cleared call start time for next call');
+      console.log('[DEMO] Reset demo state - next call will start from Response 1');
     }
 
     return {
@@ -389,12 +391,23 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   if (messageType === 'speech-update' || messageType === 'status-update') {
     console.log('[VAPI] Non-conversation event, setting call state active:', messageType);
 
+    // Check if demo mode to initialize timestamp
+    let profile = await getProfile(seniorId, env);
+    const existingCallStateRaw = await env.KV.get(`call-state-${seniorId}`);
+    const existingCallState = existingCallStateRaw ? JSON.parse(existingCallStateRaw) : null;
+
+    // Initialize demo timestamp if this is the first event and demo mode is on
+    const demoCallStartTime = profile?.demoMode === true && !existingCallState
+      ? Date.now()
+      : existingCallState?.demoCallStartTime;
+
     // Set call state to active (so dashboard shows live call)
     const callState = {
       isActive: true,
       startedAt: new Date().toISOString(),
       language: 'english', // Default, will be updated on actual messages
-      seniorId: seniorId
+      seniorId: seniorId,
+      demoCallStartTime: demoCallStartTime
     };
     await env.KV.put(`call-state-${seniorId}`, JSON.stringify(callState));
 
@@ -480,24 +493,40 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   }
 
   // Detect language from the actual message content
-  const language = detectLanguage(seniorMessage);
+  let language = detectLanguage(seniorMessage);
   console.log('[VAPI] Language detection:', {message: seniorMessage.substring(0, 50), detected: language});
 
-  // Check if this is a new call starting (call state doesn't exist yet)
-  const existingCallState = await env.KV.get(`call-state-${seniorId}`);
-  const isNewCall = !existingCallState;
+  // Get or initialize call state (needed for demo exchange counting)
+  // Use Vapi call ID to track exchanges within a specific call
+  const existingCallStateJson = await env.KV.get(`call-state-${vapiCallId}`);
+  let callState: any = existingCallStateJson ? JSON.parse(existingCallStateJson) : {};
 
-  // Set demo call start time for new calls (time-based responses)
-  if (isNewCall && profile.demoMode === true) {
-    if (!profile.demoCallStartTime) {
-      profile.demoCallStartTime = Date.now();
-      await saveProfile(profile, env);
-      console.log('[DEMO] New call detected, set start time:', new Date(profile.demoCallStartTime).toISOString());
-    }
+  // In demo mode, track exchange count in call-state instead of conversations
+  // This allows responses to progress (1→2→3→4) within a call while keeping conversations empty
+  let exchangeNumber = profile.conversations.length + 1;
+
+  if (profile.demoMode === true) {
+    // Get or initialize demo exchange counter from call-state
+    const demoExchangeCount = (callState.demoExchangeCount || 0) + 1;
+    callState.demoExchangeCount = demoExchangeCount;
+
+    // Set language based on which response will be returned (Response 3 is Mandarin)
+    const demoResponseLanguage = demoExchangeCount === 3 ? 'mandarin' : 'english';
+
+    // Override language for demo mode - use the response language, not input language
+    language = demoResponseLanguage;
+
+    // Save updated call-state with new exchange count (using Vapi call ID as key)
+    callState.isActive = true;
+    callState.startedAt = callState.startedAt || new Date().toISOString();
+    callState.language = demoResponseLanguage; // Use demo response language for dashboard
+    callState.seniorId = seniorId;
+    callState.vapiCallId = vapiCallId;
+    await env.KV.put(`call-state-${vapiCallId}`, JSON.stringify(callState));
+
+    exchangeNumber = demoExchangeCount;
+    console.log('[DEMO] Demo mode active, call:', vapiCallId, 'exchange count:', exchangeNumber, 'language:', demoResponseLanguage);
   }
-
-  // Calculate exchange number for health check-in logic
-  const exchangeNumber = profile.conversations.length + 1;
 
   // PRIORITY PATH: Generate Sam's response immediately (Developer 1's real function)
   let samResponse = await generateSamResponse(
@@ -548,14 +577,16 @@ async function processVapiCall(request: Request, env: Env): Promise<any> {
   console.log(`[VAPI] Response validated and ready in ${Date.now() - start}ms`);
 
   // Set call state to active (for dashboard to show live sentiment)
-  const callState = {
-    isActive: true,
-    startedAt: new Date().toISOString(),
-    language: language,
-    seniorId: seniorId
-  };
-  await env.KV.put(`call-state-${seniorId}`, JSON.stringify(callState));
-  console.log('[VAPI] Call state set to active');
+  // Only update if not in demo mode (demo mode already updated call state above)
+  if (!profile.demoMode) {
+    callState.isActive = true;
+    callState.startedAt = new Date().toISOString();
+    callState.language = language;
+    callState.seniorId = seniorId;
+    callState.vapiCallId = vapiCallId;
+    await env.KV.put(`call-state-${vapiCallId}`, JSON.stringify(callState));
+    console.log('[VAPI] Call state set to active for call:', vapiCallId);
+  }
 
   // ASYNC PATH: Queue background processing (runs after response sent)
   env.context.waitUntil(
@@ -687,30 +718,35 @@ async function backgroundProcessing(
       await storeAlert(profile.id, alert, env);
     }
 
-    // 6. Update Conversation History
-    // Generate summary and extract topics for this conversation
-    const conversationTranscript = [
-      { role: 'senior' as const, content: message },
-      { role: 'assistant' as const, content: samResponse }
-    ];
+    // 6. Update Conversation History (SKIP IN DEMO MODE)
+    // In demo mode, we keep conversations empty so the script always repeats
+    if (!profile.demoMode) {
+      // Generate summary and extract topics for this conversation
+      const conversationTranscript = [
+        { role: 'senior' as const, content: message },
+        { role: 'assistant' as const, content: samResponse }
+      ];
 
-    const conversationSummary = generateSummary(conversationTranscript);
-    const conversationTopics = extractKeyTopics(conversationTranscript);
+      const conversationSummary = generateSummary(conversationTranscript);
+      const conversationTopics = extractKeyTopics(conversationTranscript);
 
-    profile.conversations.push({
-      timestamp: new Date().toISOString(),
-      duration: 0,
-      keyTopics: conversationTopics,
-      sentiment: analysis.sentiment,
-      language: language as 'english' | 'mandarin',
-      summary: conversationSummary,
-      transcript: conversationTranscript, // Store full transcript for context
-      healthMentions: analysis.healthMentions?.map((h: any) => h.text)
-    });
+      profile.conversations.push({
+        timestamp: new Date().toISOString(),
+        duration: 0,
+        keyTopics: conversationTopics,
+        sentiment: analysis.sentiment,
+        language: language as 'english' | 'mandarin',
+        summary: conversationSummary,
+        transcript: conversationTranscript, // Store full transcript for context
+        healthMentions: analysis.healthMentions?.map((h: any) => h.text)
+      });
 
-    // Keep only last 10 conversations
-    if (profile.conversations.length > 10) {
-      profile.conversations = profile.conversations.slice(-10);
+      // Keep only last 10 conversations
+      if (profile.conversations.length > 10) {
+        profile.conversations = profile.conversations.slice(-10);
+      }
+    } else {
+      console.log('[DEMO] Skipping conversation save to maintain demo state');
     }
 
     // 7. Recalculate Wellness Metrics - PRD line 1283-1284
@@ -738,6 +774,18 @@ async function backgroundProcessing(
     }
 
     // 9. Save Updated Profile
+    // In demo mode, preserve matches and groups by fetching current profile first
+    if (profile.demoMode) {
+      const currentProfile = await getProfile(profile.id, env);
+      if (currentProfile.matches && currentProfile.matches.length > 0) {
+        profile.matches = currentProfile.matches;
+      }
+      if (currentProfile.groups && currentProfile.groups.length > 0) {
+        profile.groups = currentProfile.groups;
+      }
+      console.log('[DEMO] Preserved', profile.matches?.length || 0, 'matches and', profile.groups?.length || 0, 'groups');
+    }
+
     await saveProfile(profile, env);
 
     console.log('[ASYNC] Background processing completed');

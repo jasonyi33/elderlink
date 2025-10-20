@@ -58,11 +58,14 @@ export default function SeniorProfileView() {
         <div className="mt-4">
           <label className="text-sm text-text-muted block mb-2">Family</label>
           <div className="space-y-2">
-            {(profile.memories?.family || []).map((fm: string, i: number) => (
+            {(profile.memories?.family || []).map((fm: any, i: number) => (
               <div key={i} className="flex items-start">
                 <span className="text-2xl mr-2">👤</span>
                 <div>
-                  <p className="font-medium text-primary">{fm}</p>
+                  <p className="font-medium text-primary">{fm.name} ({fm.relationship})</p>
+                  {fm.details && fm.details.length > 0 && (
+                    <p className="text-sm text-text-muted">{fm.details.join(', ')}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -72,6 +75,9 @@ export default function SeniorProfileView() {
 
       {/* Health Overview Card */}
       <HealthOverviewCard healthData={profile.healthData} />
+
+      {/* Wearable Watch Analytics Card */}
+      <WearableAnalyticsCard />
 
       {/* Interests Card */}
       <div className="card">
@@ -254,6 +260,155 @@ function HealthOverviewCard({ healthData }: { healthData: SeniorProfile['healthD
                 <p className="text-sm text-primary-dark">{note.note}</p>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function WearableAnalyticsCard() {
+  const [expanded, setExpanded] = useState({
+    heartRate: true,
+    bloodPressure: true,
+    sleep: true
+  })
+
+  // Mocked wearable data - completely self-contained
+  const mockData = {
+    heartRate: {
+      current: 72,
+      average24h: 68,
+      status: 'Normal',
+      lastSync: new Date(Date.now() - 1000 * 60 * 15).toLocaleTimeString() // 15 mins ago
+    },
+    bloodPressure: {
+      systolic: 125,
+      diastolic: 78,
+      trend: 'Stable',
+      lastReading: new Date(Date.now() - 1000 * 60 * 60 * 2).toLocaleTimeString() // 2 hours ago
+    },
+    sleep: {
+      lastNightHours: 7.2,
+      quality: 85,
+      deepSleepHours: 2.1,
+      remSleepHours: 1.8,
+      date: new Date(Date.now() - 1000 * 60 * 60 * 8).toLocaleDateString() // Last night
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between card-section">
+        <h3 className="text-xl projector-text-xl font-semibold text-primary">
+          ⌚ Wearable Watch Analytics
+        </h3>
+        <span className="text-xs text-success bg-success-light px-2 py-1 rounded">Connected</span>
+      </div>
+
+      {/* Heart Rate Section */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, heartRate: !e.heartRate}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.heartRate ? '▼' : '▶'} ❤️ Heart Rate
+          </span>
+          <span className="text-sm font-bold text-error">{mockData.heartRate.current} BPM</span>
+        </button>
+        {expanded.heartRate && (
+          <div className="mt-2 ml-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-error rounded">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Current</p>
+                <p className="text-2xl font-bold text-error">{mockData.heartRate.current} BPM</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">24h Average</p>
+                <p className="text-2xl font-bold text-gray-900">{mockData.heartRate.average24h} BPM</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Status</p>
+                <p className="text-2xl font-bold text-success">{mockData.heartRate.status}</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">Last synced: {mockData.heartRate.lastSync}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Blood Pressure Section */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, bloodPressure: !e.bloodPressure}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.bloodPressure ? '▼' : '▶'} 🩺 Blood Pressure
+          </span>
+          <span className="text-sm font-bold text-primary">
+            {mockData.bloodPressure.systolic}/{mockData.bloodPressure.diastolic} mmHg
+          </span>
+        </button>
+        {expanded.bloodPressure && (
+          <div className="mt-2 ml-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary rounded">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Systolic</p>
+                <p className="text-2xl font-bold text-primary">{mockData.bloodPressure.systolic}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Diastolic</p>
+                <p className="text-2xl font-bold text-primary">{mockData.bloodPressure.diastolic}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Trend</p>
+                <p className="text-2xl font-bold text-success">→ {mockData.bloodPressure.trend}</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">Last reading: {mockData.bloodPressure.lastReading}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Sleep Patterns Section */}
+      <div className="card-section">
+        <button
+          onClick={() => setExpanded(e => ({...e, sleep: !e.sleep}))}
+          className="flex items-center justify-between w-full text-left transition-all duration-300 hover:bg-neutral-dark p-2 rounded"
+        >
+          <span className="font-medium text-primary">
+            {expanded.sleep ? '▼' : '▶'} 😴 Sleep Patterns
+          </span>
+          <span className="text-sm font-bold text-purple-600">{mockData.sleep.lastNightHours}h</span>
+        </button>
+        {expanded.sleep && (
+          <div className="mt-2 ml-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-l-4 border-purple-600 rounded">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Total Sleep</p>
+                <p className="text-2xl font-bold text-purple-600">{mockData.sleep.lastNightHours} hours</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Sleep Quality</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-2xl font-bold text-success">{mockData.sleep.quality}%</p>
+                  <span className="text-xs bg-success text-white px-2 py-1 rounded">Excellent</span>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white p-3 rounded">
+                <p className="text-sm font-medium text-gray-700">Deep Sleep</p>
+                <p className="text-lg font-bold text-indigo-600">{mockData.sleep.deepSleepHours}h</p>
+              </div>
+              <div className="bg-white p-3 rounded">
+                <p className="text-sm font-medium text-gray-700">REM Sleep</p>
+                <p className="text-lg font-bold text-indigo-600">{mockData.sleep.remSleepHours}h</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">Data from: {mockData.sleep.date}</p>
           </div>
         )}
       </div>

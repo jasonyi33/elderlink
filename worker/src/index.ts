@@ -83,10 +83,11 @@ export default {
         }
 
         profile.demoMode = body.enabled;
-        // Clear call start time when toggling demo mode
+        // Clear conversations and timestamps when enabling demo mode
         if (body.enabled) {
           delete profile.demoCallStartTime;
-          console.log('[DEMO] Cleared call start time');
+          profile.conversations = []; // Reset conversations for fresh demo
+          console.log('[DEMO] Cleared call start time and conversations');
         }
         await saveProfile(profile, env);
 
